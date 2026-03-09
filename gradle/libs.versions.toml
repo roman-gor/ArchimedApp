@@ -1,4 +1,5 @@
 [versions]
+accompanistPermissions = "0.37.3"
 agp = "8.11.2"
 android-compileSdk = "36"
 android-minSdk = "26"
@@ -19,10 +20,10 @@ androidx-viewmodel = "2.10.0"
 ksp = "2.2.20-2.0.3"
 kotlinxSerialization = "1.9.0"
 coroutines = "1.10.2"
-dateTimeVersion = "0.7.1"
+detekt-version = "1.23.8"
 
 [libraries]
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -36,7 +37,7 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
-
+detekt-formatting-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt-version" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -46,7 +47,36 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "dateTimeVersion" }
+[bundles]
+androidx = [
+    "androidx-activity-compose",
+    "androidx-appcompat",
+    "androidx-core-ktx",
+    "androidx-lifecycle-runtimeCompose",
+    "androidx-lifecycle-viewmodelCompose"
+]
+compose = [
+    "compose-runtime",
+    "compose-material3",
+    "compose-components-resources",
+    "compose-foundation",
+    "compose-ui",
+    "compose-uiTooling",
+    "compose-uiToolingPreview"
+]
+koin-android = [
+    "koin-android",
+    "koin-androidx-compose"
+]
+koin-core = [
+    "koin-compose",
+    "koin-compose-viewmodel",
+    "koin-core"
+]
+kotlinx = [
+    "kotlinx-coroutines-core",
+    "kotlinx-serialization-json"
+]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -56,3 +86,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-version" }

@@ -1,42 +1,102 @@
 package com.gorman.archimed.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.gorman.archimed.BluetoothDeviceState
-import com.gorman.archimed.EnhancedBluetoothPeripheral
-import com.gorman.archimed.toDomain
-import com.gorman.bluetooth.BluetoothManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import androidx.lifecycle.viewModelScope
+import com.gorman.bluetooth.constants.serviceFilters
+import com.gorman.bluetooth.data.BleDelegate
+import com.gorman.bluetooth.states.BluetoothDeviceState
+import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
+import com.gorman.bluetooth.data.IBluetoothManager
+import com.gorman.bluetooth.states.DeviceEvent
+import com.gorman.bluetooth.states.PeripheralDeviceState
+import com.gorman.logger.Logger
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class BluetoothDeviceViewModel(
-    private val bluetoothManager: BluetoothManager
+    private val bluetoothManager: IBluetoothManager,
+    private val logger: Logger,
+    delegate: BleDelegate
 ): ViewModel() {
 
-    private val _deviceState = MutableStateFlow(BluetoothDeviceState())
-    val deviceState: StateFlow<BluetoothDeviceState> get() = _deviceState
+    private val _selectedDeviceId = MutableStateFlow<String?>(null)
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            bluetoothManager.scan()
-            bluetoothManager.peripherals.collect { peripherals ->
-                val uniqueKeys = _deviceState.value.devices.keys.toList()
-                val filteredPeripheral = peripherals.filter { !uniqueKeys.contains(it.uuid) }
-                filteredPeripheral.forEach { peripheral ->
-                    _deviceState.update {
-                        val updateDevices = it.devices.toMutableMap()
-                        updateDevices[peripheral.uuid] =
-                            EnhancedBluetoothPeripheral(false, peripheral.toDomain())
-                        it.copy(
-                            devices = HashMap(updateDevices)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val devicesFlow = bluetoothManager.peripherals
+        .flatMapLatest { peripherals ->
+            if (peripherals.isEmpty()) {
+                flowOf(emptyList())
+            } else {
+                val deviceFlows = peripherals.map { peripheral ->
+                    bluetoothManager.connectionState(peripheral).map { status ->
+                        EnhancedBluetoothPeripheral(
+                            connected = status,
+                            peripheral = peripheral,
                         )
                     }
                 }
+                combine(deviceFlows) { it.toList() }
             }
+        }
+        .map { enhancedList ->
+            HashMap(enhancedList.associateBy { it.peripheral.uuid ?: "" })
+        }
+
+    val deviceState: StateFlow<BluetoothDeviceState> = combine(
+        devicesFlow,
+        _selectedDeviceId
+    ) { devicesMap, selectedId ->
+        val state = BluetoothDeviceState(
+            devices = devicesMap,
+            isScanning = true,
+            selectedDeviceId = selectedId
+        )
+        logger.d("State", state.toString())
+        state
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = BluetoothDeviceState()
+    )
+
+    init {
+        delegate.setListener { event ->
+            when (event) {
+                is DeviceEvent.OnDeviceConnected -> {
+                    _selectedDeviceId.value = event.macId
+                }
+                is DeviceEvent.OnDeviceDisconnected -> {
+                    if (_selectedDeviceId.value == event.macId) {
+                        _selectedDeviceId.value = null
+                    }
+                }
+                else -> {}
+            }
+        }
+        viewModelScope.launch {
+            bluetoothManager.scan(serviceFilters)
+        }
+    }
+
+    fun connect(uuid: String?) {
+        viewModelScope.launch {
+            bluetoothManager.connect(PeripheralDeviceState(uuid = uuid))
+            logger.d("CONNECTING", "METHOD CONNECT WAS CALLED")
+        }
+    }
+
+    fun disconnect(uuid: String?) {
+        viewModelScope.launch {
+            bluetoothManager.disconnect(PeripheralDeviceState(uuid = uuid))
+            logger.d("DISCONNECTING", "METHOD CONNECT WAS CALLED")
         }
     }
 }

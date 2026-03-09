@@ -27,20 +27,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.blue.falcon)
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose.viewmodel)
-            implementation(libs.koin.compose)
-            implementation(libs.kotlinx.serialization.json)
-            api(libs.kotlinx.coroutines.core)
-            implementation(libs.kotlinx.datetime)
+            implementation(libs.bundles.koin.core)
+            implementation(libs.bundles.kotlinx)
         }
 
         androidMain.dependencies {
-            implementation(libs.koin.android)
-            implementation(libs.koin.androidx.compose)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+            implementation(libs.bundles.koin.android)
         }
     }
 }

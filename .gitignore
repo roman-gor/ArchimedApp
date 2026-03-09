@@ -21,5 +21,4 @@ render.experimental.xml
 keystore
 app/google-services.json
 *.hprof
-AndroidManifest.xml
 .kotlin
