@@ -1,15 +1,14 @@
 package com.gorman.bluetooth.data
 
-import com.gorman.bluetooth.states.PeripheralConnectingState
-import com.gorman.bluetooth.states.PeripheralDeviceState
+import dev.bluefalcon.BlueFalconDelegate
+import dev.bluefalcon.BluetoothPeripheral
+import dev.bluefalcon.NativeFlow
 import dev.bluefalcon.ServiceFilter
-import kotlinx.coroutines.flow.Flow
 
-interface IBluetoothManager {
-    val peripherals: Flow<List<PeripheralDeviceState>>
-
+internal interface IBluetoothManager {
+    val peripherals: NativeFlow<Set<BluetoothPeripheral>>
+    val delegates: MutableSet<BlueFalconDelegate>
     fun scan(filters: List<ServiceFilter> = emptyList())
-    suspend fun connect(peripheralState: PeripheralDeviceState, autoConnect: Boolean = false)
-    suspend fun disconnect(peripheralState: PeripheralDeviceState)
-    fun connectionState(peripheral: PeripheralDeviceState): Flow<PeripheralConnectingState>
+    fun connect(peripheral: BluetoothPeripheral, autoConnect: Boolean = false)
+    fun disconnect(peripheral: BluetoothPeripheral)
 }

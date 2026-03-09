@@ -6,7 +6,7 @@ import com.gorman.archimed.di.initKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 
-class ArchimedApplication: Application() {
+class ArchimedApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initKoin {

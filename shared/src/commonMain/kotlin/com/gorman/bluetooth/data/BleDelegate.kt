@@ -5,43 +5,30 @@ import dev.bluefalcon.BlueFalconDelegate
 import dev.bluefalcon.BluetoothCharacteristic
 import dev.bluefalcon.BluetoothCharacteristicDescriptor
 import dev.bluefalcon.BluetoothPeripheral
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-class BleDelegate: BlueFalconDelegate {
-    var writeChar: BluetoothCharacteristic? = null
-    var readChar: BluetoothCharacteristic? = null
+class BleDelegate : BlueFalconDelegate {
 
-    private var onDeviceEvent: ((DeviceEvent) -> Unit)? = null
-    fun setListener(onEvent: (DeviceEvent) -> Unit) {
-        onDeviceEvent = onEvent
-    }
-    override fun didCharacteristcValueChanged(
-        bluetoothPeripheral: BluetoothPeripheral,
-        bluetoothCharacteristic: BluetoothCharacteristic
-    ) {
-        onDeviceEvent?.invoke(
-            DeviceEvent.OnCharacteristicValueChanged(
-                bluetoothPeripheral.uuid,
-                bluetoothCharacteristic
-            )
-        )
-    }
+    private val _events = MutableSharedFlow<DeviceEvent>(extraBufferCapacity = 64)
+    val events = _events.asSharedFlow()
 
     override fun didConnect(bluetoothPeripheral: BluetoothPeripheral) {
-        onDeviceEvent?.invoke(DeviceEvent.OnDeviceConnected(bluetoothPeripheral.uuid))
+        _events.tryEmit(DeviceEvent.OnDeviceConnected(bluetoothPeripheral.uuid))
     }
 
     override fun didDisconnect(bluetoothPeripheral: BluetoothPeripheral) {
-        onDeviceEvent?.invoke(DeviceEvent.OnDeviceDisconnected(bluetoothPeripheral.uuid))
+        _events.tryEmit(DeviceEvent.OnDeviceDisconnected(bluetoothPeripheral.uuid))
     }
 
     override fun didDiscoverCharacteristics(bluetoothPeripheral: BluetoothPeripheral) {
-        onDeviceEvent?.invoke(
+        _events.tryEmit(
             DeviceEvent.OnServicesDiscovered(bluetoothPeripheral.uuid, bluetoothPeripheral)
         )
     }
 
     override fun didDiscoverServices(bluetoothPeripheral: BluetoothPeripheral) {
-        onDeviceEvent?.invoke(
+        _events.tryEmit(
             DeviceEvent.OnServicesDiscovered(bluetoothPeripheral.uuid, bluetoothPeripheral)
         )
     }
@@ -50,7 +37,7 @@ class BleDelegate: BlueFalconDelegate {
         bluetoothPeripheral: BluetoothPeripheral,
         bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
     ) {
-        onDeviceEvent?.invoke(
+        _events.tryEmit(
             DeviceEvent.OnDescriptorRead(
                 bluetoothPeripheral.uuid,
                 bluetoothCharacteristicDescriptor
@@ -58,20 +45,12 @@ class BleDelegate: BlueFalconDelegate {
         )
     }
 
-    override fun didRssiUpdate(bluetoothPeripheral: BluetoothPeripheral) {
-        onDeviceEvent?.invoke(DeviceEvent.OnRssiUpdated(bluetoothPeripheral.uuid))
-    }
-
-    override fun didUpdateMTU(bluetoothPeripheral: BluetoothPeripheral, status: Int) {
-        onDeviceEvent?.invoke(DeviceEvent.OnMtuUpdated(bluetoothPeripheral.uuid, status))
-    }
-
     override fun didWriteCharacteristic(
         bluetoothPeripheral: BluetoothPeripheral,
         bluetoothCharacteristic: BluetoothCharacteristic,
         success: Boolean
     ) {
-        onDeviceEvent?.invoke(
+        _events.tryEmit(
             DeviceEvent.OnWriteCharacteristicResult(
                 bluetoothPeripheral.uuid,
                 bluetoothCharacteristic,
@@ -79,12 +58,4 @@ class BleDelegate: BlueFalconDelegate {
             )
         )
     }
-
-    override fun didWriteDescriptor(
-        bluetoothPeripheral: BluetoothPeripheral,
-        bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
-    ) {
-
-    }
-
 }

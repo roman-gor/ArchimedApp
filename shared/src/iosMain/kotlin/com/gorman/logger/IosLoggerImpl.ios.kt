@@ -2,7 +2,7 @@ package com.gorman.logger
 
 import platform.Foundation.NSLog
 
-class IosAppLoggerImpl: Logger {
+class IosLoggerImpl : Logger {
     override fun d(tag: String, message: String) {
         NSLog("[%s] DEBUG: %s", tag, message)
     }
@@ -12,4 +12,4 @@ class IosAppLoggerImpl: Logger {
     }
 }
 
-actual fun provideAppLogger(): Logger = IosAppLoggerImpl()
+actual fun provideAppLogger(): Logger = IosLoggerImpl()

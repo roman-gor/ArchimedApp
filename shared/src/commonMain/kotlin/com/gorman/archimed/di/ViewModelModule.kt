@@ -1,4 +1,4 @@
-package com.gorman.bluetooth.di
+package com.gorman.archimed.di
 
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
 import org.koin.core.module.dsl.viewModel

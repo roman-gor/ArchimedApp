@@ -2,7 +2,7 @@ package com.gorman.logger
 
 import android.util.Log
 
-class AndroidAppLogger: Logger {
+class AndroidLogger : Logger {
     override fun d(tag: String, message: String) {
         Log.d(tag, message)
     }
@@ -12,4 +12,4 @@ class AndroidAppLogger: Logger {
     }
 }
 
-actual fun provideAppLogger(): Logger = AndroidAppLogger()
+actual fun provideAppLogger(): Logger = AndroidLogger()

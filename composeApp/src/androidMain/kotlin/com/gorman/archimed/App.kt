@@ -1,6 +1,8 @@
 package com.gorman.archimed
 
 import android.Manifest
+import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,22 +25,31 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
+import com.gorman.archimed.states.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
-import com.gorman.bluetooth.states.PeripheralConnectingState
+import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun App() {
     val permissionsState = rememberMultiplePermissionsState(
-        permissions = listOf(
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+        permissions =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            listOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
             )
+        } else {
+            listOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
     )
 
     if (permissionsState.allPermissionsGranted) {
@@ -54,8 +65,13 @@ fun App() {
                 items = deviceList,
                 key = { it.peripheral.uuid ?: "" }
             ) { enhancedPeripheral ->
-                DeviceItem(item = enhancedPeripheral) { uuid, connected ->
-                    if (connected) viewModel.disconnect(uuid) else viewModel.connect(uuid)
+                DeviceItem(enhancedPeripheral) { uuid, connected ->
+                    Log.d("Connected State", "$connected")
+                    if (connected) {
+                        viewModel.onUiEvent(BluetoothUiEvent.OnDisconnect(uuid))
+                    } else {
+                        viewModel.onUiEvent(BluetoothUiEvent.OnConnect(uuid))
+                    }
                 }
             }
         }
@@ -71,18 +87,11 @@ fun DeviceItem(
     item: EnhancedBluetoothPeripheral,
     onClick: (String?, Boolean) -> Unit
 ) {
-    val (isConnectedText, isConnectingValue) = when(item.connected) {
-        PeripheralConnectingState.Connecting -> Pair("Connecting", true)
-        PeripheralConnectingState.Connected -> Pair("Connected", true)
-        PeripheralConnectingState.Disconnected -> Pair("Disconnected", false)
-        PeripheralConnectingState.Disconnecting -> Pair("Disconnecting", false)
-        PeripheralConnectingState.Unknown -> Pair("Unknown", false)
-    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                onClick = { onClick(item.peripheral.uuid, isConnectingValue) }
+                onClick = { onClick(item.peripheral.uuid, item.connected) }
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -101,9 +110,9 @@ fun DeviceItem(
                 style = MaterialTheme.typography.bodySmall
             )
             Text(
-                text = "Status: $isConnectedText",
+                text = "Status: ${if (item.connected) "Connected" else "Disconnected"}",
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isConnectingValue) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                color = if (item.connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
         }
     }
