@@ -1,6 +1,7 @@
 package com.gorman.bluetooth.data
 
 import com.gorman.bluetooth.models.DeviceEvent
+import com.gorman.logger.Logger
 import dev.bluefalcon.BlueFalconDelegate
 import dev.bluefalcon.BluetoothCharacteristic
 import dev.bluefalcon.BluetoothCharacteristicDescriptor
@@ -9,7 +10,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlin.uuid.ExperimentalUuidApi
 
-class BleDelegate : BlueFalconDelegate {
+class BleDelegate(
+    private val logger: Logger
+) : BlueFalconDelegate {
 
     private val _events = MutableSharedFlow<DeviceEvent>(extraBufferCapacity = 64)
     val events = _events.asSharedFlow()
@@ -34,6 +37,7 @@ class BleDelegate : BlueFalconDelegate {
         bluetoothPeripheral: BluetoothPeripheral,
         bluetoothCharacteristic: BluetoothCharacteristic
     ) {
+        logger.d("DELEGATE","!!! BLE_RAW_INCOMING: UUID=${bluetoothCharacteristic.uuid} DATA=${bluetoothCharacteristic.value?.toHexString()}")
         bluetoothCharacteristic.value?.let {
             _events.tryEmit(
                 DeviceEvent.OnCharacteristicValueChanged(
@@ -70,7 +74,8 @@ class BleDelegate : BlueFalconDelegate {
             DeviceEvent.OnWriteCharacteristicResult(
                 bluetoothPeripheral.uuid,
                 bluetoothCharacteristic,
-                success
+                success,
+                bluetoothPeripheral
             )
         )
     }

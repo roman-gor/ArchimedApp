@@ -42,6 +42,8 @@ internal class BluetoothRepository(
     private val _incomingUartMessages = MutableSharedFlow<DeviceResponse?>()
     override val incomingUartMessages = _incomingUartMessages.asSharedFlow()
 
+    private val initializedPeripherals = mutableSetOf<String>()
+
     init {
         delegateEventsObserver()
     }
@@ -69,14 +71,15 @@ internal class BluetoothRepository(
     override fun sendCommand(command: DeviceCommands, peripheralUuid: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val writeCharacteristic = delegate.writeChar
+            val readCharacteristic = delegate.readChar
             val peripheral = getPeripheral(PeripheralDeviceState(uuid = peripheralUuid))
 
-            if (peripheral != null && writeCharacteristic != null) {
+            if (peripheral != null && writeCharacteristic != null && readCharacteristic != null) {
                 val packetToSend = getPacketToSend(command)
                 logger.d("UART_TX", "Sending command Status...")
                 bluetoothManager.writeCharacteristic(
                     bluetoothPeripheral = peripheral,
-                    bluetoothCharacteristic = writeCharacteristic,
+                    bluetoothCharacteristic = readCharacteristic,
                     value = packetToSend
                 )
             } else {
@@ -102,6 +105,10 @@ internal class BluetoothRepository(
     private fun delegateEventsObserver() {
         CoroutineScope(Dispatchers.IO).launch {
             delegate.events.collect { event ->
+                logger.d("RAW_EVENT", "Received event: ${event::class.simpleName}")
+                if (event is DeviceEvent.OnCharacteristicValueChanged) {
+                    logger.d("RAW_DATA", "UUID: ${event.characteristicUuid}, Data: ${event.byteArray.joinToString()}")
+                }
                 when (event) {
                     is DeviceEvent.OnDeviceConnected -> {
                         val peripheral = getPeripheral(PeripheralDeviceState(uuid = event.uuid))
@@ -110,13 +117,24 @@ internal class BluetoothRepository(
                         }
                     }
                     is DeviceEvent.OnServicesDiscovered -> {
-                        onServiceDiscovered(event)
+                        if (!initializedPeripherals.contains(event.peripheral.uuid)) {
+                            onServiceDiscovered(event)
+                        } else {
+                            logger.d("BLE_REPO", "Skip: Services already discovered for ${event.peripheral.uuid}")
+                        }
                     }
                     is DeviceEvent.OnCharacteristicsDiscovered -> {
                         onCharacteristicsDiscovered(event)
                     }
                     is DeviceEvent.OnCharacteristicValueChanged -> {
                         onCharacteristicValueChanged(event)
+                    }
+                    is DeviceEvent.OnWriteCharacteristicResult -> {
+                        bluetoothManager.readCharacteristic(
+                            bluetoothPeripheral = event.peripheral,
+                            bluetoothCharacteristic = delegate.readChar!!
+                        )
+                        logger.d("VALUE", "${delegate.readChar!!.value}")
                     }
                     else -> {}
                 }
@@ -160,11 +178,11 @@ internal class BluetoothRepository(
         val rxUuid = UartServiceFilters.UART_CHARACTERISTIC_RX.value.lowercase()
         val txUuid = UartServiceFilters.UART_CHARACTERISTIC_TX.value.lowercase()
 
-        delegate.writeChar =
+        delegate.readChar =
             event.peripheral.characteristics.entries.find { characteristic ->
                 characteristic.key.toString().lowercase() == rxUuid
             }?.value?.firstOrNull()
-        delegate.readChar =
+        delegate.writeChar =
             event.peripheral.characteristics.entries.find { characteristic ->
                 characteristic.key.toString().lowercase() == txUuid
             }?.value?.firstOrNull()
@@ -174,10 +192,12 @@ internal class BluetoothRepository(
             "Discovered. RX: ${delegate.readChar != null}, " + "TX: ${delegate.writeChar != null}"
         )
 
-        delegate.readChar?.let { txCharacteristic ->
+        if (delegate.readChar != null && !delegate.readChar!!.isNotifying) {
+            logger.d("Characteristics", "Subscribing to Notifications...")
+            initializedPeripherals.add(event.peripheral.uuid)
             bluetoothManager.notifyCharacteristic(
                 bluetoothPeripheral = event.peripheral,
-                bluetoothCharacteristic = txCharacteristic,
+                bluetoothCharacteristic = delegate.readChar!!,
                 notify = true,
             )
         }

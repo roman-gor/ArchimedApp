@@ -42,6 +42,7 @@ sealed interface DeviceEvent {
     data class OnWriteCharacteristicResult(
         val uuid: String,
         val characteristic: BluetoothCharacteristic,
-        val success: Boolean
+        val success: Boolean,
+        val peripheral: BluetoothPeripheral
     ) : DeviceEvent
 }

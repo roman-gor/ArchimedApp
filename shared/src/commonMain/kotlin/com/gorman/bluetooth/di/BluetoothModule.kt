@@ -15,7 +15,7 @@ import org.koin.dsl.module
 
 val bluetoothModule = module {
     single<BleDelegate> {
-        BleDelegate()
+        BleDelegate(get())
     }
     singleOf(::BluetoothLogger).bind<Logger>()
     single<BlueFalcon> {

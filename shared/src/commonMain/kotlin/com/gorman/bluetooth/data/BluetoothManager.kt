@@ -59,7 +59,7 @@ internal class BluetoothManager(
         bluetoothPeripheral: BluetoothPeripheral,
         bluetoothCharacteristic: BluetoothCharacteristic,
         value: ByteArray,
-        writeType: Int? = 1
+        writeType: Int? = 2
     ) {
         bluetoothProvider.writeCharacteristic(
             bluetoothPeripheral = bluetoothPeripheral,
@@ -67,5 +67,12 @@ internal class BluetoothManager(
             value = value,
             writeType = writeType
         )
+    }
+
+    fun readCharacteristic(
+        bluetoothPeripheral: BluetoothPeripheral,
+        bluetoothCharacteristic: BluetoothCharacteristic
+    ) {
+        bluetoothProvider.readCharacteristic(bluetoothPeripheral, bluetoothCharacteristic)
     }
 }
