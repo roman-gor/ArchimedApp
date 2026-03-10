@@ -1,23 +1,40 @@
 package com.gorman.bluetooth.repository
 
 import com.gorman.bluetooth.constants.DeviceCommands
-import com.gorman.bluetooth.models.DeviceEvent
-import com.gorman.bluetooth.models.DeviceResponse
-import com.gorman.bluetooth.states.ConnectionPeripheralState
+import com.gorman.bluetooth.constants.UartServiceFilters
+import com.gorman.bluetooth.states.CharacteristicState
+import com.gorman.bluetooth.states.DeviceConnectionState
 import com.gorman.bluetooth.states.PeripheralDeviceState
-import dev.bluefalcon.BlueFalconDelegate
-import dev.bluefalcon.ServiceFilter
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 interface IBluetoothRepository {
-    val peripherals: Flow<List<PeripheralDeviceState>>
-    val delegates: MutableSet<BlueFalconDelegate>
-    val incomingUartMessages: SharedFlow<DeviceResponse?>
-    fun scan(filters: List<ServiceFilter> = emptyList())
-    suspend fun connect(peripheralState: PeripheralDeviceState, autoConnect: Boolean = false)
-    suspend fun disconnect(peripheralState: PeripheralDeviceState)
-    fun deviceEvents(): SharedFlow<DeviceEvent>
-    suspend fun connectionState(peripheralState: PeripheralDeviceState): ConnectionPeripheralState?
-    fun sendCommand(command: DeviceCommands, peripheralUuid: String)
+    fun scan(): Flow<PeripheralDeviceState>
+    suspend fun connect(uuid: String): Result<Unit>
+    suspend fun disconnect(uuid: String): Result<Unit>
+    fun connectionState(uuid: String): Flow<DeviceConnectionState>
+    suspend fun sendCommand(
+        command: DeviceCommands,
+        peripheralUuid: String,
+        characteristicState: CharacteristicState = CharacteristicState(
+            serviceUuid = UartServiceFilters.UART_SERVICE_UUID.value,
+            characteristicUuid = UartServiceFilters.UART_CHARACTERISTIC_RX.value
+        )
+    ): Result<Unit>
+    fun observePeripherals(
+        peripheralUuid: String,
+        characteristicState: CharacteristicState = CharacteristicState(
+            serviceUuid = UartServiceFilters.UART_SERVICE_UUID.value,
+            characteristicUuid = UartServiceFilters.UART_CHARACTERISTIC_TX.value
+        )
+    ): Flow<ByteArray>
+
+    suspend fun readCharacteristic(
+        peripheralUuid: String,
+        characteristicState: CharacteristicState = CharacteristicState(
+            serviceUuid = UartServiceFilters.UART_SERVICE_UUID.value,
+            characteristicUuid = UartServiceFilters.UART_CHARACTERISTIC_TX.value
+        )
+    ): ByteArray
 }
