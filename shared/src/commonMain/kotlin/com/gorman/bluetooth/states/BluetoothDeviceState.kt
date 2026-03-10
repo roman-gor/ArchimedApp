@@ -1,7 +1,7 @@
 package com.gorman.bluetooth.states
 
 data class BluetoothDeviceState(
-    val devices: HashMap<String, EnhancedBluetoothPeripheral> = HashMap(),
+    val devices: Map<String, EnhancedBluetoothPeripheral> = mapOf(),
     val isScanning: Boolean = false,
     val selectedDeviceId: String? = null
 )

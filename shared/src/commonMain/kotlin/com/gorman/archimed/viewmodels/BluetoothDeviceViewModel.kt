@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gorman.archimed.states.BluetoothUiEvent
 import com.gorman.bluetooth.constants.serviceFilters
-import com.gorman.bluetooth.data.BleDelegate
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import com.gorman.bluetooth.states.BluetoothDeviceState
 import com.gorman.bluetooth.states.DeviceEvent
@@ -21,11 +20,10 @@ import kotlinx.coroutines.launch
 
 class BluetoothDeviceViewModel(
     private val bluetoothRepository: IBluetoothRepository,
-    private val logger: Logger,
-    delegate: BleDelegate
+    private val logger: Logger
 ) : ViewModel() {
 
-    private val selectedDeviceId: StateFlow<String?> = delegate.events
+    private val selectedDeviceId: StateFlow<String?> = bluetoothRepository.deviceEvents()
         .runningFold<DeviceEvent, String?>(null) { currentId, event ->
             when (event) {
                 is DeviceEvent.OnDeviceConnected -> {
@@ -54,7 +52,7 @@ class BluetoothDeviceViewModel(
                 connected = peripheral.uuid == selectedId,
                 peripheral = peripheral,
             )
-        } as HashMap
+        }
 
         val state = BluetoothDeviceState(
             devices = deviceFlows,

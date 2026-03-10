@@ -6,6 +6,6 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel {
-        BluetoothDeviceViewModel(get(), get(), get())
+        BluetoothDeviceViewModel(get(), get())
     }
 }
