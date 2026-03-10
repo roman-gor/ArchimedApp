@@ -7,11 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +30,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.gorman.archimed.states.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
+import com.gorman.bluetooth.constants.DeviceCommands
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -56,23 +60,37 @@ fun App() {
         val viewModel: BluetoothDeviceViewModel = koinViewModel()
         val state by viewModel.deviceState.collectAsStateWithLifecycle()
         val deviceList = state.devices.values.toList()
-        LazyColumn(
+        Column(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(
-                items = deviceList,
-                key = { it.peripheral.uuid ?: "" }
-            ) { enhancedPeripheral ->
-                DeviceItem(enhancedPeripheral) { uuid, connected ->
-                    Log.d("Connected State", "$connected")
-                    if (connected) {
-                        viewModel.onUiEvent(BluetoothUiEvent.OnDisconnect(uuid))
-                    } else {
-                        viewModel.onUiEvent(BluetoothUiEvent.OnConnect(uuid))
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = deviceList,
+                    key = { it.peripheral.uuid ?: "" }
+                ) { enhancedPeripheral ->
+                    DeviceItem(enhancedPeripheral) { uuid, connected ->
+                        Log.d("Connected State", "$connected")
+                        if (connected) {
+                            viewModel.onUiEvent(BluetoothUiEvent.OnDisconnect(uuid))
+                        } else {
+                            viewModel.onUiEvent(BluetoothUiEvent.OnConnect(uuid))
+                        }
                     }
                 }
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = {
+                    viewModel.onUiEvent(BluetoothUiEvent.OnSendCommand(DeviceCommands.GET_STATUS))
+                },
+                modifier = Modifier.padding(64.dp)
+            ) {
+                Text("Get Status")
             }
         }
     } else {

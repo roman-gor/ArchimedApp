@@ -10,7 +10,7 @@ fun BluetoothPeripheral.toDomain() = PeripheralDeviceState(
     uuid = uuid
 )
 
-fun BluetoothPeripheralState.toDomain() = when(this) {
+fun BluetoothPeripheralState.toDomain() = when (this) {
     BluetoothPeripheralState.Connecting -> ConnectionPeripheralState.Connecting
     BluetoothPeripheralState.Connected -> ConnectionPeripheralState.Connected
     BluetoothPeripheralState.Disconnected -> ConnectionPeripheralState.Disconnected

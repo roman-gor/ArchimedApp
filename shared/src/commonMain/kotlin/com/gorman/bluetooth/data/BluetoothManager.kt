@@ -10,42 +10,62 @@ import dev.bluefalcon.Uuid
 
 internal class BluetoothManager(
     private val bluetoothProvider: BlueFalcon
-) : IBluetoothManager {
-    override val peripherals = bluetoothProvider.peripherals
+) {
+    val peripherals = bluetoothProvider.peripherals
 
-    override val delegates = bluetoothProvider.delegates
+    val delegates = bluetoothProvider.delegates
 
-    override fun scan(filters: List<ServiceFilter>) { bluetoothProvider.scan(filters) }
+    fun scan(filters: List<ServiceFilter>) { bluetoothProvider.scan(filters) }
 
-    override fun connect(peripheral: BluetoothPeripheral, autoConnect: Boolean) {
+    fun connect(peripheral: BluetoothPeripheral, autoConnect: Boolean) {
         bluetoothProvider.connect(peripheral, autoConnect)
     }
 
-    override fun disconnect(peripheral: BluetoothPeripheral) {
+    fun disconnect(peripheral: BluetoothPeripheral) {
         bluetoothProvider.disconnect(peripheral)
     }
 
-    override fun connectionState(peripheral: BluetoothPeripheral): BluetoothPeripheralState {
+    fun connectionState(peripheral: BluetoothPeripheral): BluetoothPeripheralState {
         return bluetoothProvider.connectionState(peripheral)
     }
 
-    override fun readData(bluetoothPeripheral: BluetoothPeripheral, bluetoothCharacteristic: BluetoothCharacteristic) {
-        bluetoothProvider.readCharacteristic(bluetoothPeripheral, bluetoothCharacteristic)
-    }
-
-    override fun discoverServices(bluetoothPeripheral: BluetoothPeripheral, serviceUUIDs: List<Uuid>) {
+    @OptIn(kotlin.uuid.ExperimentalUuidApi::class)
+    fun discoverServices(bluetoothPeripheral: BluetoothPeripheral, serviceUUIDs: List<Uuid> = emptyList()) {
         bluetoothProvider.discoverServices(bluetoothPeripheral, serviceUUIDs)
     }
 
-    override fun discoverCharacteristics(
+    @OptIn(kotlin.uuid.ExperimentalUuidApi::class)
+    fun discoverCharacteristics(
         bluetoothPeripheral: BluetoothPeripheral,
         bluetoothService: BluetoothService,
-        characteristicUUIDs: List<Uuid>
+        characteristicUUIDs: List<Uuid> = emptyList()
     ) {
         bluetoothProvider.discoverCharacteristics(
             bluetoothPeripheral,
             bluetoothService,
             characteristicUUIDs
+        )
+    }
+
+    fun notifyCharacteristic(
+        bluetoothPeripheral: BluetoothPeripheral,
+        bluetoothCharacteristic: BluetoothCharacteristic,
+        notify: Boolean
+    ) {
+        bluetoothProvider.notifyCharacteristic(bluetoothPeripheral, bluetoothCharacteristic, notify)
+    }
+
+    fun writeCharacteristic(
+        bluetoothPeripheral: BluetoothPeripheral,
+        bluetoothCharacteristic: BluetoothCharacteristic,
+        value: ByteArray,
+        writeType: Int? = 1
+    ) {
+        bluetoothProvider.writeCharacteristic(
+            bluetoothPeripheral = bluetoothPeripheral,
+            bluetoothCharacteristic = bluetoothCharacteristic,
+            value = value,
+            writeType = writeType
         )
     }
 }
