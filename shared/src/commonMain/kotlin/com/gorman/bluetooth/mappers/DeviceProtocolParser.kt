@@ -45,14 +45,10 @@ object DeviceProtocolParser {
         if (bytes.size < expectedLength) return false
 
         var sum = 0
-        for (i in 0 until expectedLength - 1) {
+        for (i in 0 until expectedLength) {
             sum += bytes[i].toInt() and 0xFF
         }
 
-        val calculatedCs = sum and 0xFF
-
-        val receivedCs = bytes[expectedLength - 1].toInt() and 0xFF
-
-        return calculatedCs == receivedCs
+        return (sum and 0xFF) == 0
     }
 }

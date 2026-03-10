@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -42,10 +43,10 @@ fun App() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             listOf(
                 Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN
             )
         } else {
             listOf(
@@ -71,7 +72,7 @@ fun App() {
             ) {
                 items(
                     items = deviceList,
-                    key = { it.peripheral.uuid ?: "" }
+                    key = { it.peripheral.uuid }
                 ) { enhancedPeripheral ->
                     DeviceItem(enhancedPeripheral) { uuid, connected ->
                         Log.d("Connected State", "$connected")
@@ -96,6 +97,9 @@ fun App() {
     } else {
         LaunchedEffect(Unit) {
             permissionsState.launchMultiplePermissionRequest()
+        }
+        Box {
+            Text(text = "Text")
         }
     }
 }

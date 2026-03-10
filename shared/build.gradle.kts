@@ -26,7 +26,7 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.blue.falcon)
+            implementation(libs.kable)
             implementation(libs.bundles.koin.core)
             implementation(libs.bundles.kotlinx)
         }

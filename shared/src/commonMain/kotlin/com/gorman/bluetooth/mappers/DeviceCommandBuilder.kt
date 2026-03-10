@@ -6,15 +6,14 @@ object DeviceCommandBuilder {
 
     fun buildGetStatusCmd(): ByteArray {
         val command = 0x10.toByte()
-        return buildPacket(byteArrayOf(HEADER_1, HEADER_2, command))
+        val payload = byteArrayOf(HEADER_1, HEADER_2, command)
+        return buildPacket(payload)
     }
 
     private fun buildPacket(payload: ByteArray): ByteArray {
-        var sum = 0
-        for (byte in payload) {
-            sum += byte.toInt() and 0xFF
-        }
-        val cs = (sum and 0xFF).toByte()
+        val sum = payload.sumOf { it.toInt() and 0xFF }
+
+        val cs = ((0x100 - (sum and 0xFF)) and 0xFF).toByte()
 
         return payload + cs
     }
