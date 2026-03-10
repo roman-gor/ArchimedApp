@@ -3,11 +3,11 @@ package com.gorman.bluetooth.repository
 import com.gorman.bluetooth.data.BleDelegate
 import com.gorman.bluetooth.data.BluetoothManager
 import com.gorman.bluetooth.mappers.toDomain
+import com.gorman.bluetooth.states.ConnectionPeripheralState
 import com.gorman.bluetooth.states.DeviceEvent
 import com.gorman.bluetooth.states.PeripheralDeviceState
 import dev.bluefalcon.BluetoothPeripheral
 import dev.bluefalcon.ServiceFilter
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -37,6 +37,11 @@ internal class BluetoothRepository(
     }
 
     override fun deviceEvents(): SharedFlow<DeviceEvent> = delegate.events
+
+    override suspend fun connectionState(peripheralState: PeripheralDeviceState): ConnectionPeripheralState? {
+        val peripheral = getPeripheral(peripheralState)
+        return peripheral?.let { bluetoothManager.connectionState(it).toDomain() }
+    }
 
     private suspend fun getPeripheral(peripheralState: PeripheralDeviceState): BluetoothPeripheral? {
         val currentList = _peripherals.first()

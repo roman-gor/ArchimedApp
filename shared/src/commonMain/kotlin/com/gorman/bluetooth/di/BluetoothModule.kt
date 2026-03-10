@@ -7,6 +7,10 @@ import com.gorman.bluetooth.repository.BluetoothRepository
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import dev.bluefalcon.BlueFalcon
 import dev.bluefalcon.ServiceFilter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.scope.Scope
 import org.koin.dsl.bind

@@ -6,15 +6,17 @@ import com.gorman.archimed.states.BluetoothUiEvent
 import com.gorman.bluetooth.constants.serviceFilters
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import com.gorman.bluetooth.states.BluetoothDeviceState
+import com.gorman.bluetooth.states.ConnectionPeripheralState
 import com.gorman.bluetooth.states.DeviceEvent
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import com.gorman.bluetooth.states.PeripheralDeviceState
 import com.gorman.logger.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -23,33 +25,39 @@ class BluetoothDeviceViewModel(
     private val logger: Logger
 ) : ViewModel() {
 
-    private val selectedDeviceId: StateFlow<String?> = bluetoothRepository.deviceEvents()
-        .runningFold<DeviceEvent, String?>(null) { currentId, event ->
-            when (event) {
-                is DeviceEvent.OnDeviceConnected -> {
-                    logger.d("FLOW CONNECTED", event.macId)
-                    event.macId
+    private val _selectedDeviceId = MutableStateFlow<String?>(null)
+    val selectedDeviceId: StateFlow<String?> = _selectedDeviceId.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            bluetoothRepository.deviceEvents().collect { event ->
+                when (event) {
+                    is DeviceEvent.OnDeviceConnected -> {
+                        logger.d("FLOW CONNECTED", event.uuid)
+                        _selectedDeviceId.value = event.uuid
+                    }
+                    is DeviceEvent.OnDeviceDisconnected -> {
+                        if (_selectedDeviceId.value == event.uuid) {
+                            _selectedDeviceId.value = null
+                        }
+                    }
+                    else -> {}
                 }
-                is DeviceEvent.OnDeviceDisconnected -> {
-                    if (currentId == event.macId) null else currentId
-                }
-                else -> currentId
             }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = null
-        )
+    }
 
     val deviceState: StateFlow<BluetoothDeviceState> = combine(
         bluetoothRepository.peripherals,
-        selectedDeviceId
+        selectedDeviceId,
     ) { peripherals, selectedId ->
-
         val deviceFlows = peripherals.associate { peripheral ->
+
+            val connectedState = getConnectionState(selectedId, peripheral)
+
             peripheral.uuid.toString() to EnhancedBluetoothPeripheral(
                 connected = peripheral.uuid == selectedId,
+                connectedState = connectedState,
                 peripheral = peripheral,
             )
         }
@@ -77,6 +85,15 @@ class BluetoothDeviceViewModel(
         }
     }
 
+    private suspend fun getConnectionState(selectedId: String?, peripheral: PeripheralDeviceState): ConnectionPeripheralState? {
+        val connectedState = if (!selectedId.isNullOrEmpty()) {
+            bluetoothRepository.connectionState(peripheral)
+        } else {
+            ConnectionPeripheralState.Disconnected
+        }
+        return connectedState
+    }
+
     private fun scan() {
         viewModelScope.launch {
             bluetoothRepository.scan(serviceFilters)
@@ -85,6 +102,14 @@ class BluetoothDeviceViewModel(
 
     private fun connect(uuid: String?) {
         viewModelScope.launch {
+            val currentSelected = _selectedDeviceId.value
+
+            if (currentSelected != null && currentSelected != uuid) {
+                logger.d("DISCONNECTING OLD", "Disconnecting $currentSelected before connecting to new")
+                bluetoothRepository.disconnect(PeripheralDeviceState(uuid = currentSelected))
+            }
+
+            _selectedDeviceId.value = null
             bluetoothRepository.connect(PeripheralDeviceState(uuid = uuid))
             logger.d("CONNECTING", "METHOD CONNECT WAS CALLED")
         }
