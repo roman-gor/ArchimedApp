@@ -2,13 +2,14 @@ package com.gorman.bluetooth.di
 
 import dev.bluefalcon.ApplicationContext
 import dev.bluefalcon.BlueFalcon
+import dev.bluefalcon.Logger
 import dev.bluefalcon.ServiceFilter
 import org.koin.core.scope.Scope
 import platform.CoreBluetooth.CBUUID
 
-actual fun Scope.provideBlueFalcon(): BlueFalcon =
+actual fun Scope.provideBlueFalcon(logger: Logger): BlueFalcon =
     BlueFalcon(
-        log = null,
+        log = logger,
         context = ApplicationContext()
     )
 

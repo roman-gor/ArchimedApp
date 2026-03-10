@@ -3,18 +3,24 @@ package com.gorman.archimed.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gorman.archimed.states.BluetoothUiEvent
+import com.gorman.bluetooth.constants.DeviceCommands
 import com.gorman.bluetooth.constants.serviceFilters
+import com.gorman.bluetooth.models.DeviceEvent
+import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import com.gorman.bluetooth.states.BluetoothDeviceState
-import com.gorman.bluetooth.states.DeviceEvent
+import com.gorman.bluetooth.states.ConnectionPeripheralState
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import com.gorman.bluetooth.states.PeripheralDeviceState
 import com.gorman.logger.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -23,33 +29,54 @@ class BluetoothDeviceViewModel(
     private val logger: Logger
 ) : ViewModel() {
 
-    private val selectedDeviceId: StateFlow<String?> = bluetoothRepository.deviceEvents()
-        .runningFold<DeviceEvent, String?>(null) { currentId, event ->
-            when (event) {
-                is DeviceEvent.OnDeviceConnected -> {
-                    logger.d("FLOW CONNECTED", event.macId)
-                    event.macId
+    private val _selectedDeviceId = MutableStateFlow<String?>(null)
+    val selectedDeviceId: StateFlow<String?> = _selectedDeviceId.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            bluetoothRepository.deviceEvents().collect { event ->
+                when (event) {
+                    is DeviceEvent.OnDeviceConnected -> {
+                        logger.d("FLOW CONNECTED", event.uuid)
+                        _selectedDeviceId.value = event.uuid
+                    }
+                    is DeviceEvent.OnDeviceDisconnected -> {
+                        if (_selectedDeviceId.value == event.uuid) {
+                            _selectedDeviceId.value = null
+                        }
+                    }
+                    else -> {}
                 }
-                is DeviceEvent.OnDeviceDisconnected -> {
-                    if (currentId == event.macId) null else currentId
-                }
-                else -> currentId
             }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = null
-        )
+        viewModelScope.launch(Dispatchers.IO) {
+            bluetoothRepository.incomingUartMessages.collect { messageType ->
+                when (messageType) {
+                    is DeviceResponse.Status -> {
+                        logger.d("Status Message", messageType.toString())
+                    }
+                    is DeviceResponse.Unknown -> {
+                        logger.d("Status Message", messageType.toString())
+                    }
+                    null -> {
+                        logger.d("Status Message", messageType.toString())
+                    }
+                }
+            }
+        }
+    }
 
     val deviceState: StateFlow<BluetoothDeviceState> = combine(
         bluetoothRepository.peripherals,
-        selectedDeviceId
+        selectedDeviceId,
     ) { peripherals, selectedId ->
-
         val deviceFlows = peripherals.associate { peripheral ->
+
+            val connectedState = getConnectionState(selectedId, peripheral)
+
             peripheral.uuid.toString() to EnhancedBluetoothPeripheral(
                 connected = peripheral.uuid == selectedId,
+                connectedState = connectedState,
                 peripheral = peripheral,
             )
         }
@@ -74,7 +101,20 @@ class BluetoothDeviceViewModel(
             is BluetoothUiEvent.OnConnect -> connect(uiEvent.uuid)
             is BluetoothUiEvent.OnDisconnect -> disconnect(uiEvent.uuid)
             BluetoothUiEvent.OnScan -> scan()
+            is BluetoothUiEvent.OnSendCommand -> sendCommand(uiEvent.command)
         }
+    }
+
+    private suspend fun getConnectionState(
+        selectedId: String?,
+        peripheral: PeripheralDeviceState
+    ): ConnectionPeripheralState? {
+        val connectedState = if (!selectedId.isNullOrEmpty()) {
+            bluetoothRepository.connectionState(peripheral)
+        } else {
+            ConnectionPeripheralState.Disconnected
+        }
+        return connectedState
     }
 
     private fun scan() {
@@ -85,6 +125,14 @@ class BluetoothDeviceViewModel(
 
     private fun connect(uuid: String?) {
         viewModelScope.launch {
+            val currentSelected = _selectedDeviceId.value
+
+            if (currentSelected != null && currentSelected != uuid) {
+                logger.d("DISCONNECTING OLD", "Disconnecting $currentSelected before connecting to new")
+                bluetoothRepository.disconnect(PeripheralDeviceState(uuid = currentSelected))
+            }
+
+            _selectedDeviceId.value = null
             bluetoothRepository.connect(PeripheralDeviceState(uuid = uuid))
             logger.d("CONNECTING", "METHOD CONNECT WAS CALLED")
         }
@@ -94,6 +142,19 @@ class BluetoothDeviceViewModel(
         viewModelScope.launch {
             bluetoothRepository.disconnect(PeripheralDeviceState(uuid = uuid))
             logger.d("DISCONNECTING", "METHOD CONNECT WAS CALLED")
+        }
+    }
+
+    private fun sendCommand(command: DeviceCommands) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentDeviceId = _selectedDeviceId.value
+
+            if (currentDeviceId != null) {
+                logger.d("ViewModel", "Start sending command: $command to $currentDeviceId")
+                bluetoothRepository.sendCommand(command, currentDeviceId)
+            } else {
+                logger.d("ViewModel", "Cannot send command: No device selected!")
+            }
         }
     }
 }
