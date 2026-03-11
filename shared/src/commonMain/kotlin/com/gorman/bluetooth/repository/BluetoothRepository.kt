@@ -1,9 +1,9 @@
 package com.gorman.bluetooth.repository
 
-import com.gorman.bluetooth.constants.DeviceCommands
+import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.data.BluetoothManager
-import com.gorman.bluetooth.mappers.DeviceCommandBuilder
 import com.gorman.bluetooth.mappers.toDomain
+import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.states.CharacteristicState
 import com.gorman.bluetooth.states.DeviceConnectionState
 import com.gorman.bluetooth.states.PeripheralDeviceState
@@ -12,6 +12,7 @@ import com.juul.kable.Peripheral
 import com.juul.kable.characteristicOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -22,15 +23,17 @@ internal class BluetoothRepository(
     private val bluetoothManager: BluetoothManager,
     private val logger: Logger
 ) : IBluetoothRepository {
-
     private val peripherals = MutableStateFlow<List<Peripheral>>(emptyList())
+    private val _deviceType = MutableStateFlow(DeviceType.IDLE)
+
+    override val deviceType = _deviceType.asStateFlow()
 
     override fun scan(): Flow<PeripheralDeviceState> {
         return bluetoothManager.scan()
             .onEach { advertisement ->
                 peripherals.update { currentList ->
                     val isAlreadySaved = currentList.any {
-                        it.identifier.toString() == advertisement.identifier.toString()
+                        "${it.identifier}" == "${advertisement.identifier}"
                     }
                     if (isAlreadySaved) {
                         currentList
@@ -53,8 +56,12 @@ internal class BluetoothRepository(
     override fun connectionState(uuid: String): Flow<DeviceConnectionState> =
         bluetoothManager.connectionState(getPeripheral(uuid)).map { it.toDomain() }
 
+    override fun setDeviceType(type: DeviceType) {
+        _deviceType.value = type
+    }
+
     override suspend fun sendCommand(
-        command: DeviceCommands,
+        command: DeviceRequest,
         peripheralUuid: String,
         characteristicState: CharacteristicState
     ): Result<Unit> = runCatching {
@@ -66,14 +73,10 @@ internal class BluetoothRepository(
         bluetoothManager.writeCharacteristic(
             peripheral = getPeripheral(peripheralUuid),
             characteristic = targetCharacteristic,
-            value = getPacketToSend(command)
+            value = command.toByteArray()
         )
     }.onFailure { e ->
         logger.e("Send Command", "Error sending command: ${e.message}")
-    }
-
-    private fun getPacketToSend(command: DeviceCommands): ByteArray = when (command) {
-        DeviceCommands.GET_STATUS -> DeviceCommandBuilder.buildGetStatusCmd()
     }
 
     override fun observePeripherals(
