@@ -1,4 +1,4 @@
-package com.gorman.archimed.states
+package com.gorman.archimed.states.bluetooth
 
 sealed interface BluetoothUiEvent {
     data class OnConnect(val uuid: String?) : BluetoothUiEvent
