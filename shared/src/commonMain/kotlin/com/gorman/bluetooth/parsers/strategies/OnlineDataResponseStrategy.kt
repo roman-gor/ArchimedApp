@@ -8,9 +8,9 @@ import com.gorman.bluetooth.parsers.toUnsignedInt
 internal class OnlineDataResponseStrategy : DeviceResponseStrategy {
     override val responseCode = 0x84.toByte()
 
-    override fun parse(bytes: ByteArray): DeviceResponse? {
+    override fun parse(bytes: ByteArray): DeviceResponse {
         val actualLength = bytes[3].toUnsignedInt()
-        if (!isChecksumValid(bytes, actualLength)) return null
+        if (!isChecksumValid(bytes, actualLength)) return DeviceResponse.Unknown(bytes[2].toInt(), bytes)
 
         val startIndex = 8
         val endIndex = bytes.size - 1

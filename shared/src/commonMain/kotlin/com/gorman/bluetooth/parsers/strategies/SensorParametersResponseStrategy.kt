@@ -8,8 +8,13 @@ internal class SensorParametersResponseStrategy : DeviceResponseStrategy {
     override val responseCode = 0x82.toByte()
     private val expectedLength = 21
 
-    override fun parse(bytes: ByteArray): DeviceResponse? {
-        if (!isChecksumValid(bytes, expectedLength) || bytes.size < 21) return null
+    override fun parse(bytes: ByteArray): DeviceResponse {
+        if (!isChecksumValid(bytes, expectedLength) || bytes.size < 21) {
+            return DeviceResponse.Unknown(
+                bytes[2].toInt(),
+                bytes
+            )
+        }
 
         return DeviceResponse.SensorParams(
             sensorId = bytes.copyOfRange(3, 19),

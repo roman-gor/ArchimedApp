@@ -2,19 +2,19 @@ package com.gorman.archimed
 
 import android.Manifest
 import android.os.Build
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -64,7 +64,9 @@ fun App() {
         val state by viewModel.deviceState.collectAsStateWithLifecycle()
         val deviceList = state.devices.values.toList()
         Column(
-            modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -79,8 +81,11 @@ fun App() {
                 },
                 style = MaterialTheme.typography.titleLarge
             )
+
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -89,7 +94,6 @@ fun App() {
                     key = { it.peripheral.uuid }
                 ) { enhancedPeripheral ->
                     DeviceItem(enhancedPeripheral) { uuid, connected ->
-                        Log.d("Connected State", "$connected")
                         if (connected) {
                             viewModel.onUiEvent(BluetoothUiEvent.OnDisconnect(uuid))
                         } else {
@@ -98,35 +102,133 @@ fun App() {
                     }
                 }
             }
-            Box(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentAlignment = Alignment.BottomCenter
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(64.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.START_LOGGING)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Button(
-                        onClick = {
-                            viewModel.onUiEvent(
-                                BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_STATUS)
-                            )
-                        },
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    ) {
-                        Text("Get Status")
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Start sensor logging")
+                }
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.STOP_LOGGING)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Stop sensor logging")
+                }
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.DELETE_LAST_RECORDING)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Delete last recording")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Button(
                         onClick = {
                             viewModel.onUiEvent(
                                 BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_DOWNLOADED_INFO)
                             )
                         },
-                        modifier = Modifier.padding(horizontal = 32.dp)
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Text("Get OnlineData")
+                        Text("Download INFO", maxLines = 1)
                     }
+                    Button(
+                        onClick = {
+                            viewModel.onUiEvent(
+                                BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.SEND_NEXT_DOWNLOAD)
+                            )
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Get NEXT", maxLines = 1)
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_DOWNLOADED_STORE_DATA)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Download STORE DATA")
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.TERMINATE_DOWNLOADING)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Terminate DOWNLOADING")
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_ALL_SENSORS_ID)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Get All Sensors Ids")
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_SENSORS_VALUES)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Get Sensors Values")
+                }
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.CLEAR_ALL_SAMPLES_MEMORY)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Clear ALL SAMPLES")
+                }
+                Button(
+                    onClick = {
+                        viewModel.onUiEvent(
+                            BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.SET_DATE_TIME)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Set DATE TIME")
                 }
             }
         }

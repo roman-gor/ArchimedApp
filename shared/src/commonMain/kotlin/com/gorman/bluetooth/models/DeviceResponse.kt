@@ -101,11 +101,6 @@ sealed interface DeviceResponse {
         override fun hashCode() = sensorId.contentHashCode()
     }
 
-    data class ExternalSensorInfo(
-        val extAnalogSensor1: Int,
-        val extAnalogSensor2: Int
-    ) : DeviceResponse
-
     data class Unknown(val command: Int, val rawData: ByteArray) : DeviceResponse {
         override fun equals(
             other: Any?

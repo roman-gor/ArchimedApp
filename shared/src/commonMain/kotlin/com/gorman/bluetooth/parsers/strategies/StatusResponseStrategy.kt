@@ -8,8 +8,8 @@ internal class StatusResponseStrategy : DeviceResponseStrategy {
     override val responseCode = 0x83.toByte()
     private val expectedLength = 33
 
-    override fun parse(bytes: ByteArray): DeviceResponse? {
-        if (!isChecksumValid(bytes, expectedLength)) return null
+    override fun parse(bytes: ByteArray): DeviceResponse {
+        if (!isChecksumValid(bytes, expectedLength)) return DeviceResponse.Unknown(bytes[2].toInt(), bytes)
 
         return DeviceResponse.Status(
             lastOp = bytes[3],

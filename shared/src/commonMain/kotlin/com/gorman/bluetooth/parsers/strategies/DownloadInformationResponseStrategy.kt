@@ -8,8 +8,8 @@ internal class DownloadInformationResponseStrategy : DeviceResponseStrategy {
     override val responseCode = 0x55.toByte()
     val expectedLength = 18
 
-    override fun parse(bytes: ByteArray): DeviceResponse? {
-        if (!isChecksumValid(bytes, expectedLength)) return null
+    override fun parse(bytes: ByteArray): DeviceResponse {
+        if (!isChecksumValid(bytes, expectedLength)) return DeviceResponse.Unknown(bytes[2].toInt(), bytes)
 
         return DeviceResponse.DownloadInformation(
             experimentNumber = bytes[3],

@@ -10,11 +10,11 @@ internal class SensorValuesResponseStrategy(
 ) : DeviceResponseStrategy {
     override val responseCode = 0x81.toByte()
 
-    override fun parse(bytes: ByteArray): DeviceResponse? {
+    override fun parse(bytes: ByteArray): DeviceResponse {
         val actualLength = bytes[3].toUnsignedInt()
         if (!isChecksumValid(bytes, actualLength)) {
             logger.e("SensorValues Strategy", "Checksum is not valid")
-            return null
+            return DeviceResponse.Unknown(bytes[2].toInt(), bytes)
         }
 
         val sensorVal = bytes.copyOfRange(4, bytes.size - 1)

@@ -29,5 +29,5 @@ val bluetoothParsingModule = module {
     singleOf(::DownloadDataResponseStrategy) bind DeviceResponseStrategy::class
     singleOf(::DownloadInformationResponseStrategy) bind DeviceResponseStrategy::class
     singleOf(::SensorValuesResponseStrategy) bind DeviceResponseStrategy::class
-    single { DeviceResponseHandlerUseCase(getAll<DeviceResponseStrategy>().toSet()) }
+    single { DeviceResponseHandlerUseCase(getAll<DeviceResponseStrategy>().toSet(), get()) }
 }

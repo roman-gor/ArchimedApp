@@ -1,6 +1,6 @@
 package com.gorman.bluetooth.models
 
-import com.gorman.bluetooth.constants.HeaderByte
+import com.gorman.bluetooth.constants.DeviceCommandByte
 
 sealed interface DeviceRequest {
     fun toByteArray(): ByteArray
@@ -139,8 +139,8 @@ private fun buildBluetoothPacket(
     commandCode: Byte,
     parameters: ByteArray = byteArrayOf()
 ): ByteArray {
-    val header1 = HeaderByte.HEADER_REQUEST_1.byte
-    val header2 = HeaderByte.HEADER_REQUEST_2.byte
+    val header1 = DeviceCommandByte.HEADER_REQUEST_1.byte
+    val header2 = DeviceCommandByte.HEADER_REQUEST_2.byte
 
     val payload = byteArrayOf(header1, header2, commandCode) + parameters
 
