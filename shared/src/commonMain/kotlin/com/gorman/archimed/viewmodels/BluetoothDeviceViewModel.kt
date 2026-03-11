@@ -3,8 +3,10 @@ package com.gorman.archimed.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gorman.archimed.states.BluetoothUiEvent
-import com.gorman.bluetooth.constants.DeviceCommands
-import com.gorman.bluetooth.mappers.DeviceProtocolParser
+import com.gorman.bluetooth.constants.DeviceType
+import com.gorman.bluetooth.models.DeviceRequest
+import com.gorman.bluetooth.models.DeviceResponse
+import com.gorman.bluetooth.parsers.DeviceResponseHandlerUseCase
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import com.gorman.bluetooth.states.BluetoothDeviceState
 import com.gorman.bluetooth.states.DeviceConnectionState
@@ -14,6 +16,7 @@ import com.gorman.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +30,7 @@ import kotlinx.coroutines.launch
 
 class BluetoothDeviceViewModel(
     private val bluetoothRepository: IBluetoothRepository,
+    private val deviceResponseHandlerUseCase: DeviceResponseHandlerUseCase,
     private val logger: Logger
 ) : ViewModel() {
 
@@ -43,8 +47,9 @@ class BluetoothDeviceViewModel(
     val deviceState: StateFlow<BluetoothDeviceState> = combine(
         _scannedDevices,
         selectedDeviceId,
-        _connectionState
-    ) { devicesMap, selectedId, connState ->
+        _connectionState,
+        bluetoothRepository.deviceType
+    ) { devicesMap, selectedId, connState, deviceType ->
 
         val deviceFlows = devicesMap.values.associate { peripheral ->
             val isTargetDevice = peripheral.uuid == selectedId
@@ -59,7 +64,8 @@ class BluetoothDeviceViewModel(
         BluetoothDeviceState(
             devices = deviceFlows,
             isScanning = true,
-            selectedDeviceId = selectedId
+            selectedDeviceId = selectedId,
+            selectedDeviceType = deviceType
         )
     }.onStart {
         scan()
@@ -124,8 +130,15 @@ class BluetoothDeviceViewModel(
                 _connectionState.value = state
 
                 when (state) {
-                    is DeviceConnectionState.Connected -> startUartObservation(uuid)
-                    is DeviceConnectionState.Disconnected -> observationJob?.cancel()
+                    is DeviceConnectionState.Connected -> {
+                        startUartObservation(uuid)
+                        delay(300)
+                        sendCommand(BluetoothUiEvent.DeviceCommand.GET_STATUS)
+                    }
+                    is DeviceConnectionState.Disconnected -> {
+                        observationJob?.cancel()
+                        bluetoothRepository.setDeviceType(DeviceType.IDLE)
+                    }
                     else -> {}
                 }
             }
@@ -140,8 +153,13 @@ class BluetoothDeviceViewModel(
                     logger.d("UART_RX", "Observation error: ${e.message}")
                 }
                 .collect { bytes ->
-                    val parsedResponse = DeviceProtocolParser.parse(bytes)
+                    val parsedResponse = deviceResponseHandlerUseCase(bytes)
                     logger.d("UART_RX", "Received: $parsedResponse")
+                    if (parsedResponse is DeviceResponse.Status) {
+                        val detectedType = parsedResponse.deviceType
+                        logger.d("ViewModel", "Detected Device Type: $detectedType")
+                        bluetoothRepository.setDeviceType(detectedType)
+                    }
                 }
         }
     }
@@ -153,13 +171,39 @@ class BluetoothDeviceViewModel(
         }
     }
 
-    private fun sendCommand(command: DeviceCommands) {
+    private fun sendCommand(command: BluetoothUiEvent.DeviceCommand) {
         viewModelScope.launch(Dispatchers.IO) {
+            val requestCommands: List<DeviceRequest> = when (command) {
+                BluetoothUiEvent.DeviceCommand.GET_STATUS -> listOf(DeviceRequest.GetStatus)
+                BluetoothUiEvent.DeviceCommand.START_LOGGING -> {
+                    listOf(
+                        DeviceRequest.ArchLoggingSetup(
+                            sensors = byteArrayOf(0x00.toByte(), 0x02.toByte()),
+                            rate = 0x03.toByte(),
+                            samples = 0x01.toByte(),
+                            sensorsCalibrate = 0x00.toByte()
+                        ),
+                        DeviceRequest.StartLogging
+                    )
+                }
+                BluetoothUiEvent.DeviceCommand.GET_ALL_SENSORS_ID -> listOf(DeviceRequest.GetAllSensorsId)
+                BluetoothUiEvent.DeviceCommand.GET_SENSORS_VALUES -> listOf(DeviceRequest.GetAllSensorsValues)
+                BluetoothUiEvent.DeviceCommand.GET_DOWNLOADED_INFO -> listOf(DeviceRequest.DownloadAllRecordingInfo)
+                BluetoothUiEvent.DeviceCommand.GET_DOWNLOADED_STORE_DATA -> listOf(
+                    DeviceRequest.DownloadStoreData(0x00.toByte())
+                )
+            }
             val currentDeviceId = _selectedDeviceId.value
 
             if (currentDeviceId != null) {
                 logger.d("ViewModel", "Start sending command: $command to $currentDeviceId")
-                bluetoothRepository.sendCommand(command, currentDeviceId)
+                for (request in requestCommands) {
+                    logger.d("ViewModel", "Sending specific request: ${request::class.simpleName}")
+
+                    bluetoothRepository.sendCommand(request, currentDeviceId)
+
+                    if (requestCommands.size > 1) delay(150)
+                }
             } else {
                 logger.d("ViewModel", "Cannot send command: No device selected!")
             }

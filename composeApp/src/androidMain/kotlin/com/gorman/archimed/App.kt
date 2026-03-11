@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,11 +32,12 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.gorman.archimed.states.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
-import com.gorman.bluetooth.constants.DeviceCommands
+import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
+@Suppress("LongMethod")
 @Composable
 fun App() {
     val permissionsState = rememberMultiplePermissionsState(
@@ -62,9 +64,21 @@ fun App() {
         val state by viewModel.deviceState.collectAsStateWithLifecycle()
         val deviceList = state.devices.values.toList()
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = when (state.selectedDeviceType) {
+                    DeviceType.IDLE -> "Archimed"
+                    DeviceType.ECOLOGY -> "Ecology"
+                    DeviceType.PHYSICS -> "Physics"
+                    DeviceType.BIOLOGY -> "Biology"
+                    DeviceType.PHYSIOLOGY -> "Physiology"
+                    DeviceType.ENVIRONMENT -> "Environment"
+                    null -> "Archimed"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(16.dp),
@@ -84,14 +98,36 @@ fun App() {
                     }
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = {
-                    viewModel.onUiEvent(BluetoothUiEvent.OnSendCommand(DeviceCommands.GET_STATUS))
-                },
-                modifier = Modifier.padding(64.dp)
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                Text("Get Status")
+                Column(
+                    modifier = Modifier.padding(64.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = {
+                            viewModel.onUiEvent(
+                                BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_STATUS)
+                            )
+                        },
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    ) {
+                        Text("Get Status")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            viewModel.onUiEvent(
+                                BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GET_DOWNLOADED_INFO)
+                            )
+                        },
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    ) {
+                        Text("Get OnlineData")
+                    }
+                }
             }
         }
     } else {
