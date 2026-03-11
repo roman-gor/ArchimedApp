@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.gorman.archimed.states.BluetoothUiEvent
+import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
