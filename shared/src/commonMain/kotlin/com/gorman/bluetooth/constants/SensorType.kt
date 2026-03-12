@@ -1,5 +1,8 @@
 package com.gorman.bluetooth.constants
 
+//TODO(Define sensors types after success connection.
+// Change this enum, need to leave only SensorsTypes
+// without Device Types)
 enum class SensorType(val sensors: List<Sensors>) {
     ECOLOGY_SENS(
         listOf(

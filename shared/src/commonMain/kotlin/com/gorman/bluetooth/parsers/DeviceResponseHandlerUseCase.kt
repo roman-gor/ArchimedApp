@@ -9,6 +9,9 @@ class DeviceResponseHandlerUseCase(
 ) {
     private var downloadBuffer = byteArrayOf()
     private var isCollectingDownload = false
+
+    //TODO(Make this stuff as constants)
+    // Or reuse as parameter in interface (it's better)
     private val downloadDataByte = 0x54.toByte()
     private val downloadDataSize = 767
 

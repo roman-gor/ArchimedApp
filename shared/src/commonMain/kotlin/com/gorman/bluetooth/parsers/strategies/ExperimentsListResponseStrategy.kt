@@ -2,10 +2,10 @@ package com.gorman.bluetooth.parsers.strategies
 
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.DeviceResponseStrategy
-import com.gorman.bluetooth.parsers.read2BytesAsInt
+import com.gorman.bluetooth.parsers.read2BytesAsShort
 import com.gorman.logger.Logger
 
-internal class DownloadDataResponseStrategy(
+internal class ExperimentsListResponseStrategy(
     private val logger: Logger
 ) : DeviceResponseStrategy {
     override val responseCode = 0x54.toByte()
@@ -17,19 +17,19 @@ internal class DownloadDataResponseStrategy(
                 "Download Strategy",
                 "Expected $expectedLength bytes, got ${bytes.size}. Buffering should happen in UseCase."
             )
-            return DeviceResponse.Unknown(bytes[2].toInt(), bytes)
+            return DeviceResponse.Unknown(bytes[2].toShort(), bytes)
         }
 
         val experimentNumber = bytes[3]
-        val packetNumber = bytes.read2BytesAsInt(4)
+        val packetNumber = bytes.read2BytesAsShort(4)
 
-        return if (packetNumber == 0) {
-            DeviceResponse.DownloadData(
+        return if (packetNumber == 0.toShort()) {
+            DeviceResponse.GetExperimentData(
                 experimentNumber = experimentNumber,
                 packetNumber = packetNumber,
-                sensor = bytes.read2BytesAsInt(6),
-                rate = bytes[8],
-                samples = bytes.read2BytesAsInt(9),
+                sensorType = bytes.read2BytesAsShort(6),
+                sampleRate = bytes[8],
+                samplesCount = bytes.read2BytesAsShort(9),
                 day = bytes[11],
                 month = bytes[12],
                 year = bytes[13],
@@ -41,7 +41,7 @@ internal class DownloadDataResponseStrategy(
                 downloadAry = bytes.copyOfRange(19, bytes.size - 1)
             )
         } else {
-            DeviceResponse.DownloadData(
+            DeviceResponse.GetExperimentData(
                 experimentNumber = experimentNumber,
                 packetNumber = packetNumber,
                 downloadAry = bytes.copyOfRange(6, bytes.size - 1)

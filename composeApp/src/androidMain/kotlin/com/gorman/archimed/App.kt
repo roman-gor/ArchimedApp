@@ -34,6 +34,8 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
 import com.gorman.bluetooth.constants.DeviceType
+import com.gorman.bluetooth.constants.Rates
+import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.Sensors
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,13 +76,12 @@ fun App() {
         ) {
             Text(
                 text = when (state.selectedDeviceType) {
-                    DeviceType.IDLE -> "Archimed"
                     DeviceType.ECOLOGY -> "Ecology"
                     DeviceType.PHYSICS -> "Physics"
                     DeviceType.BIOLOGY -> "Biology"
                     DeviceType.PHYSIOLOGY -> "Physiology"
-                    DeviceType.ENVIRONMENT -> "Environment"
-                    null -> "Archimed"
+                    DeviceType.UNKNOWN -> "Archimed"
+                    else -> ""
                 },
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -120,19 +121,19 @@ fun App() {
                                 2.dp
                             ).background(MaterialTheme.colorScheme.onBackground)
                         )
-                        Text(text = state.onlineDataDeviceState.toString())
+                        Text(text = state.experimentOnlineDataState.toString())
                         Spacer(
                             modifier = Modifier.fillMaxWidth().height(
                                 2.dp
                             ).background(MaterialTheme.colorScheme.onBackground)
                         )
-                        Text(text = state.experimentsHistoryDeviceState.toString())
+                        Text(text = state.experimentsHistoryDataState.toString())
                         Spacer(
                             modifier = Modifier.fillMaxWidth().height(
                                 2.dp
                             ).background(MaterialTheme.colorScheme.onBackground)
                         )
-                        Text(text = state.singleExperimentDeviceState.toString())
+                        Text(text = state.singleExperimentDataState.toString())
                         Spacer(
                             modifier = Modifier.fillMaxWidth().height(
                                 2.dp
@@ -162,8 +163,8 @@ fun App() {
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
                                         listOf(Sensors.ACCELEROMETER),
-                                        rate = 10,
-                                        samples = 100,
+                                        sampleRate = Rates.RATE_10,
+                                        sampleCount = Samples.SAMPLE_100,
                                         shouldCalibrate = false
                                     )
                                 )
@@ -193,7 +194,7 @@ fun App() {
                             Button(
                                 onClick = {
                                     viewModel.onUiEvent(
-                                        BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GetDownloadedInfo)
+                                        BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GetExperimentsList)
                                     )
                                 },
                                 modifier = Modifier.weight(1f)
@@ -201,7 +202,7 @@ fun App() {
                             Button(
                                 onClick = {
                                     viewModel.onUiEvent(
-                                        BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.SendNextDownload)
+                                        BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
                                     )
                                 },
                                 modifier = Modifier.weight(1f)
@@ -212,7 +213,7 @@ fun App() {
                             onClick = {
                                 viewModel.onUiEvent(
                                     BluetoothUiEvent.OnSendCommand(
-                                        BluetoothUiEvent.DeviceCommand.GetDownloadedStoreData(1)
+                                        BluetoothUiEvent.DeviceCommand.GetExperimentData(1)
                                     )
                                 )
                             },
@@ -245,7 +246,7 @@ fun App() {
                         Button(
                             onClick = {
                                 viewModel.onUiEvent(
-                                    BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.ClearAllSamplesMemory)
+                                    BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.ClearDeviceMemory)
                                 )
                             },
                             modifier = Modifier.fillMaxWidth()

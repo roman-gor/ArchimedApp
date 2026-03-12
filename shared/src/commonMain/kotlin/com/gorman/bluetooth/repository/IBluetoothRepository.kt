@@ -12,12 +12,12 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 interface IBluetoothRepository {
-    val deviceType: StateFlow<DeviceType>
+    val deviceType: StateFlow<DeviceType?>
     fun scan(): Flow<PeripheralDeviceState>
     suspend fun connect(uuid: String): Result<Unit>
     suspend fun disconnect(uuid: String): Result<Unit>
     fun connectionState(uuid: String): Flow<DeviceConnectionState>
-    fun setDeviceType(type: DeviceType)
+    fun setDeviceType(type: DeviceType?)
     suspend fun sendCommand(
         command: DeviceRequest,
         peripheralUuid: String,

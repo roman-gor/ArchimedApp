@@ -14,12 +14,12 @@ internal class SensorValuesResponseStrategy(
         val actualLength = bytes[3].toUnsignedInt()
         if (!isChecksumValid(bytes, actualLength)) {
             logger.e("SensorValues Strategy", "Checksum is not valid")
-            return DeviceResponse.Unknown(bytes[2].toInt(), bytes)
+            return DeviceResponse.Unknown(bytes[2].toShort(), bytes)
         }
 
         val sensorVal = bytes.copyOfRange(4, bytes.size - 1)
 
-        return DeviceResponse.SensorValues(
+        return DeviceResponse.GetSensorValues(
             dataLength = bytes[3],
             sensorVal = sensorVal
         )

@@ -9,8 +9,8 @@ interface DeviceResponseStrategy {
     fun canParse(bytes: ByteArray): Boolean {
         if (bytes.size < 3) return false
 
-        return bytes[0] == DeviceCommandByte.HEADER_RESPONSE_1.byte &&
-            bytes[1] == DeviceCommandByte.HEADER_RESPONSE_2.byte &&
+        return byteArrayOf(bytes[0],bytes[1])
+            .contentEquals(DeviceCommandByte.HEADER_RESPONSE.bytes) &&
             bytes[2] == responseCode
     }
 
