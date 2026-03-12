@@ -17,7 +17,7 @@ internal class ExperimentsListResponseStrategy(
                 "Download Strategy",
                 "Expected $expectedLength bytes, got ${bytes.size}. Buffering should happen in UseCase."
             )
-            return DeviceResponse.Unknown(bytes[2].toShort(), bytes)
+            return DeviceResponse.Unknown(bytes[2].toShort(), bytes.toList())
         }
 
         val experimentNumber = bytes[3]
@@ -27,7 +27,8 @@ internal class ExperimentsListResponseStrategy(
             DeviceResponse.GetExperimentData(
                 experimentNumber = experimentNumber,
                 packetNumber = packetNumber,
-                sensorType = bytes.read2BytesAsShort(6),
+                //TODO() REMOVE toInt()
+                sensorType = bytes.read2BytesAsShort(6).toInt(),
                 sampleRate = bytes[8],
                 samplesCount = bytes.read2BytesAsShort(9),
                 day = bytes[11],

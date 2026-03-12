@@ -36,7 +36,7 @@ import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
-import com.gorman.bluetooth.constants.Sensors
+import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -162,9 +162,9 @@ fun App() {
                             viewModel.onUiEvent(
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
-                                        listOf(Sensors.ACCELEROMETER),
-                                        sampleRate = Rates.RATE_10,
-                                        sampleCount = Samples.SAMPLE_100,
+                                        listOf(SensorType.ACCELEROMETER_MEDIUM_SENSITIVE),
+                                        sampleRate = Rates.RATE_100_PER_SEC,
+                                        sampleCount = Samples.SAMPLES_1000,
                                         shouldCalibrate = false
                                     )
                                 )

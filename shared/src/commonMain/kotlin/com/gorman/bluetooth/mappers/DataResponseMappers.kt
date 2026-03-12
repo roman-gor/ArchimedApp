@@ -5,7 +5,6 @@ import com.gorman.archimed.states.bluetooth.ExperimentOnlineDataState
 import com.gorman.archimed.states.bluetooth.SingleExperimentDataState
 import com.gorman.archimed.states.bluetooth.StatusDeviceDataState
 import com.gorman.bluetooth.constants.SensorType
-import com.gorman.bluetooth.constants.Sensors
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.toUnsignedInt
 import kotlinx.datetime.LocalDate
@@ -25,10 +24,10 @@ fun DeviceResponse.ExperimentOnlineData.toUiState(): ExperimentOnlineDataState =
         sensorValue = getSensorsValues(sensorsVal)
     )
 
-fun DeviceResponse.GetExperimentsList.toUiState(sensorsType: SensorType?): ExperimentsHistoryDataState =
+fun DeviceResponse.GetExperimentsList.toUiState(availableSensors: List<Short>): ExperimentsHistoryDataState =
     ExperimentsHistoryDataState(
         experimentNumber = experimentNumber.toUnsignedInt(),
-        sensors = sensor.toSensorsList(sensorsType?.sensors),
+        sensors = sensor.toSensorsList(availableSensors),
         sampleRate = getRate(rate.toUnsignedInt()),
         samplesCount = samples.toInt(),
         experimentDateTime = getDateTime(
@@ -41,10 +40,10 @@ fun DeviceResponse.GetExperimentsList.toUiState(sensorsType: SensorType?): Exper
         )
     )
 
-fun DeviceResponse.GetExperimentData.toUiState(sensorsType: SensorType?): SingleExperimentDataState =
+fun DeviceResponse.GetExperimentData.toUiState(availableSensors: List<Short>): SingleExperimentDataState =
     SingleExperimentDataState(
         experimentNumber = experimentNumber.toUnsignedInt(),
-        sensors = sensorType.toSensorsList(sensorsType?.sensors),
+        sensors = sensorType.toShort().toSensorsList(availableSensors),
         sampleRate = getRate(sampleRate.toUnsignedInt()),
         samplesCount = samplesCount.toInt(),
         experimentDateTime = getDateTime(
@@ -58,17 +57,33 @@ fun DeviceResponse.GetExperimentData.toUiState(sensorsType: SensorType?): Single
         experimentData = downloadAry.map { it.toUnsignedInt() }.toList()
     )
 
-private fun Short.toSensorsList(allowedSensors: List<Sensors>?): List<Sensors> {
+private fun Short.toSensorsList(availableSensors: List<Short>): List<SensorType> {
+    val activeSensors = mutableListOf<SensorType>()
+
     val byte0 = (this.toInt() shr 8) and 0xFF
     val byte1 = this.toInt() and 0xFF
 
-    return allowedSensors?.filter { sensor ->
-        when (sensor.position) {
-            0 -> (byte0 and sensor.byteCode.toInt()) != 0
-            1 -> (byte1 and sensor.byteCode.toInt()) != 0
-            else -> false
+    for (index in 0..15) {
+        val isActive = if (index < 8) {
+            (byte0 and (1 shl index)) != 0
+        } else {
+            val bitPosition = index - 8
+            (byte1 and (1 shl bitPosition)) != 0
         }
-    } ?: emptyList()
+
+        if (isActive) {
+            val sensorId = availableSensors.getOrNull(index) ?: 0
+
+            if (sensorId != 0.toShort()) {
+                val sensorEnum = SensorType.entries.find { it.value == sensorId }
+
+                if (sensorEnum != null) {
+                    activeSensors.add(sensorEnum)
+                }
+            }
+        }
+    }
+    return activeSensors
 }
 
 private fun getRate(rate: Int): Int = when (rate) {

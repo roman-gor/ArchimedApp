@@ -12,7 +12,7 @@ internal class SensorsIdParametersResponseStrategy : DeviceResponseStrategy {
         if (!isChecksumValid(bytes, expectedLength) || bytes.size < 21) {
             return DeviceResponse.Unknown(
                 bytes[2].toShort(),
-                bytes
+                bytes.toList()
             )
         }
 

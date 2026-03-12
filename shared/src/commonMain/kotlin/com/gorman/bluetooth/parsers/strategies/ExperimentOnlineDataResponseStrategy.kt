@@ -13,7 +13,7 @@ internal class ExperimentOnlineDataResponseStrategy(
 
     override fun parse(bytes: ByteArray): DeviceResponse {
         val actualLength = bytes[3].toUnsignedInt()
-        if (!isChecksumValid(bytes, actualLength)) return DeviceResponse.Unknown(bytes[2].toShort(), bytes)
+        if (!isChecksumValid(bytes, actualLength)) return DeviceResponse.Unknown(bytes[2].toShort(), bytes.toList())
 
         val startIndex = 8
         val endIndex = bytes.size - 1

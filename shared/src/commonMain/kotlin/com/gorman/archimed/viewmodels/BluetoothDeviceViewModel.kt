@@ -10,6 +10,8 @@ import com.gorman.archimed.states.bluetooth.StatusDeviceDataState
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
+import com.gorman.bluetooth.constants.SensorType
+import com.gorman.bluetooth.constants.createSensorsMask
 import com.gorman.bluetooth.mappers.toUiState
 import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.models.DeviceResponse
@@ -56,6 +58,7 @@ class BluetoothDeviceViewModel(
     private val experimentOnlineDataState = MutableStateFlow(ExperimentOnlineDataState())
     private val experimentsHistoryDataState = MutableStateFlow(emptyList<ExperimentsHistoryDataState>())
     private val singleExperimentDataState = MutableStateFlow(SingleExperimentDataState())
+    private val availableDeviceSensors = MutableStateFlow(emptyList<Short>())
 
     private data class DeviceResponsesDataState(
         val statusDeviceDataState: StatusDeviceDataState,
@@ -211,6 +214,7 @@ class BluetoothDeviceViewModel(
                         startUartObservation(uuid)
                         delay(300)
                         sendCommand(BluetoothUiEvent.DeviceCommand.GetStatus)
+                        sendCommand(BluetoothUiEvent.DeviceCommand.GetAllSensorsId)
                     }
                     is DeviceConnectionState.Disconnected -> {
                         observationJob?.cancel()
@@ -242,28 +246,26 @@ class BluetoothDeviceViewModel(
         when (parsedResponse) {
             is DeviceResponse.StatusDeviceData -> {
                 val detectedType = parsedResponse.archimedesVersion
-                logger.d("ViewModel", "Detected Device Type: $detectedType")
                 statusDeviceDataState.value = parsedResponse.toUiState()
-                logger.d("STATUS_UI_STATE", "${statusDeviceDataState.value}")
                 bluetoothRepository.setDeviceType(detectedType)
             }
+            is DeviceResponse.GetSensorIdParams -> {
+                availableDeviceSensors.value = parsedResponse.sensorId.map { it.toShort() }
+                logger.d("Sensors Ids", availableDeviceSensors.value.toString())
+            }
             is DeviceResponse.GetExperimentData -> {
-                logger.d("ViewModel", "Downloaded packet #${parsedResponse.packetNumber}")
-                singleExperimentDataState.value = parsedResponse.toUiState(deviceType.value?.sensorType)
+                singleExperimentDataState.value = parsedResponse.toUiState(availableDeviceSensors.value)
                 sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
             }
             is DeviceResponse.GetExperimentsList -> {
-                logger.d("Device Type", "${deviceType.value?.sensorType?.sensors}")
-                val newItem = parsedResponse.toUiState(deviceType.value?.sensorType)
+                val newItem = parsedResponse.toUiState(availableDeviceSensors.value)
                 experimentsHistoryDataState.update { currentList ->
                     val isDuplicate = currentList.any { it.experimentNumber == newItem.experimentNumber }
                     if (isDuplicate) currentList else currentList + newItem
                 }
-                logger.d("DOWNLOAD_DATA_UI_STATE", "${experimentsHistoryDataState.value}")
             }
             is DeviceResponse.ExperimentOnlineData -> {
                 experimentOnlineDataState.value = parsedResponse.toUiState()
-                logger.d("ONLINE_DATA_UI_STATE", "${experimentOnlineDataState.value}")
             }
             is DeviceResponse.Unknown -> logger.e("ViewModel", "Response is in unknown type")
             else -> logger.d("ViewModel", "Handled other response type")
@@ -310,13 +312,7 @@ class BluetoothDeviceViewModel(
         }
 
     private fun startLogging(command: BluetoothUiEvent.DeviceCommand.StartLogging): List<DeviceRequest> {
-        val sensorsArray = command.sensors.fold(ByteArray(2)) { acc, sensor ->
-            when (sensor.position) {
-                0 -> acc[0] = (acc[0].toInt() or sensor.byteCode.toInt()).toByte()
-                1 -> acc[1] = (acc[1].toInt() or sensor.byteCode.toInt()).toByte()
-            }
-            acc
-        }
+        val sensorsArray = command.sensors.createSensorsMask(availableDeviceSensors.value)
         logger.d("SensorsArray", "${sensorsArray.toList()}")
 
         val shouldCalibrate = when(command.shouldCalibrate) {
@@ -328,21 +324,9 @@ class BluetoothDeviceViewModel(
             DeviceRequest.StopLogging,
             setDateTimes(),
             DeviceRequest.SetupLoggingParameters(
-                sensors = sensorsArray.copyOf(),
-                /**
-                 * 0x02 - 1 measure per second
-                 * 0x03 - 10 measures per second
-                 * 0x04 - 100 measures per second ? **/
+                sensors = sensorsArray,
                 rate = Rates.valueOf(command.sampleRate.toString()).byte,
-                /**
-                 * 0x00 - 10 samples
-                 * 0x01 - 100 samples
-                 * 0x02 - 1000 samples
-                 * 0x03 - 10000 samples ? **/
                 samples = Samples.valueOf(command.sampleCount.toString()).byte,
-                /**
-                 * 0x00 - Should not calibrate
-                 * 0x01 - Should calibrate**/
                 sensorsCalibrate = shouldCalibrate
             ),
             DeviceRequest.StartLogging
@@ -350,22 +334,15 @@ class BluetoothDeviceViewModel(
     }
 
     private fun startDefaultLogging(): List<DeviceRequest> {
-        val sensorsList = deviceType.value?.sensorType?.sensors ?: emptyList()
-
-        val sensorsArray = sensorsList.fold(ByteArray(2)) { acc, sensor ->
-            when (sensor.position) {
-                0 -> acc[0] = (acc[0].toInt() or sensor.byteCode.toInt()).toByte()
-                1 -> acc[1] = (acc[1].toInt() or sensor.byteCode.toInt()).toByte()
-            }
-            acc
-        }
+        val sensorsList = SensorType.entries
+        val sensorsArray = sensorsList.createSensorsMask(availableDeviceSensors.value)
 
         return listOf(
             setDateTimes(),
             DeviceRequest.SetupLoggingParameters(
                 sensors = sensorsArray,
-                rate = 0x03.toByte(),
-                samples = 0x01.toByte(),
+                rate = Rates.RATE_10_PER_SEC.byte,
+                samples = Samples.SAMPLES_100.byte,
                 sensorsCalibrate = 0x00.toByte()
             ),
             DeviceRequest.StartLogging

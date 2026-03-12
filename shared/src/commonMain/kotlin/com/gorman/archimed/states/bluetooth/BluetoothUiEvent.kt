@@ -2,7 +2,7 @@ package com.gorman.archimed.states.bluetooth
 
 import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
-import com.gorman.bluetooth.constants.Sensors
+import com.gorman.bluetooth.constants.SensorType
 
 sealed interface BluetoothUiEvent {
     data class OnConnect(val uuid: String?) : BluetoothUiEvent
@@ -14,9 +14,9 @@ sealed interface BluetoothUiEvent {
         object GetStatus : DeviceCommand
         object StartDefaultLogging : DeviceCommand
         data class StartLogging(
-            val sensors: List<Sensors>,
-            val sampleRate: Rates = Rates.RATE_10,
-            val sampleCount: Samples = Samples.SAMPLE_100,
+            val sensors: List<SensorType>,
+            val sampleRate: Rates = Rates.RATE_10_PER_SEC,
+            val sampleCount: Samples = Samples.SAMPLES_100,
             val shouldCalibrate: Boolean = false
         ) : DeviceCommand
         object StopLogging : DeviceCommand
