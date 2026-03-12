@@ -2,7 +2,10 @@ package com.gorman.bluetooth.mappers
 
 import com.gorman.archimed.states.bluetooth.ExperimentsHistoryDeviceState
 import com.gorman.archimed.states.bluetooth.OnlineDataDeviceState
+import com.gorman.archimed.states.bluetooth.SingleExperimentDeviceState
 import com.gorman.archimed.states.bluetooth.StatusDeviceState
+import com.gorman.bluetooth.constants.SensorType
+import com.gorman.bluetooth.constants.Sensors
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.toUnsignedInt
 import kotlinx.datetime.LocalDate
@@ -19,13 +22,13 @@ fun DeviceResponse.Status.toUiState(): StatusDeviceState =
 fun DeviceResponse.OnlineData.toUiState(): OnlineDataDeviceState =
     OnlineDataDeviceState(
         currentSample = currentSample,
-        sensorValue = sensorsVal.map { it.toUnsignedInt() }.toIntArray()
+        sensorValue = getSensorsValues(sensorsVal)
     )
 
-fun DeviceResponse.DownloadInformation.toUiState(): ExperimentsHistoryDeviceState =
+fun DeviceResponse.DownloadInformation.toUiState(sensorsType: SensorType?): ExperimentsHistoryDeviceState =
     ExperimentsHistoryDeviceState(
         experimentNumber = experimentNumber.toUnsignedInt(),
-        sensorType = sensor,
+        sensors = sensor.toSensorsList(sensorsType?.sensors),
         rate = getRate(rate.toUnsignedInt()),
         samplesAmount = samples,
         experimentDateTime = getDateTime(
@@ -38,9 +41,39 @@ fun DeviceResponse.DownloadInformation.toUiState(): ExperimentsHistoryDeviceStat
         )
     )
 
+fun DeviceResponse.DownloadData.toUiState(sensorsType: SensorType?): SingleExperimentDeviceState =
+    SingleExperimentDeviceState(
+        experimentNumber = experimentNumber.toUnsignedInt(),
+        sensors = sensor.toSensorsList(sensorsType?.sensors),
+        rate = getRate(rate.toUnsignedInt()),
+        samples = samples,
+        experimentDateTime = getDateTime(
+            day = day.toUnsignedInt(),
+            month = month.toUnsignedInt(),
+            year = year.toUnsignedInt(),
+            hour = hour.toUnsignedInt(),
+            minute = minute.toUnsignedInt(),
+            second = sec.toUnsignedInt()
+        ),
+        experimentData = downloadAry.map { it.toUnsignedInt() }.toList()
+    )
+
+fun Int.toSensorsList(allowedSensors: List<Sensors>?): List<Sensors> {
+    val byte0 = (this shr 8) and 0xFF
+    val byte1 = this and 0xFF
+
+    return allowedSensors?.filter { sensor ->
+        when (sensor.position) {
+            0 -> (byte0 and sensor.byteCode.toInt()) != 0
+            1 -> (byte1 and sensor.byteCode.toInt()) != 0
+            else -> false
+        }
+    } ?: emptyList()
+}
+
 private fun getRate(rate: Int): Int = when (rate) {
-    2 -> 1
-    3 -> 10
+    1 -> 1
+    2 -> 10
     else -> rate
 }
 
@@ -67,4 +100,18 @@ private fun getDateTime(
     }.onFailure {
         LocalDateTime(LocalDate(2000, 1, 1), LocalTime(0, 0, 0))
     }.getOrNull()
+}
+
+private fun getSensorsValues(sensorsArray: ByteArray): List<Int> {
+    val parsedList = mutableListOf<Int>()
+
+    for (i in 0 until sensorsArray.size - 1 step 2) {
+        val msb = sensorsArray[i].toInt() and 0xFF
+        val lsb = sensorsArray[i + 1].toInt() and 0xFF
+
+        val combined = (msb shl 8) or lsb
+
+        parsedList.add(combined.toShort().toInt())
+    }
+    return parsedList.toList()
 }
