@@ -41,7 +41,7 @@ sealed interface DeviceResponse {
     }
 
     data class OnlineData(
-        val dataLength: Byte,
+        val dataLength: Byte = 0,
         val sensor: ByteArray,
         val currentSample: Int,
         val sensorsVal: ByteArray
@@ -51,8 +51,8 @@ sealed interface DeviceResponse {
     }
 
     data class DownloadData(
-        val experimentNumber: Byte,
-        val packetNumber: Int,
+        val experimentNumber: Byte = 0,
+        val packetNumber: Int = 0,
         val sensor: Int = 0,
         val rate: Byte = 0,
         val samples: Int = 0,
@@ -64,25 +64,25 @@ sealed interface DeviceResponse {
         val sec: Byte = 0,
         val extAnalogSensor1: Byte = 0,
         val extAnalogSensor2: Byte = 0,
-        val downloadAry: ByteArray
+        val downloadAry: ByteArray = byteArrayOf()
     ) : DeviceResponse {
         override fun equals(other: Any?) = this === other && downloadAry.contentEquals(other.downloadAry)
         override fun hashCode() = downloadAry.contentHashCode()
     }
 
     data class DownloadInformation(
-        val experimentNumber: Byte,
-        val sensor: Int,
-        val rate: Byte,
-        val samples: Int,
-        val day: Byte,
-        val month: Byte,
-        val year: Byte,
-        val hour: Byte,
-        val minute: Byte,
-        val sec: Byte,
-        val extAnalogSensor1: Byte,
-        val extAnalogSensor2: Byte
+        val experimentNumber: Byte = 0,
+        val sensor: Int = 0,
+        val rate: Byte = 0,
+        val samples: Int = 0,
+        val day: Byte = 0,
+        val month: Byte = 0,
+        val year: Byte = 0,
+        val hour: Byte = 0,
+        val minute: Byte = 0,
+        val sec: Byte = 0,
+        val extAnalogSensor1: Byte = 0,
+        val extAnalogSensor2: Byte = 0
     ) : DeviceResponse
 
     data class SensorValues(
