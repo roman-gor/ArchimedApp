@@ -1,47 +1,110 @@
 package com.gorman.bluetooth.models
 
+import com.gorman.bluetooth.constants.DeviceType
+
 sealed interface DeviceResponse {
     data class Status(
-        val lastOp: Int? = null,
-        val archimedesVersion: Int? = null,
-        val firmwareVersion: Int? = null,
-        val labdiscMainMode: Int? = null,
-        val experimentsInMemory: Int? = null,
-        val sens: Int? = null,
-        val rate: Int? = null,
-        val samples: Int? = null,
-        val day: Int? = null,
-        val month: Int? = null,
-        val year: Int? = null,
-        val hour: Int? = null,
-        val minute: Int? = null,
-        val seconds: Int? = null,
-        val battery: Int? = null,
-        val memory: Int? = null,
-        val sNMemory: Int? = null,
-        val sNMonth: Int? = null,
-        val sNNumber: Int? = null,
-        val extAnalogSensor: Int? = null,
-        val void: Int? = null
-    ) : DeviceResponse
-
-    data class Unknown(val command: Int, val rawData: ByteArray) : DeviceResponse {
+        val lastOp: Byte,
+        val archimedesVersion: Byte,
+        val firmwareVersion: Int,
+        val labdiscMainMode: Byte,
+        val experimentsInMemory: Byte,
+        val sens: Int,
+        val rate: Byte,
+        val samples: Byte,
+        val day: Byte,
+        val month: Byte,
+        val year: Byte,
+        val hour: Byte,
+        val minute: Byte,
+        val seconds: Byte,
+        val battery: Byte,
+        val memory: Byte,
+        val sNYear: Byte,
+        val sNMonth: Byte,
+        val sNNumber: Int,
+        val extAnalogSensor: Byte,
+        val void: ByteArray = byteArrayOf()
+    ) : DeviceResponse {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other == null || this::class != other::class) return false
-
-            other as Unknown
-
-            if (command != other.command) return false
-            if (!rawData.contentEquals(other.rawData)) return false
-
-            return true
+            return void.contentEquals((other as Status).void)
         }
-
-        override fun hashCode(): Int {
-            var result = command
-            result = 31 * result + rawData.contentHashCode()
-            return result
+        override fun hashCode(): Int = void.contentHashCode()
+        val deviceType = when (archimedesVersion) {
+            0xA1.toByte() -> DeviceType.BIOLOGY
+            0xA3.toByte() -> DeviceType.PHYSICS
+            0xA4.toByte() -> DeviceType.PHYSIOLOGY
+            0xA5.toByte() -> DeviceType.ECOLOGY
+            else -> DeviceType.IDLE
         }
+    }
+
+    data class OnlineData(
+        val dataLength: Byte = 0,
+        val sensor: ByteArray,
+        val currentSample: Int,
+        val sensorsVal: ByteArray
+    ) : DeviceResponse {
+        override fun equals(other: Any?) = this === other && sensorsVal.contentEquals(other.sensorsVal)
+        override fun hashCode() = sensorsVal.contentHashCode()
+    }
+
+    data class DownloadData(
+        val experimentNumber: Byte = 0,
+        val packetNumber: Int = 0,
+        val sensor: Int = 0,
+        val rate: Byte = 0,
+        val samples: Int = 0,
+        val day: Byte = 0,
+        val month: Byte = 0,
+        val year: Byte = 0,
+        val hour: Byte = 0,
+        val minute: Byte = 0,
+        val sec: Byte = 0,
+        val extAnalogSensor1: Byte = 0,
+        val extAnalogSensor2: Byte = 0,
+        val downloadAry: ByteArray = byteArrayOf()
+    ) : DeviceResponse {
+        override fun equals(other: Any?) = this === other && downloadAry.contentEquals(other.downloadAry)
+        override fun hashCode() = downloadAry.contentHashCode()
+    }
+
+    data class DownloadInformation(
+        val experimentNumber: Byte = 0,
+        val sensor: Int = 0,
+        val rate: Byte = 0,
+        val samples: Int = 0,
+        val day: Byte = 0,
+        val month: Byte = 0,
+        val year: Byte = 0,
+        val hour: Byte = 0,
+        val minute: Byte = 0,
+        val sec: Byte = 0,
+        val extAnalogSensor1: Byte = 0,
+        val extAnalogSensor2: Byte = 0
+    ) : DeviceResponse
+
+    data class SensorValues(
+        val dataLength: Byte,
+        val sensorVal: ByteArray
+    ) : DeviceResponse {
+        override fun equals(other: Any?) = this === other && sensorVal.contentEquals(other.sensorVal)
+        override fun hashCode() = sensorVal.contentHashCode()
+    }
+
+    data class SensorParams(
+        val sensorId: ByteArray,
+        val externalId: Int
+    ) : DeviceResponse {
+        override fun equals(other: Any?) = this === other && sensorId.contentEquals(other.sensorId)
+        override fun hashCode() = sensorId.contentHashCode()
+    }
+
+    data class Unknown(val command: Int, val rawData: ByteArray) : DeviceResponse {
+        override fun equals(
+            other: Any?
+        ) = this === other && command == other.command && rawData.contentEquals(other.rawData)
+        override fun hashCode() = 31 * command + rawData.contentHashCode()
     }
 }
