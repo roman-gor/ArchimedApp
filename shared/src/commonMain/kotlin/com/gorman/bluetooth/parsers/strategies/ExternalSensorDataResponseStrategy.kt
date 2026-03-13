@@ -18,5 +18,4 @@ internal class ExternalSensorDataResponseStrategy : DeviceResponseStrategy {
             externalAnalogSensor2 = bytes[4]
         )
     }
-
 }

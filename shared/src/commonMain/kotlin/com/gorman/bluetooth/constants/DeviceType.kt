@@ -5,7 +5,12 @@ enum class DeviceType(val byte: Byte?) {
     PHYSICS(0xA3.toByte()),
     BIOLOGY(0xA1.toByte()),
     PHYSIOLOGY(0xA4.toByte()),
-    UNKNOWN(null)
+    UNKNOWN(null);
+
+    companion object {
+        fun fromByteCode(byte: Byte): DeviceType? =
+            DeviceType.entries.firstOrNull { it.byte == byte }
+    }
 }
 
 enum class Rates(val byte: Byte) {

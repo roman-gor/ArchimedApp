@@ -15,7 +15,7 @@ internal class GetExperimentsListResponseStrategy : DeviceResponseStrategy {
             return DeviceResponse.Unknown(bytes[2], bytes.toList())
         }
 
-        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(9,15))
+        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(9, 15))
 
         return DeviceResponse.GetExperimentsData(
             experimentNumber = bytes[3],
