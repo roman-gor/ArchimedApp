@@ -6,12 +6,12 @@ import dev.icerock.moko.resources.desc.StringDesc
 
 /**
  * A complete registry of supported hardware sensors for the device Archimedes.
- * @property index The decimal identifier (ID) of the sensor.
+ * @property id The decimal identifier (ID) of the sensor.
  * @property multiplier The multiplier (bit value).
  * @property measureUnit The physical unit of measurement ([MeasureUnit]) in which this sensor operates.
  **/
 enum class SensorType(
-    val index: Byte,
+    val id: Byte,
     val multiplier: Double,
     val measureUnit: MeasureUnit
 ) {
@@ -48,8 +48,8 @@ enum class SensorType(
     UNKNOWN(-1, 1.0, MeasureUnit.NOTHING)
 }
 
-fun Byte.getSensorTypeFromIndex(): SensorType {
-    return SensorType.entries.firstOrNull { it.index == this } ?: SensorType.UNKNOWN
+fun Byte.getSensorTypeFromId(): SensorType {
+    return SensorType.entries.firstOrNull { it.id == this } ?: SensorType.UNKNOWN
 }
 
 /**
@@ -79,7 +79,7 @@ enum class MeasureUnit(val symbol: StringDesc) {
  */
 fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Byte>): ByteArray {
     val maskInt = availableDeviceSensors.foldIndexed(0) { index, acc, sensorId ->
-        val isNeeded = this.any { it.index == sensorId }
+        val isNeeded = this.any { it.id == sensorId }
         if (isNeeded) acc or (1 shl index) else acc
     }
 
@@ -103,7 +103,7 @@ fun Short.toSensorsList(availableDeviceSensors: List<Byte>): List<SensorType> {
             availableDeviceSensors.getOrNull(index)?.takeIf { it != 0.toByte() }
         }
         .mapNotNull { sensorId ->
-            SensorType.entries.find { it.index == sensorId }
+            SensorType.entries.find { it.id == sensorId }
         }
 }
 

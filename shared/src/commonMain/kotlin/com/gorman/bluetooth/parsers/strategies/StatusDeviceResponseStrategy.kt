@@ -17,11 +17,11 @@ internal class StatusDeviceResponseStrategy : DeviceResponseStrategy {
             return DeviceResponse.Unknown(bytes[2], bytes.toList())
         }
 
-        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(13,19))
+        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(13, 19))
 
         return DeviceResponse.StatusDeviceData(
             lastOperationCode = bytes[3],
-            archimedesVersion = DeviceType.entries.firstOrNull { it.byte == bytes[4] } ?: DeviceType.UNKNOWN,
+            archimedesVersion = DeviceType.fromByteCode(bytes[4]) ?: DeviceType.UNKNOWN,
             firmwareVersion = bytes.read2BytesAsShort(5),
             labdiscMainMode = bytes[7],
             experimentsInMemory = bytes[8],
