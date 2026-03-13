@@ -3,15 +3,14 @@ package com.gorman.archimed.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
-import com.gorman.archimed.states.bluetooth.ExperimentsHistoryDataState
-import com.gorman.archimed.states.bluetooth.ExperimentOnlineDataState
-import com.gorman.archimed.states.bluetooth.SingleExperimentDataState
-import com.gorman.archimed.states.bluetooth.StatusDeviceDataState
+import com.gorman.archimed.states.bluetooth.ExperimentOnlineData
+import com.gorman.archimed.states.bluetooth.ExperimentsData
+import com.gorman.archimed.states.bluetooth.StatusDeviceData
 import com.gorman.bluetooth.constants.DeviceType
-import com.gorman.bluetooth.constants.Rates
-import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.SensorType
-import com.gorman.bluetooth.constants.createSensorsMask
+import com.gorman.bluetooth.mappers.DeviceCommandBuilder.setDateTimes
+import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startDefaultLogging
+import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startLogging
 import com.gorman.bluetooth.mappers.toUiState
 import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.models.DeviceResponse
@@ -35,13 +34,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.Instant
 
-@Suppress("TooManyFunctions")
 class BluetoothDeviceViewModel(
     private val bluetoothRepository: IBluetoothRepository,
     private val deviceResponseHandlerUseCase: DeviceResponseHandlerUseCase,
@@ -54,30 +47,33 @@ class BluetoothDeviceViewModel(
     private val deviceType = bluetoothRepository.deviceType
     private var connectionJob: Job? = null
     private var observationJob: Job? = null
-    private val statusDeviceDataState = MutableStateFlow(StatusDeviceDataState())
-    private val experimentOnlineDataState = MutableStateFlow(ExperimentOnlineDataState())
-    private val experimentsHistoryDataState = MutableStateFlow(emptyList<ExperimentsHistoryDataState>())
-    private val singleExperimentDataState = MutableStateFlow(SingleExperimentDataState())
-    private val availableDeviceSensors = MutableStateFlow(emptyList<Short>())
+    private val statusDeviceData = MutableStateFlow(StatusDeviceData())
+    private val experimentOnlineData = MutableStateFlow(ExperimentOnlineData())
+    private val experimentsHistoryData = MutableStateFlow(emptyList<ExperimentsData>())
+    private val experimentsData = MutableStateFlow(ExperimentsData())
+    private val availableDeviceSensors = MutableStateFlow(emptyMap<SensorType, Short>())
+    private val availableSensorsList: List<Short>
+        get() = availableDeviceSensors.value.values.toList()
+    private var rawStatusResponse: DeviceResponse.StatusDeviceData? = null
 
     private data class DeviceResponsesDataState(
-        val statusDeviceDataState: StatusDeviceDataState,
-        val experimentOnlineDataState: ExperimentOnlineDataState,
-        val experimentsHistoryDataState: List<ExperimentsHistoryDataState>,
-        val singleExperimentDataState: SingleExperimentDataState
+        val statusDeviceData: StatusDeviceData,
+        val experimentOnlineData: ExperimentOnlineData,
+        val experimentsHistoryData: List<ExperimentsData>,
+        val experimentsData: ExperimentsData
     )
 
     private data class DeviceParametersState(
         val deviceId: String?,
         val connectionState: DeviceConnectionState,
-        val deviceType: DeviceType?
+        val deviceType: DeviceType = DeviceType.UNKNOWN
     )
 
     private val deviceResponsesDataState = combine(
-        statusDeviceDataState,
-        experimentOnlineDataState,
-        experimentsHistoryDataState,
-        singleExperimentDataState
+        statusDeviceData,
+        experimentOnlineData,
+        experimentsHistoryData,
+        experimentsData
     ) { status, onlineData, fullExperiments, singleExpData ->
         DeviceResponsesDataState(status, onlineData, fullExperiments, singleExpData)
     }
@@ -116,10 +112,10 @@ class BluetoothDeviceViewModel(
             isScanning = true,
             selectedDeviceId = deviceParams.deviceId,
             selectedDeviceType = deviceParams.deviceType,
-            statusDeviceData = responseData.statusDeviceDataState,
-            experimentOnlineDataState = responseData.experimentOnlineDataState,
-            experimentsHistoryDataState = responseData.experimentsHistoryDataState,
-            singleExperimentDataState = responseData.singleExperimentDataState
+            statusDeviceData = responseData.statusDeviceData,
+            experimentOnlineData = responseData.experimentOnlineData,
+            experimentsHistoryDataState = responseData.experimentsHistoryData,
+            experimentsData = responseData.experimentsData
         )
     }.onStart {
         scan()
@@ -153,10 +149,10 @@ class BluetoothDeviceViewModel(
         if (uuid == null) return
 
         viewModelScope.launch {
-            experimentsHistoryDataState.value = emptyList()
-            statusDeviceDataState.value = StatusDeviceDataState()
-            experimentOnlineDataState.value = ExperimentOnlineDataState()
-            singleExperimentDataState.value = SingleExperimentDataState()
+            experimentsHistoryData.value = emptyList()
+            statusDeviceData.value = StatusDeviceData()
+            experimentOnlineData.value = ExperimentOnlineData()
+            experimentsData.value = ExperimentsData()
 
             val currentSelected = selectedDeviceId.value
 
@@ -218,7 +214,7 @@ class BluetoothDeviceViewModel(
                     }
                     is DeviceConnectionState.Disconnected -> {
                         observationJob?.cancel()
-                        bluetoothRepository.setDeviceType(null)
+                        bluetoothRepository.setDeviceType(DeviceType.UNKNOWN)
                     }
                     else -> Unit
                 }
@@ -246,44 +242,72 @@ class BluetoothDeviceViewModel(
         when (parsedResponse) {
             is DeviceResponse.StatusDeviceData -> {
                 val detectedType = parsedResponse.archimedesVersion
-                statusDeviceDataState.value = parsedResponse.toUiState()
+                statusDeviceData.value = parsedResponse
+                    .toUiState(availableSensorsList)
+                rawStatusResponse = parsedResponse
                 bluetoothRepository.setDeviceType(detectedType)
             }
             is DeviceResponse.GetSensorIdParams -> {
-                availableDeviceSensors.value = parsedResponse.sensorId.map { it.toShort() }
-                logger.d("Sensors Ids", availableDeviceSensors.value.toString())
-            }
-            is DeviceResponse.GetExperimentData -> {
-                singleExperimentDataState.value = parsedResponse.toUiState(availableDeviceSensors.value)
-                sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
-            }
-            is DeviceResponse.GetExperimentsList -> {
-                val newItem = parsedResponse.toUiState(availableDeviceSensors.value)
-                experimentsHistoryDataState.update { currentList ->
-                    val isDuplicate = currentList.any { it.experimentNumber == newItem.experimentNumber }
-                    if (isDuplicate) currentList else currentList + newItem
+                availableDeviceSensors.value = parsedResponse.sensorsIdsMap
+                rawStatusResponse?.let { rawStatus ->
+                    statusDeviceData.value = rawStatus
+                        .toUiState(availableSensorsList)
                 }
+                logger.d("Sensors Ids", availableSensorsList.toString())
             }
+            is DeviceResponse.GetExperimentsData -> getExperimentData(parsedResponse)
             is DeviceResponse.ExperimentOnlineData -> {
-                experimentOnlineDataState.value = parsedResponse.toUiState()
+                experimentOnlineData.value = parsedResponse.toUiState(availableSensorsList)
             }
             is DeviceResponse.Unknown -> logger.e("ViewModel", "Response is in unknown type")
             else -> logger.d("ViewModel", "Handled other response type")
         }
     }
 
+    private fun getExperimentData(parsedResponse: DeviceResponse.GetExperimentsData) {
+        if (parsedResponse.isFullHistory) {
+            val newItem = parsedResponse
+                .toUiState(availableSensorsList)
+            experimentsHistoryData.update { currentList ->
+                val isDuplicate =
+                    currentList.any { it.experimentNumber == newItem.experimentNumber }
+                if (isDuplicate) currentList else currentList + newItem
+            }
+            logger.d("History", "$parsedResponse")
+        } else {
+            val currentState = experimentsData.value
+
+            val newDataChunk = parsedResponse.toUiState(
+                availableSensors = availableSensorsList,
+                knownSensors = currentState.activeSensors
+            )
+
+            if (parsedResponse.packetNumber == 0.toShort() || currentState.experimentNumber == 0) {
+                experimentsData.value = newDataChunk
+            } else {
+                val mergedSensorsData = currentState.sensorsData.toMutableMap()
+
+                newDataChunk.sensorsData.forEach { (sensor, newPoints) ->
+                    val oldPoints = mergedSensorsData[sensor] ?: emptyList()
+                    mergedSensorsData[sensor] = oldPoints + newPoints
+                }
+
+                experimentsData.value = currentState.copy(
+                    sensorsData = mergedSensorsData
+                )
+            }
+
+            sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
+        }
+    }
+
     private fun getRequestByCommand(command: BluetoothUiEvent.DeviceCommand): List<DeviceRequest> =
         when (command) {
             BluetoothUiEvent.DeviceCommand.GetStatus -> listOf(DeviceRequest.GetStatus)
-            BluetoothUiEvent.DeviceCommand.StartDefaultLogging -> startDefaultLogging()
-            is BluetoothUiEvent.DeviceCommand.StartLogging -> startLogging(command)
+            BluetoothUiEvent.DeviceCommand.StartDefaultLogging -> startDefaultLogging(availableSensorsList)
+            is BluetoothUiEvent.DeviceCommand.StartLogging -> startLogging(command, availableSensorsList)
             BluetoothUiEvent.DeviceCommand.StopLogging -> listOf(DeviceRequest.StopLogging)
-
-            //TODO(Need to define sensors type by these ids. It's very important. After this I'll can
-            // to refactor block with device type and sensors type. And refactor models of requests
             BluetoothUiEvent.DeviceCommand.GetAllSensorsId -> listOf(DeviceRequest.GetAllSensorsId)
-            //
-
             BluetoothUiEvent.DeviceCommand.GetSensorsValues -> listOf(
                 setDateTimes(),
                 DeviceRequest.GetAllSensorsValues
@@ -302,63 +326,13 @@ class BluetoothDeviceViewModel(
             BluetoothUiEvent.DeviceCommand.SendNextDataPackage -> listOf(DeviceRequest.SendNextPacket)
             BluetoothUiEvent.DeviceCommand.ResendPrevDataPackage -> listOf(DeviceRequest.ResendPrevPacket)
             BluetoothUiEvent.DeviceCommand.ClearDeviceMemory -> {
-                experimentsHistoryDataState.value = emptyList()
-                singleExperimentDataState.value = SingleExperimentDataState()
+                experimentsHistoryData.value = emptyList()
+                experimentsData.value = ExperimentsData()
+                experimentOnlineData.value = ExperimentOnlineData()
                 listOf(DeviceRequest.ClearDeviceMemory)
             }
             BluetoothUiEvent.DeviceCommand.TerminateDownloading -> listOf(DeviceRequest.TerminateDownloading)
             BluetoothUiEvent.DeviceCommand.DeleteLastRecording -> listOf(DeviceRequest.DeleteLastRecording)
             BluetoothUiEvent.DeviceCommand.SetCurrentDateTime -> listOf(setDateTimes())
         }
-
-    private fun startLogging(command: BluetoothUiEvent.DeviceCommand.StartLogging): List<DeviceRequest> {
-        val sensorsArray = command.sensors.createSensorsMask(availableDeviceSensors.value)
-        logger.d("SensorsArray", "${sensorsArray.toList()}")
-
-        val shouldCalibrate = when(command.shouldCalibrate) {
-            true -> 0x01
-            false -> 0x00
-        }.toByte()
-
-        return listOf(
-            DeviceRequest.StopLogging,
-            setDateTimes(),
-            DeviceRequest.SetupLoggingParameters(
-                sensors = sensorsArray,
-                rate = Rates.valueOf(command.sampleRate.toString()).byte,
-                samples = Samples.valueOf(command.sampleCount.toString()).byte,
-                sensorsCalibrate = shouldCalibrate
-            ),
-            DeviceRequest.StartLogging
-        )
-    }
-
-    private fun startDefaultLogging(): List<DeviceRequest> {
-        val sensorsList = SensorType.entries
-        val sensorsArray = sensorsList.createSensorsMask(availableDeviceSensors.value)
-
-        return listOf(
-            setDateTimes(),
-            DeviceRequest.SetupLoggingParameters(
-                sensors = sensorsArray,
-                rate = Rates.RATE_10_PER_SEC.byte,
-                samples = Samples.SAMPLES_100.byte,
-                sensorsCalibrate = 0x00.toByte()
-            ),
-            DeviceRequest.StartLogging
-        )
-    }
-
-    private fun setDateTimes(): DeviceRequest.SetDateTime {
-        val now: Instant = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
-        return DeviceRequest.SetDateTime(
-            day = localDateTime.day.toByte(),
-            month = localDateTime.month.number.toByte(),
-            year = (localDateTime.year % 100).toByte(),
-            hour = localDateTime.hour.toByte(),
-            min = localDateTime.minute.toByte(),
-            sec = localDateTime.second.toByte()
-        )
-    }
 }

@@ -16,9 +16,9 @@ enum class Rates(val byte: Byte) {
     RATE_20000_PER_SEC(0x05.toByte())
 }
 
-enum class Samples(val byte: Byte) {
-    SAMPLES_10(0x00.toByte()),
-    SAMPLES_100(0x01.toByte()),
-    SAMPLES_1000(0x02.toByte()),
-    SAMPLES_10000(0x03.toByte())
+enum class Samples(val byte: Byte, val count: Short) {
+    SAMPLES_10(0x00.toByte(), 10),
+    SAMPLES_100(0x01.toByte(), 100),
+    SAMPLES_1000(0x02.toByte(), 1000),
+    SAMPLES_10000(0x03.toByte(), 10000)
 }

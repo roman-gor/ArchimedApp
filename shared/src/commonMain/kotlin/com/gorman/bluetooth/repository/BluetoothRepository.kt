@@ -24,7 +24,7 @@ internal class BluetoothRepository(
     private val logger: Logger
 ) : IBluetoothRepository {
     private val peripherals = MutableStateFlow<List<Peripheral>>(emptyList())
-    private val _deviceType = MutableStateFlow<DeviceType?>(null)
+    private val _deviceType = MutableStateFlow(DeviceType.UNKNOWN)
 
     override val deviceType = _deviceType.asStateFlow()
 
@@ -56,7 +56,7 @@ internal class BluetoothRepository(
     override fun connectionState(uuid: String): Flow<DeviceConnectionState> =
         bluetoothManager.connectionState(getPeripheral(uuid)).map { it.toDomain() }
 
-    override fun setDeviceType(type: DeviceType?) {
+    override fun setDeviceType(type: DeviceType) {
         _deviceType.value = type
     }
 

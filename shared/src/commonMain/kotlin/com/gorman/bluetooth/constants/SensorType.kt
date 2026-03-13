@@ -1,19 +1,22 @@
 package com.gorman.bluetooth.constants
 
+import com.gorman.archimed.shared.MR
+import dev.icerock.moko.resources.desc.Resource
+import dev.icerock.moko.resources.desc.StringDesc
 
 /**
  * A complete registry of supported hardware sensors for the device Archimedes.
- * @property value The decimal identifier (ID) of the sensor.
+ * @property index The decimal identifier (ID) of the sensor.
  * @property multiplier The multiplier (bit value).
  * @property measureUnit The physical unit of measurement ([MeasureUnit]) in which this sensor operates.
  **/
 enum class SensorType(
-    val value: Short,
+    val index: Short,
     val multiplier: Double,
     val measureUnit: MeasureUnit
 ) {
     AMBIENT_TEMPERATURE(30, 0.1, MeasureUnit.CELSIUS),
-    EXTERNAL_TEMPERATURE(51, 0.1, MeasureUnit.CELSIUS),
+    EXTERNAL_TEMPERATURE(51, 0.01, MeasureUnit.CELSIUS),
     EXTERNAL_ANALOG_CONNECTOR(52, 0.001, MeasureUnit.VOLTS),
     LIGHT_HIGH_SENSITIVE(53, 0.1, MeasureUnit.LUX),
     LIGHT_MEDIUM_SENSITIVE(54, 1.0, MeasureUnit.LUX),
@@ -40,28 +43,33 @@ enum class SensorType(
     BLOOD_PRESSURE_PULSE(81, 0.00004578, MeasureUnit.VOLTS),
     BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS),
     RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG),
-    HUMIDITY(6, 1.0, MeasureUnit.PERCENT),
-    CONDUCTIVITY_GENERIC(2, 1.0, MeasureUnit.MICROSIEMENS)
+    HUMIDITY(6, 0.1, MeasureUnit.PERCENT),
+    CONDUCTIVITY_GENERIC(2, 1.0, MeasureUnit.MICROSIEMENS),
+    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING)
+}
+
+fun Byte.getSensorTypeFromIndex(): SensorType {
+    return SensorType.entries.firstOrNull { it.index == this.toShort() } ?: SensorType.UNKNOWN
 }
 
 /**
  * Enumeration of physical measurement units supported by the device's sensors.
  **/
-enum class MeasureUnit(val symbol: String) {
-    CELSIUS("°C"),
-    VOLTS("V"),
-    MILLIVOLTS("mV"),
-    LUX("lux"),
-    KLX("klx"),
-    MICROSIEMENS("uS"),
-    MILLISIEMENS("mS"),
-    BITS("bits"),
-    G_FORCE("g"),
-    MILLITESLA("mT"),
-    KILOPASCAL("kPa"),
-    MM_HG("mmHg"),
-    PERCENT("%"),
-    NOTHING("")
+enum class MeasureUnit(val symbol: StringDesc) {
+    CELSIUS(StringDesc.Resource(MR.strings.celsius_symbol)),
+    VOLTS(StringDesc.Resource(MR.strings.volts_symbol)),
+    MILLIVOLTS(StringDesc.Resource(MR.strings.millivolts_symbol)),
+    LUX(StringDesc.Resource(MR.strings.lux_symbol)),
+    KLX(StringDesc.Resource(MR.strings.klx_symbol)),
+    MICROSIEMENS(StringDesc.Resource(MR.strings.microsiemens_symbol)),
+    MILLISIEMENS(StringDesc.Resource(MR.strings.millisiemens_symbol)),
+    BITS(StringDesc.Resource(MR.strings.bits_symbol)),
+    G_FORCE(StringDesc.Resource(MR.strings.g_force_symbol)),
+    MILLITESLA(StringDesc.Resource(MR.strings.millitesla_symbol)),
+    KILOPASCAL(StringDesc.Resource(MR.strings.kilopascal_symbol)),
+    MM_HG(StringDesc.Resource(MR.strings.mm_hg_symbol)),
+    PERCENT(StringDesc.Resource(MR.strings.percent_symbol)),
+    NOTHING(StringDesc.Resource(MR.strings.nothing_symbol))
 }
 
 /**
@@ -70,12 +78,11 @@ enum class MeasureUnit(val symbol: String) {
  * @return 2 byte ByteArray.
  */
 fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Short>): ByteArray {
-
     val mask = ByteArray(2)
 
     availableDeviceSensors.forEachIndexed { index, deviceSensorId ->
 
-        val shouldEnable = this.any { it.value == deviceSensorId }
+        val shouldEnable = this.any { it.index == deviceSensorId }
 
         if (shouldEnable) {
             when (index) {
@@ -90,4 +97,84 @@ fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Short>): Byt
         }
     }
     return mask
+}
+
+/**
+ * Decodes a 2-byte mask from the device back into a list of sensors.
+ * @param availableDeviceSensors An array of 16 sensor IDs received from the device (GetSensorsIds).
+ * @return A list of recognized sensors from the SensorType enum.
+ */
+fun Short.toSensorsList(availableDeviceSensors: List<Short>): List<SensorType> {
+    val byte0 = (this.toInt() shr 8) and 0xFF
+    val byte1 = this.toInt() and 0xFF
+
+    return (0..15)
+        .filter { index ->
+            if (index < 8) {
+                (byte1 and (1 shl index)) != 0
+            } else {
+                (byte0 and (1 shl (index - 8))) != 0
+            }
+        }
+        .mapNotNull { activeIndex ->
+            availableDeviceSensors.getOrNull(activeIndex)
+        }
+        .filter { sensorId ->
+            sensorId != 0.toShort()
+        }
+        .mapNotNull { validSensorId ->
+            SensorType.entries.find { it.index == validSensorId }
+        }
+}
+
+/**
+ * Parses a byte array into a list of sensor values.
+ * Combines pairs of bytes into 16-bit signed integers.
+ * @return A list of integer values representing sensor data.
+ */
+fun ByteArray.getSensorsValues(): List<Int> {
+    val parsedList = mutableListOf<Int>()
+
+    for (i in 0 until this.size - 1 step 2) {
+        val msb = this[i].toInt() and 0xFF
+        val lsb = this[i + 1].toInt() and 0xFF
+
+        val combined = (msb shl 8) or lsb
+
+        parsedList.add(combined.toShort().toInt())
+    }
+    return parsedList.toList()
+}
+
+/**
+ * Splits a continuous raw data array into separate lists for each sensor,
+ * while multiplying the values by their respective factor (multiplier).
+ * @param activeSensors A list of enabled sensors (decoded from the Packet 0 mask).
+ * @param expectedSamples Optional: the number of data points from Packet 0 used to trim trailing "garbage" zeros.
+ */
+fun List<Int>.toChartData(
+    activeSensors: List<SensorType>,
+    expectedSamples: Int? = null
+): Map<SensorType, List<Double>> {
+    val sensorsCount = activeSensors.size
+    if (sensorsCount == 0) return emptyMap()
+
+    val chartData = activeSensors.associateWith { mutableListOf<Double>() }
+
+    val validDataLimit = expectedSamples?.let { it * sensorsCount } ?: this.size
+
+    for (index in 0 until validDataLimit) {
+        if (index >= this.size) break
+
+        val rawValue = this[index]
+        val currentSensor = activeSensors[index % sensorsCount]
+
+        val physicalValue = rawValue * currentSensor.multiplier
+
+        val roundedValue = kotlin.math.round(physicalValue * 100.0) / 100.0
+
+        chartData[currentSensor]?.add(roundedValue)
+    }
+
+    return chartData
 }
