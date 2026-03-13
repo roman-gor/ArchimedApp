@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
 }
 
+
 val kotlinFiles = "**/*.kt"
 val resourceFiles = "**/resources/**"
 val buildFiles = "**/build/**"

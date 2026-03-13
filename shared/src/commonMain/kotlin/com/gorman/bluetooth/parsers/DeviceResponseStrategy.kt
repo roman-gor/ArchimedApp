@@ -4,14 +4,14 @@ import com.gorman.bluetooth.constants.DeviceCommandByte
 import com.gorman.bluetooth.models.DeviceResponse
 
 interface DeviceResponseStrategy {
-    val responseCode: Byte
+    val responseType: Byte
 
     fun canParse(bytes: ByteArray): Boolean {
         if (bytes.size < 3) return false
 
-        return bytes[0] == DeviceCommandByte.HEADER_RESPONSE_1.byte &&
-            bytes[1] == DeviceCommandByte.HEADER_RESPONSE_2.byte &&
-            bytes[2] == responseCode
+        return byteArrayOf(bytes[0], bytes[1])
+            .contentEquals(DeviceCommandByte.HEADER_RESPONSE.bytes) &&
+            bytes[2] == responseType
     }
 
     fun isChecksumValid(bytes: ByteArray, expectedLength: Int): Boolean {
@@ -25,5 +25,5 @@ interface DeviceResponseStrategy {
         return (sum and 0xFF) == 0
     }
 
-    fun parse(bytes: ByteArray): DeviceResponse?
+    fun parse(bytes: ByteArray): DeviceResponse
 }

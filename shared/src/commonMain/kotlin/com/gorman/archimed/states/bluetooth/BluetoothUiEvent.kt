@@ -1,24 +1,35 @@
 package com.gorman.archimed.states.bluetooth
 
+import com.gorman.bluetooth.constants.Rates
+import com.gorman.bluetooth.constants.Samples
+import com.gorman.bluetooth.constants.SensorType
+
 sealed interface BluetoothUiEvent {
     data class OnConnect(val uuid: String?) : BluetoothUiEvent
     data class OnDisconnect(val uuid: String?) : BluetoothUiEvent
     data object OnScan : BluetoothUiEvent
     data class OnSendCommand(val command: DeviceCommand) : BluetoothUiEvent
 
-    enum class DeviceCommand {
-        GET_STATUS,
-        START_LOGGING,
-        STOP_LOGGING,
-        GET_ALL_SENSORS_ID,
-        GET_SENSORS_VALUES,
-        GET_DOWNLOADED_STORE_DATA,
-        GET_DOWNLOADED_INFO,
-        SEND_NEXT_DOWNLOAD,
-        RESEND_PREV_DOWNLOAD,
-        CLEAR_ALL_SAMPLES_MEMORY,
-        TERMINATE_DOWNLOADING,
-        DELETE_LAST_RECORDING,
-        SET_DATE_TIME
+    sealed interface DeviceCommand {
+        object GetStatus : DeviceCommand
+        object StartDefaultLogging : DeviceCommand
+        data class StartLogging(
+            val sensors: List<SensorType>,
+            val sampleRate: Rates = Rates.RATE_10_PER_SEC,
+            val sampleCount: Samples = Samples.SAMPLES_100,
+            val shouldCalibrate: Boolean = false
+        ) : DeviceCommand
+        object StopLogging : DeviceCommand
+        object GetAllSensorsId : DeviceCommand
+        object GetSensorsValues : DeviceCommand
+        object GetExperimentsList : DeviceCommand
+        data class GetExperimentData(val experimentNumber: Int) : DeviceCommand
+        object SendNextDataPackage : DeviceCommand
+        object ResendPrevDataPackage : DeviceCommand
+        object ClearDeviceMemory : DeviceCommand
+        object TerminateDownloading : DeviceCommand
+        object DeleteLastRecording : DeviceCommand
+        object SetCurrentDateTime : DeviceCommand
+        object GetExternalSensorsData : DeviceCommand
     }
 }

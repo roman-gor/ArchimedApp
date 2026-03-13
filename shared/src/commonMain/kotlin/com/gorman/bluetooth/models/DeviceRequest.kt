@@ -6,50 +6,50 @@ sealed interface DeviceRequest {
     fun toByteArray(): ByteArray
 
     data object GetStatus : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x10.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x10.toByte())
     }
 
     data object StartLogging : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x22.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x22.toByte())
     }
 
     data object StopLogging : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x33.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x33.toByte())
     }
 
-    data object DownloadAllRecordingInfo : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x45.toByte())
+    data object GetAllExperimentsList : DeviceRequest {
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x45.toByte())
     }
 
-    data object SendNextDownloadingPacket : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x46.toByte())
+    data object SendNextPacket : DeviceRequest {
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x46.toByte())
     }
 
-    data object ResendPrevDownloadingPacket : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x47.toByte())
+    data object ResendPrevPacket : DeviceRequest {
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x47.toByte())
     }
 
     data object TerminateDownloading : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x48.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x48.toByte())
     }
 
     data object GetAllSensorsValues : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x55.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x55.toByte())
     }
 
     data object DeleteLastRecording : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x88.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x88.toByte())
     }
 
-    data object ClearAllSamplesMemory : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0x99.toByte())
+    data object ClearDeviceMemory : DeviceRequest {
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0x99.toByte())
     }
 
     data object GetAllSensorsId : DeviceRequest {
-        override fun toByteArray(): ByteArray = buildBluetoothPacket(commandCode = 0xAA.toByte())
+        override fun toByteArray(): ByteArray = buildBluetoothPacket(typeCode = 0xAA.toByte())
     }
 
-    data class ArchLoggingSetup(
+    data class SetupLoggingParameters(
         val sensors: ByteArray,
         val rate: Byte,
         val samples: Byte,
@@ -60,7 +60,7 @@ sealed interface DeviceRequest {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as ArchLoggingSetup
+            other as SetupLoggingParameters
 
             return rate == other.rate &&
                 samples == other.samples &&
@@ -84,7 +84,7 @@ sealed interface DeviceRequest {
         }
     }
 
-    data class DownloadStoreData(val experimentNumber: Byte) : DeviceRequest {
+    data class GetExperimentData(val experimentNumber: Byte) : DeviceRequest {
         override fun toByteArray(): ByteArray {
             val params = byteArrayOf(experimentNumber)
             return buildBluetoothPacket(0x44.toByte(), params)
@@ -104,45 +104,15 @@ sealed interface DeviceRequest {
             return buildBluetoothPacket(0xCC.toByte(), params)
         }
     }
-
-    data class SetSnBtName(
-        val year: Byte,
-        val month: Byte,
-        val number: ByteArray
-    ) : DeviceRequest {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || this::class != other::class) return false
-
-            other as SetSnBtName
-
-            return year == other.year &&
-                month == other.month &&
-                number.contentEquals(other.number)
-        }
-
-        override fun hashCode(): Int {
-            var result = year.toInt()
-            result = 31 * result + month.toInt()
-            result = 31 * result + number.contentHashCode()
-            return result
-        }
-
-        override fun toByteArray(): ByteArray {
-            val params = byteArrayOf(year, month) + number
-            return buildBluetoothPacket(0x9A.toByte(), params)
-        }
-    }
 }
 
 private fun buildBluetoothPacket(
-    commandCode: Byte,
+    typeCode: Byte,
     parameters: ByteArray = byteArrayOf()
 ): ByteArray {
-    val header1 = DeviceCommandByte.HEADER_REQUEST_1.byte
-    val header2 = DeviceCommandByte.HEADER_REQUEST_2.byte
+    val header = DeviceCommandByte.HEADER_REQUEST.bytes
 
-    val payload = byteArrayOf(header1, header2, commandCode) + parameters
+    val payload = header + byteArrayOf(typeCode) + parameters
 
     val sum = payload.sumOf { it.toInt() and 0xFF }
     val cs = ((0x100 - (sum and 0xFF)) and 0xFF).toByte()
