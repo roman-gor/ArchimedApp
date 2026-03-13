@@ -12,21 +12,14 @@ internal class GetExperimentsListResponseStrategy : DeviceResponseStrategy {
 
     override fun parse(bytes: ByteArray): DeviceResponse {
         if (!isChecksumValid(bytes, expectedLength)) {
-            return DeviceResponse.Unknown(bytes[2].toShort(), bytes.toList())
+            return DeviceResponse.Unknown(bytes[2], bytes.toList())
         }
 
-        val dateTime = getDateTime(
-            day = bytes[9],
-            month = bytes[10],
-            year = bytes[11],
-            hour = bytes[12],
-            minute = bytes[13],
-            second = bytes[14],
-        )
+        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(9,15))
 
         return DeviceResponse.GetExperimentsData(
             experimentNumber = bytes[3],
-            sensorType = bytes.read2BytesAsShort(4),
+            sensors = bytes.read2BytesAsShort(4),
             sampleRate = bytes[6],
             samplesCount = bytes.read2BytesAsShort(7),
             dateTime = dateTime,

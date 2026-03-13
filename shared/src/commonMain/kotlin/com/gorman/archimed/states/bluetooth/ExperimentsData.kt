@@ -6,7 +6,7 @@ import com.gorman.bluetooth.constants.SensorType
 import kotlinx.datetime.LocalDateTime
 
 data class ExperimentsData(
-    val experimentNumber: Int = 0,
+    val experimentNumber: Byte = 0,
     val sensorsData: Map<SensorType, List<Double>> = mapOf(),
     val sampleRate: Rates? = null,
     val samplesCount: Samples? = null,

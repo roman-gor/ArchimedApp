@@ -25,5 +25,5 @@ interface DeviceResponseStrategy {
         return (sum and 0xFF) == 0
     }
 
-    fun parse(bytes: ByteArray): DeviceResponse?
+    fun parse(bytes: ByteArray): DeviceResponse
 }

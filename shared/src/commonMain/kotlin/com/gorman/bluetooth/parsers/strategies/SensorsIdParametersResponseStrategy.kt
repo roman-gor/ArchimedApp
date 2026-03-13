@@ -12,13 +12,13 @@ internal class SensorsIdParametersResponseStrategy : DeviceResponseStrategy {
     override fun parse(bytes: ByteArray): DeviceResponse {
         if (!isChecksumValid(bytes, expectedLength) || bytes.size < 21) {
             return DeviceResponse.Unknown(
-                bytes[2].toShort(),
+                bytes[2],
                 bytes.toList()
             )
         }
 
-        val sensorsIdsMap = bytes.copyOfRange(3, 19).associate { it.getSensorTypeFromIndex() to it.toShort() }
-        val externalSensorPair = bytes[19].getSensorTypeFromIndex() to bytes[19].toShort()
+        val sensorsIdsMap = bytes.copyOfRange(3, 19).associateBy { it.getSensorTypeFromIndex() }
+        val externalSensorPair = bytes[19].getSensorTypeFromIndex() to bytes[19]
 
         return DeviceResponse.GetSensorIdParams(
             sensorsIdsMap = sensorsIdsMap,

@@ -8,12 +8,12 @@ import kotlinx.datetime.LocalDateTime
 
 data class StatusDeviceData(
     val archimedesVersion: DeviceType = DeviceType.UNKNOWN,
-    val experimentsInMemory: Int = 0,
+    val experimentsInMemory: Byte = 0,
     val lastUsedSensorsType: List<SensorType> = emptyList(),
     val lastSamplesRates: Rates? = null,
     val lastSamplesCount: Samples? = null,
     val dateTime: LocalDateTime? = null,
-    val batteryLevel: Int = 0,
-    val memoryUsed: Int = 0,
-    val externalAnalogSensor: SensorType = SensorType.UNKNOWN
+    val batteryLevel: Byte = 0,
+    val memoryUsed: Byte = 0,
+    val externalAnalogSensor: Byte = 0
 )

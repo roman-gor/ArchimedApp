@@ -11,7 +11,7 @@ import dev.icerock.moko.resources.desc.StringDesc
  * @property measureUnit The physical unit of measurement ([MeasureUnit]) in which this sensor operates.
  **/
 enum class SensorType(
-    val index: Short,
+    val index: Byte,
     val multiplier: Double,
     val measureUnit: MeasureUnit
 ) {
@@ -49,7 +49,7 @@ enum class SensorType(
 }
 
 fun Byte.getSensorTypeFromIndex(): SensorType {
-    return SensorType.entries.firstOrNull { it.index == this.toShort() } ?: SensorType.UNKNOWN
+    return SensorType.entries.firstOrNull { it.index == this } ?: SensorType.UNKNOWN
 }
 
 /**
@@ -77,26 +77,16 @@ enum class MeasureUnit(val symbol: StringDesc) {
  * @param availableDeviceSensors List of available device sensors.
  * @return 2 byte ByteArray.
  */
-fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Short>): ByteArray {
-    val mask = ByteArray(2)
-
-    availableDeviceSensors.forEachIndexed { index, deviceSensorId ->
-
-        val shouldEnable = this.any { it.index == deviceSensorId }
-
-        if (shouldEnable) {
-            when (index) {
-                in 0..7 -> {
-                    mask[1] = (mask[1].toInt() or (1 shl index)).toByte()
-                }
-                in 8..15 -> {
-                    val bitPosition = index - 8
-                    mask[0] = (mask[0].toInt() or (1 shl bitPosition)).toByte()
-                }
-            }
-        }
+fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Byte>): ByteArray {
+    val maskInt = availableDeviceSensors.foldIndexed(0) { index, acc, sensorId ->
+        val isNeeded = this.any { it.index == sensorId }
+        if (isNeeded) acc or (1 shl index) else acc
     }
-    return mask
+
+    return byteArrayOf(
+        ((maskInt shr 8) and 0xFF).toByte(),
+        (maskInt and 0xFF).toByte()
+    )
 }
 
 /**
@@ -104,26 +94,16 @@ fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Short>): Byt
  * @param availableDeviceSensors An array of 16 sensor IDs received from the device (GetSensorsIds).
  * @return A list of recognized sensors from the SensorType enum.
  */
-fun Short.toSensorsList(availableDeviceSensors: List<Short>): List<SensorType> {
-    val byte0 = (this.toInt() shr 8) and 0xFF
-    val byte1 = this.toInt() and 0xFF
+fun Short.toSensorsList(availableDeviceSensors: List<Byte>): List<SensorType> {
+    val maskInt = this.toInt() and 0xFFFF
 
     return (0..15)
-        .filter { index ->
-            if (index < 8) {
-                (byte1 and (1 shl index)) != 0
-            } else {
-                (byte0 and (1 shl (index - 8))) != 0
-            }
+        .filter { index -> (maskInt and (1 shl index)) != 0 }
+        .mapNotNull { index ->
+            availableDeviceSensors.getOrNull(index)?.takeIf { it != 0.toByte() }
         }
-        .mapNotNull { activeIndex ->
-            availableDeviceSensors.getOrNull(activeIndex)
-        }
-        .filter { sensorId ->
-            sensorId != 0.toShort()
-        }
-        .mapNotNull { validSensorId ->
-            SensorType.entries.find { it.index == validSensorId }
+        .mapNotNull { sensorId ->
+            SensorType.entries.find { it.index == sensorId }
         }
 }
 
@@ -132,8 +112,8 @@ fun Short.toSensorsList(availableDeviceSensors: List<Short>): List<SensorType> {
  * Combines pairs of bytes into 16-bit signed integers.
  * @return A list of integer values representing sensor data.
  */
-fun ByteArray.getSensorsValues(): List<Int> {
-    val parsedList = mutableListOf<Int>()
+fun ByteArray.getSensorsValues(): List<Short> {
+    val parsedList = mutableListOf<Short>()
 
     for (i in 0 until this.size - 1 step 2) {
         val msb = this[i].toInt() and 0xFF
@@ -141,7 +121,7 @@ fun ByteArray.getSensorsValues(): List<Int> {
 
         val combined = (msb shl 8) or lsb
 
-        parsedList.add(combined.toShort().toInt())
+        parsedList.add(combined.toShort())
     }
     return parsedList.toList()
 }
@@ -152,9 +132,9 @@ fun ByteArray.getSensorsValues(): List<Int> {
  * @param activeSensors A list of enabled sensors (decoded from the Packet 0 mask).
  * @param expectedSamples Optional: the number of data points from Packet 0 used to trim trailing "garbage" zeros.
  */
-fun List<Int>.toChartData(
+fun List<Short>.toChartData(
     activeSensors: List<SensorType>,
-    expectedSamples: Int? = null
+    expectedSamples: Short? = null
 ): Map<SensorType, List<Double>> {
     val sensorsCount = activeSensors.size
     if (sensorsCount == 0) return emptyMap()

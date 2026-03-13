@@ -13,27 +13,23 @@ fun ByteArray.read2BytesAsShort(startIndex: Int): Short {
     return rawInt.toShort()
 }
 
-fun getDateTime(
-    day: Byte,
-    month: Byte,
-    year: Byte,
-    hour: Byte,
-    minute: Byte,
-    second: Byte
-): LocalDateTime? {
-    val fullYear = if (year < 100) (2000 + year.toUnsignedInt()) else year.toUnsignedInt()
+fun getDateTime(dateTimeByteArray: ByteArray): LocalDateTime? {
+    if (dateTimeByteArray.size != 6) return null
 
-    val safeMonth = month.toUnsignedInt().coerceIn(1, 12)
-    val safeDay = day.toUnsignedInt().coerceIn(1, 31)
-    val safeHour = hour.toUnsignedInt().coerceIn(0, 23)
-    val safeMinute = minute.toUnsignedInt().coerceIn(0, 59)
-    val safeSecond = second.toUnsignedInt().coerceIn(0, 59)
+    val fullYear = if (dateTimeByteArray[2] < 100) {
+        2000 + dateTimeByteArray[2].toUnsignedInt()
+    } else {
+        dateTimeByteArray[2].toUnsignedInt()
+    }
+    val safeDay = dateTimeByteArray[0].toUnsignedInt().coerceIn(1, 31)
+    val safeMonth = dateTimeByteArray[1].toUnsignedInt().coerceIn(1, 12)
+    val safeHour = dateTimeByteArray[3].toUnsignedInt().coerceIn(0, 23)
+    val safeMinute = dateTimeByteArray[4].toUnsignedInt().coerceIn(0, 59)
+    val safeSecond = dateTimeByteArray[5].toUnsignedInt().coerceIn(0, 59)
 
     return runCatching {
         val date = LocalDate(year = fullYear, month = safeMonth, day = safeDay)
         val time = LocalTime(hour = safeHour, minute = safeMinute, second = safeSecond)
         LocalDateTime(date, time)
-    }.onFailure {
-        LocalDateTime(LocalDate(2000, 1, 1), LocalTime(0, 0, 0))
     }.getOrNull()
 }

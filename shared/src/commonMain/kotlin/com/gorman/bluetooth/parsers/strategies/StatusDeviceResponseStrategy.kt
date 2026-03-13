@@ -2,7 +2,6 @@ package com.gorman.bluetooth.parsers.strategies
 
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.ResponsesTypes
-import com.gorman.bluetooth.constants.getSensorTypeFromIndex
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.DeviceResponseStrategy
 import com.gorman.bluetooth.parsers.getDateTime
@@ -15,17 +14,10 @@ internal class StatusDeviceResponseStrategy : DeviceResponseStrategy {
 
     override fun parse(bytes: ByteArray): DeviceResponse {
         if (!isChecksumValid(bytes, expectedLength)) {
-            return DeviceResponse.Unknown(bytes[2].toShort(), bytes.toList())
+            return DeviceResponse.Unknown(bytes[2], bytes.toList())
         }
 
-        val dateTime = getDateTime(
-            day = bytes[13],
-            month = bytes[14],
-            year = bytes[15],
-            hour = bytes[16],
-            minute = bytes[17],
-            second = bytes[18],
-        )
+        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(13,19))
 
         return DeviceResponse.StatusDeviceData(
             lastOperationCode = bytes[3],
@@ -33,7 +25,7 @@ internal class StatusDeviceResponseStrategy : DeviceResponseStrategy {
             firmwareVersion = bytes.read2BytesAsShort(5),
             labdiscMainMode = bytes[7],
             experimentsInMemory = bytes[8],
-            lastUsedSensorsType = bytes.read2BytesAsShort(9),
+            lastUsedSensors = bytes.read2BytesAsShort(9),
             lastSamplesRate = bytes[11],
             lastSamplesCount = bytes[12],
             dateTime = dateTime,
@@ -42,7 +34,7 @@ internal class StatusDeviceResponseStrategy : DeviceResponseStrategy {
             sNYear = bytes[21],
             sNMonth = bytes[22],
             sNNumber = bytes.read2BytesAsShort(23),
-            externalAnalogSensor = bytes[25].getSensorTypeFromIndex(),
+            externalAnalogSensor = bytes[25],
         )
     }
 }
