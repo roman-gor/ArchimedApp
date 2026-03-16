@@ -262,7 +262,6 @@ class BluetoothDeviceViewModel(
             is DeviceResponse.GetExperimentsData -> getExperimentData(parsedResponse)
             is DeviceResponse.ExperimentOnlineData -> {
                 experimentOnlineData.value = parsedResponse.toUiState(availableSensorsList)
-                logger.d("ONLINE", "${experimentOnlineData.value}")
             }
             is DeviceResponse.Unknown -> logger.e("ViewModel", "Response is in unknown type")
             else -> logger.d("ViewModel", "Handled other response type")
@@ -302,13 +301,12 @@ class BluetoothDeviceViewModel(
                 sensorsValues = downloadingRawDataBuffer.toList()
             )
 
-            val finalUiState = completeResponse.toUiState(
+            val finalExperimentData = completeResponse.toUiState(
                 availableSensors = availableSensorsList
             )
 
-            experimentsData.value = finalUiState
-            logger.d("Data", "$finalUiState")
-            logger.d("Data", "Mapped successfully to UI!")
+            experimentsData.value = finalExperimentData
+            logger.d("Data", "$finalExperimentData")
 
             downloadingExperimentHeader = null
             downloadingRawDataBuffer.clear()

@@ -140,13 +140,11 @@ fun List<Short>.toChartData(
 
     val expectedValues = expectedSamples?.let { it.toInt() * frameSize } ?: this.size
 
-    val actualValidSize = minOf(expectedValues, this.size)
-
-    val safeSize = (actualValidSize / frameSize) * frameSize
+    val actualSize = minOf(expectedValues, this.size)
 
     val resultMap = activeSensors.associateWith { mutableListOf<Double>() }
 
-    this.take(safeSize)
+    this.take(actualSize)
         .chunked(frameSize)
         .forEach { frame ->
             if (frame.size < frameSize) return@forEach
