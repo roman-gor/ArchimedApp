@@ -88,6 +88,7 @@ fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Byte>): Byte
         val isNeeded = this.any { it.id == sensorId }
         if (isNeeded) acc or (1 shl index) else acc
     }
+
     return byteArrayOf(
         ((maskInt shr 8) and 0xFF).toByte(),
         (maskInt and 0xFF).toByte()
