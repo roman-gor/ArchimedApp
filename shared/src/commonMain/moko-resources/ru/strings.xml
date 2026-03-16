@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="app_name">Архимед: учеба и эксперименты</string>
+    <string name="milliamps_symbol">мА</string>
+    <string name="beats_heart">уд/мин</string>
+    <string name="ntu_symbol">ЕМФ</string>
     <string name="volts_symbol">В</string>
     <string name="celsius_symbol">°C</string>
     <string name="millivolts_symbol">мВ</string>

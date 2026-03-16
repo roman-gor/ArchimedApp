@@ -9,7 +9,6 @@ import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.toChartData
 import com.gorman.bluetooth.constants.toSensorsList
 import com.gorman.bluetooth.models.DeviceResponse
-import kotlin.collections.forEachIndexed
 
 fun DeviceResponse.StatusDeviceData.toUiState(availableSensors: List<Byte>): StatusDeviceData =
     StatusDeviceData(
@@ -25,12 +24,19 @@ fun DeviceResponse.StatusDeviceData.toUiState(availableSensors: List<Byte>): Sta
     )
 
 fun DeviceResponse.ExperimentOnlineData.toUiState(availableSensors: List<Byte>): ExperimentOnlineData {
-    val sensorsData = mutableMapOf<SensorType, Double>()
+    val sensorsData = mutableMapOf<SensorType, List<Double>>()
     val sensors = sensors.toSensorsList(availableSensors)
-    sensors.forEachIndexed { index, sensorType ->
-        val value = sensorsValues[index] * sensorType.multiplier
-        val roundedValue = kotlin.math.round(value * 100.0) / 100.0
-        sensorsData[sensorType] = roundedValue
+    var cursor = 0
+    sensors.forEach { sensor ->
+        val count = sensor.valuesCount
+        if (cursor + count <= sensorsValues.size) {
+            val rawData = sensorsValues.subList(cursor, cursor + count)
+            sensorsData[sensor] = rawData.map {
+                val processedValue = if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
+                kotlin.math.round(((processedValue * sensor.multiplier) * 100.0) / 100.0)
+            }
+        }
+        cursor += count
     }
 
     return ExperimentOnlineData(
@@ -51,7 +57,7 @@ fun DeviceResponse.GetExperimentsData.toUiState(
 
     return ExperimentsData(
         experimentNumber = experimentNumber,
-        sensorsData = sensorsValues.toChartData(sensors),
+        sensorsData = sensorsValues.toChartData(sensors, samplesCount),
         sampleRate = Rates.fromByte(sampleRate),
         samplesCount = Samples.fromCount(samplesCount),
         experimentDateTime = dateTime,

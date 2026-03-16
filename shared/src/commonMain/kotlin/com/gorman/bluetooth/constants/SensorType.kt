@@ -13,39 +13,85 @@ import dev.icerock.moko.resources.desc.StringDesc
 enum class SensorType(
     val id: Byte,
     val multiplier: Double,
-    val measureUnit: MeasureUnit
+    val measureUnit: MeasureUnit,
+    val valuesCount: Int
 ) {
-    AMBIENT_TEMPERATURE(30, 0.1, MeasureUnit.CELSIUS),
-    EXTERNAL_TEMPERATURE(51, 0.01, MeasureUnit.CELSIUS),
-    EXTERNAL_ANALOG_CONNECTOR(52, 0.001, MeasureUnit.VOLTS),
-    LIGHT_HIGH_SENSITIVE(53, 0.1, MeasureUnit.LUX),
-    LIGHT_MEDIUM_SENSITIVE(54, 1.0, MeasureUnit.LUX),
-    LIGHT_LOW_SENSITIVE(55, 0.01, MeasureUnit.KLX),
-    CONDUCTIVITY_HIGH_SENSITIVE(56, 0.1, MeasureUnit.MICROSIEMENS),
-    CONDUCTIVITY_MEDIUM_SENSITIVE(57, 1.0, MeasureUnit.MICROSIEMENS),
-    CONDUCTIVITY_LOW_SENSITIVE(58, 0.01, MeasureUnit.MILLISIEMENS),
-    COMMON_ANALOG(75, 1.0, MeasureUnit.BITS),
-    ACCELEROMETER_HIGH_SENSITIVE(59, 1.0, MeasureUnit.G_FORCE),
-    ACCELEROMETER_MEDIUM_SENSITIVE(60, 1.0, MeasureUnit.G_FORCE),
-    ACCELEROMETER_LOW_SENSITIVE(35, 1.0, MeasureUnit.G_FORCE),
-    MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA),
-    AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL),
-    VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS),
-    VOLTAGE_5V(64, 0.001, MeasureUnit.VOLTS),
-    VOLTAGE_10V(65, 0.001, MeasureUnit.VOLTS),
-    VOLTAGE_15V(66, 0.001, MeasureUnit.VOLTS),
-    VOLTAGE_30V(67, 0.01, MeasureUnit.VOLTS),
-    EXTERNAL_TEMPERATURE_NTC(74, 0.1, MeasureUnit.CELSIUS),
-    NITRATE_ION(72, 0.1, MeasureUnit.MILLIVOLTS),
-    CHLORIDE_ION(73, 0.1, MeasureUnit.MILLIVOLTS),
-    BLOOD_PRESSURE_MAIN(79, 0.0, MeasureUnit.NOTHING),
-    BLOOD_PRESSURE_CUFF(80, 0.1, MeasureUnit.MM_HG),
-    BLOOD_PRESSURE_PULSE(81, 0.00004578, MeasureUnit.VOLTS),
-    BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS),
-    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG),
-    HUMIDITY(6, 0.1, MeasureUnit.PERCENT),
-    CONDUCTIVITY_GENERIC(2, 1.0, MeasureUnit.MICROSIEMENS),
-    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING)
+    HEART_PULSE(22, 1.0, MeasureUnit.BEATS_PER_MIN, 2),
+    CURRENT_STRENGTH(28, 0.1, MeasureUnit.AMPS, 1),
+    AMBIENT_TEMPERATURE(30, 0.1, MeasureUnit.CELSIUS, 1),
+    EXTERNAL_TEMPERATURE(51, 0.01, MeasureUnit.CELSIUS, 1),
+    EXTERNAL_ANALOG_CONNECTOR(52, 0.001, MeasureUnit.VOLTS, 1),
+    LIGHT_HIGH_SENSITIVE(53, 0.1, MeasureUnit.LUX, 1),
+    LIGHT_MEDIUM_SENSITIVE(54, 1.0, MeasureUnit.LUX, 1),
+    LIGHT_LOW_SENSITIVE(55, 0.01, MeasureUnit.KLX, 1),
+    CONDUCTIVITY_HIGH_SENSITIVE(56, 0.1, MeasureUnit.MICROSIEMENS, 1),
+    CONDUCTIVITY_MEDIUM_SENSITIVE(57, 1.0, MeasureUnit.MICROSIEMENS, 1),
+    CONDUCTIVITY_LOW_SENSITIVE(58, 0.01, MeasureUnit.MILLISIEMENS, 1),
+    COMMON_ANALOG(75, 1.0, MeasureUnit.BITS, 1),
+    ACCELEROMETER_2G(59, 0.01, MeasureUnit.G_FORCE, 3),
+    ACCELEROMETER_4G(60, 0.01, MeasureUnit.G_FORCE, 3),
+    ACCELEROMETER_8G(35, 0.01, MeasureUnit.G_FORCE, 3),
+    MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA, 3),
+    AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL, 1),
+    VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS, 1),
+    VOLTAGE_5V(64, 0.001, MeasureUnit.VOLTS, 1),
+    VOLTAGE_10V(65, 0.001, MeasureUnit.VOLTS, 1),
+    VOLTAGE_15V(66, 0.001, MeasureUnit.VOLTS, 1),
+    VOLTAGE_30V(67, 0.01, MeasureUnit.VOLTS, 1),
+    EXTERNAL_TEMPERATURE_NTC(74, 0.1, MeasureUnit.CELSIUS, 1),
+    CHLORIDE_ION(72, 0.1, MeasureUnit.MILLIVOLTS, 1),
+    NITRATE_ION(73, 0.1, MeasureUnit.MILLIVOLTS, 1),
+    BLOOD_PRESSURE_MAIN(79, 0.0, MeasureUnit.NOTHING, 1),
+    BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1),
+    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2),
+    HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1),
+    PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1),
+    TURBIDITY(14, 0.1, MeasureUnit.NTU, 1),
+    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 1),
+    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1);
+
+    companion object {
+        fun getFullSensors(deviceType: DeviceType): List<SensorType> = when (deviceType) {
+            DeviceType.ECOLOGY -> listOf(
+                PH_SENSOR,
+                TURBIDITY,
+                HUMIDITY,
+                LIGHT_MEDIUM_SENSITIVE,
+                EXTERNAL_ANALOG_CONNECTOR,
+                AMBIENT_TEMPERATURE,
+                EXTERNAL_TEMPERATURE
+            )
+            DeviceType.PHYSICS -> listOf(
+                VOLTAGE_15V,
+                AIR_PRESSURE,
+                CURRENT_STRENGTH,
+                ACCELEROMETER_4G,
+                MAGNETIC_FIELD,
+                EXTERNAL_ANALOG_CONNECTOR,
+                AMBIENT_TEMPERATURE,
+                EXTERNAL_TEMPERATURE
+            )
+            DeviceType.BIOLOGY -> listOf(
+                PH_SENSOR,
+                ACCELEROMETER_4G,
+                HUMIDITY,
+                LIGHT_MEDIUM_SENSITIVE,
+                EXTERNAL_ANALOG_CONNECTOR,
+                AMBIENT_TEMPERATURE,
+                EXTERNAL_TEMPERATURE
+            )
+            DeviceType.PHYSIOLOGY -> listOf(
+                PH_SENSOR,
+                RESPIRATORY_RATE,
+                LIGHT_MEDIUM_SENSITIVE,
+                ACCELEROMETER_4G,
+                EXTERNAL_ANALOG_CONNECTOR,
+                BODY_TEMPERATURE,
+                HEART_PULSE
+            )
+            DeviceType.UNKNOWN -> listOf()
+        }
+    }
 }
 
 fun Byte.getSensorTypeFromId(): SensorType {
@@ -56,6 +102,9 @@ fun Byte.getSensorTypeFromId(): SensorType {
  * Enumeration of physical measurement units supported by the device's sensors.
  **/
 enum class MeasureUnit(val symbol: StringDesc) {
+    NTU(StringDesc.Resource(MR.strings.ntu_symbol)),
+    BEATS_PER_MIN(StringDesc.Resource(MR.strings.beats_heart)),
+    AMPS(StringDesc.Resource(MR.strings.milliamps_symbol)),
     CELSIUS(StringDesc.Resource(MR.strings.celsius_symbol)),
     VOLTS(StringDesc.Resource(MR.strings.volts_symbol)),
     MILLIVOLTS(StringDesc.Resource(MR.strings.millivolts_symbol)),
@@ -100,9 +149,8 @@ fun Short.toSensorsList(availableDeviceSensors: List<Byte>): List<SensorType> {
     return (0..15)
         .filter { index -> (maskInt and (1 shl index)) != 0 }
         .mapNotNull { index ->
-            availableDeviceSensors.getOrNull(index)?.takeIf { it != 0.toByte() }
-        }
-        .mapNotNull { sensorId ->
+            availableDeviceSensors.getOrNull(index)
+        }.mapNotNull { sensorId ->
             SensorType.entries.find { it.id == sensorId }
         }
 }
@@ -112,19 +160,15 @@ fun Short.toSensorsList(availableDeviceSensors: List<Byte>): List<SensorType> {
  * Combines pairs of bytes into 16-bit signed integers.
  * @return A list of integer values representing sensor data.
  */
-fun ByteArray.getSensorsValues(): List<Short> {
-    val parsedList = mutableListOf<Short>()
-
-    for (i in 0 until this.size - 1 step 2) {
-        val msb = this[i].toInt() and 0xFF
-        val lsb = this[i + 1].toInt() and 0xFF
-
-        val combined = (msb shl 8) or lsb
-
-        parsedList.add(combined.toShort())
-    }
-    return parsedList.toList()
-}
+fun ByteArray.getSensorsValues(): List<Short> =
+    this.toList()
+        .chunked(2)
+        .filter { it.size == 2 }
+        .map { (high, low) ->
+            val msb = high.toInt() and 0xFF
+            val lsb = low.toInt() and 0xFF
+            ((msb shl 8) or lsb).toShort()
+        }
 
 /**
  * Splits a continuous raw data array into separate lists for each sensor,
@@ -136,25 +180,35 @@ fun List<Short>.toChartData(
     activeSensors: List<SensorType>,
     expectedSamples: Short? = null
 ): Map<SensorType, List<Double>> {
-    val sensorsCount = activeSensors.size
-    if (sensorsCount == 0) return emptyMap()
+    val totalSamples = expectedSamples?.toInt() ?: this.size
+    if (activeSensors.isEmpty() || this.isEmpty() || totalSamples <= 0) return emptyMap()
 
-    val chartData = activeSensors.associateWith { mutableListOf<Double>() }
+    val frameSize = activeSensors.sumOf { it.valuesCount }
 
-    val validDataLimit = expectedSamples?.let { it * sensorsCount } ?: this.size
+    val expectedValues = expectedSamples?.let { it.toInt() * frameSize } ?: this.size
 
-    for (index in 0 until validDataLimit) {
-        if (index >= this.size) break
+    val actualSize = minOf(expectedValues, this.size)
 
-        val rawValue = this[index]
-        val currentSensor = activeSensors[index % sensorsCount]
+    val resultMap = activeSensors.associateWith { mutableListOf<Double>() }
 
-        val physicalValue = rawValue * currentSensor.multiplier
+    this.take(actualSize)
+        .chunked(frameSize)
+        .forEach { frame ->
+            if (frame.size < frameSize) return@forEach
 
-        val roundedValue = kotlin.math.round(physicalValue * 100.0) / 100.0
+            var cursor = 0
 
-        chartData[currentSensor]?.add(roundedValue)
-    }
+            activeSensors.forEach { sensor ->
+                val count = sensor.valuesCount
+                val rawData = frame.subList(cursor, cursor + count)
+                val processedValues = rawData.map {
+                    val processedValue = if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
+                    kotlin.math.round(((processedValue * sensor.multiplier) * 100.0) / 100.0)
+                }
+                cursor += count
+                resultMap[sensor]?.addAll(processedValues)
+            }
+        }
 
-    return chartData
+    return resultMap
 }

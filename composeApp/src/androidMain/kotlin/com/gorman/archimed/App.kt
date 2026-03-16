@@ -151,10 +151,8 @@ fun App() {
 
                                 val unitSymbol = sensor.measureUnit.symbol.toString(context)
 
-                                val formattedValue = ((value * 100.0).toLong() / 100.0).toString()
-
                                 Text(
-                                    text = "$formattedValue $unitSymbol",
+                                    text = "$value $unitSymbol",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -173,15 +171,17 @@ fun App() {
 
                         Text(text = state.experimentsHistoryDataState.toString())
                         Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(MaterialTheme.colorScheme.onBackground)
                         )
                         Text(text = state.experimentsData.toString())
                         Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(MaterialTheme.colorScheme.onBackground)
                         )
                     }
                 }
@@ -206,9 +206,17 @@ fun App() {
                             viewModel.onUiEvent(
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
-                                        listOf(SensorType.LIGHT_MEDIUM_SENSITIVE),
+                                        listOf(
+                                            SensorType.VOLTAGE_15V,
+//                                            SensorType.ACCELEROMETER_4G,
+//                                            SensorType.AMBIENT_TEMPERATURE,
+//                                            SensorType.LIGHT_MEDIUM_SENSITIVE,
+//                                            SensorType.EXTERNAL_ANALOG_CONNECTOR,
+//                                            SensorType.EXTERNAL_TEMPERATURE,
+//                                            SensorType.AMBIENT_TEMPERATURE
+                                        ),
                                         sampleRate = Rates.RATE_10_PER_SEC,
-                                        sampleCount = Samples.SAMPLES_100,
+                                        sampleCount = Samples.SAMPLES_10,
                                         shouldCalibrate = false
                                     )
                                 )

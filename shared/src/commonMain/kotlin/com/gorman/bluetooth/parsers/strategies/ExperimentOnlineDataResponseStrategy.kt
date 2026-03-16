@@ -23,8 +23,7 @@ internal class ExperimentOnlineDataResponseStrategy(
         val endIndex = bytes.size - 1
 
         val sensorsArray = bytes.copyOfRange(startIndex, endIndex)
-
-        logger.d("SensorsArray", "${bytes.toList()}")
+        logger.d("SENSORS IDS", "${sensorsArray.toList()}")
 
         return DeviceResponse.ExperimentOnlineData(
             dataLength = bytes[3],
