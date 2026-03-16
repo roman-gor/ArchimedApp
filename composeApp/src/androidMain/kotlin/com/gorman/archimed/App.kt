@@ -171,15 +171,17 @@ fun App() {
 
                         Text(text = state.experimentsHistoryDataState.toString())
                         Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(MaterialTheme.colorScheme.onBackground)
                         )
                         Text(text = state.experimentsData.toString())
                         Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(MaterialTheme.colorScheme.onBackground)
                         )
                     }
                 }
@@ -205,16 +207,16 @@ fun App() {
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
                                         listOf(
-                                            SensorType.PH_SENSOR,
+                                            SensorType.VOLTAGE_15V,
 //                                            SensorType.ACCELEROMETER_4G,
-                                            SensorType.HUMIDITY,
+//                                            SensorType.AMBIENT_TEMPERATURE,
 //                                            SensorType.LIGHT_MEDIUM_SENSITIVE,
 //                                            SensorType.EXTERNAL_ANALOG_CONNECTOR,
 //                                            SensorType.EXTERNAL_TEMPERATURE,
 //                                            SensorType.AMBIENT_TEMPERATURE
                                         ),
                                         sampleRate = Rates.RATE_10_PER_SEC,
-                                        sampleCount = Samples.SAMPLES_100,
+                                        sampleCount = Samples.SAMPLES_10,
                                         shouldCalibrate = false
                                     )
                                 )

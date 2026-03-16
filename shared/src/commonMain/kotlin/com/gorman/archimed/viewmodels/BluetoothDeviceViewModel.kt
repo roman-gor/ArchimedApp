@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Suppress("TooManyFunctions")
 class BluetoothDeviceViewModel(
     private val bluetoothRepository: IBluetoothRepository,
     private val deviceResponseHandlerUseCase: DeviceResponseHandlerUseCase,
@@ -329,7 +330,8 @@ class BluetoothDeviceViewModel(
     private fun getRequestByCommand(command: BluetoothUiEvent.DeviceCommand): List<DeviceRequest> =
         when (command) {
             BluetoothUiEvent.DeviceCommand.GetStatus -> listOf(DeviceRequest.GetStatus)
-            BluetoothUiEvent.DeviceCommand.StartDefaultLogging -> startDefaultLogging(availableSensorsList)
+            BluetoothUiEvent.DeviceCommand.StartDefaultLogging ->
+                startDefaultLogging(availableSensorsList, deviceType.value)
             is BluetoothUiEvent.DeviceCommand.StartLogging -> startLogging(command, availableSensorsList)
             BluetoothUiEvent.DeviceCommand.StopLogging -> listOf(DeviceRequest.StopLogging)
             BluetoothUiEvent.DeviceCommand.GetAllSensorsId -> listOf(DeviceRequest.GetAllSensorsId)

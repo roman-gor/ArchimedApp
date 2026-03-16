@@ -48,7 +48,50 @@ enum class SensorType(
     PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1),
     TURBIDITY(14, 0.1, MeasureUnit.NTU, 1),
     TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 1),
-    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1)
+    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1);
+
+    companion object {
+        fun getFullSensors(deviceType: DeviceType): List<SensorType> = when (deviceType) {
+            DeviceType.ECOLOGY -> listOf(
+                PH_SENSOR,
+                TURBIDITY,
+                HUMIDITY,
+                LIGHT_MEDIUM_SENSITIVE,
+                EXTERNAL_ANALOG_CONNECTOR,
+                AMBIENT_TEMPERATURE,
+                EXTERNAL_TEMPERATURE
+            )
+            DeviceType.PHYSICS -> listOf(
+                VOLTAGE_15V,
+                AIR_PRESSURE,
+                CURRENT_STRENGTH,
+                ACCELEROMETER_4G,
+                MAGNETIC_FIELD,
+                EXTERNAL_ANALOG_CONNECTOR,
+                AMBIENT_TEMPERATURE,
+                EXTERNAL_TEMPERATURE
+            )
+            DeviceType.BIOLOGY -> listOf(
+                PH_SENSOR,
+                ACCELEROMETER_4G,
+                HUMIDITY,
+                LIGHT_MEDIUM_SENSITIVE,
+                EXTERNAL_ANALOG_CONNECTOR,
+                AMBIENT_TEMPERATURE,
+                EXTERNAL_TEMPERATURE
+            )
+            DeviceType.PHYSIOLOGY -> listOf(
+                PH_SENSOR,
+                RESPIRATORY_RATE,
+                LIGHT_MEDIUM_SENSITIVE,
+                ACCELEROMETER_4G,
+                EXTERNAL_ANALOG_CONNECTOR,
+                BODY_TEMPERATURE,
+                HEART_PULSE
+            )
+            DeviceType.UNKNOWN -> listOf()
+        }
+    }
 }
 
 fun Byte.getSensorTypeFromId(): SensorType {
