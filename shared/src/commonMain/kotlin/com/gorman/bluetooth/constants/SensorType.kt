@@ -16,6 +16,8 @@ enum class SensorType(
     val measureUnit: MeasureUnit,
     val valuesCount: Int
 ) {
+    HEART_PULSE(22, 1.0, MeasureUnit.BEATS_PER_MIN, 2),
+    CURRENT_STRENGTH(28, 0.1, MeasureUnit.AMPS, 1),
     AMBIENT_TEMPERATURE(30, 0.1, MeasureUnit.CELSIUS, 1),
     EXTERNAL_TEMPERATURE(51, 0.01, MeasureUnit.CELSIUS, 1),
     EXTERNAL_ANALOG_CONNECTOR(52, 0.001, MeasureUnit.VOLTS, 1),
@@ -26,9 +28,9 @@ enum class SensorType(
     CONDUCTIVITY_MEDIUM_SENSITIVE(57, 1.0, MeasureUnit.MICROSIEMENS, 1),
     CONDUCTIVITY_LOW_SENSITIVE(58, 0.01, MeasureUnit.MILLISIEMENS, 1),
     COMMON_ANALOG(75, 1.0, MeasureUnit.BITS, 1),
-    ACCELEROMETER_HIGH_SENSITIVE(59, 0.01, MeasureUnit.G_FORCE, 3),
-    ACCELEROMETER_MEDIUM_SENSITIVE(60, 0.01, MeasureUnit.G_FORCE, 3),
-    ACCELEROMETER_LOW_SENSITIVE(35, 0.01, MeasureUnit.G_FORCE, 3),
+    ACCELEROMETER_2G(59, 0.01, MeasureUnit.G_FORCE, 3),
+    ACCELEROMETER_4G(60, 0.01, MeasureUnit.G_FORCE, 3),
+    ACCELEROMETER_8G(35, 0.01, MeasureUnit.G_FORCE, 3),
     MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA, 3),
     AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL, 1),
     VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS, 1),
@@ -37,15 +39,15 @@ enum class SensorType(
     VOLTAGE_15V(66, 0.001, MeasureUnit.VOLTS, 1),
     VOLTAGE_30V(67, 0.01, MeasureUnit.VOLTS, 1),
     EXTERNAL_TEMPERATURE_NTC(74, 0.1, MeasureUnit.CELSIUS, 1),
-    NITRATE_ION(72, 0.1, MeasureUnit.MILLIVOLTS, 1),
-    CHLORIDE_ION(73, 0.1, MeasureUnit.MILLIVOLTS, 1),
+    CHLORIDE_ION(72, 0.1, MeasureUnit.MILLIVOLTS, 1),
+    NITRATE_ION(73, 0.1, MeasureUnit.MILLIVOLTS, 1),
     BLOOD_PRESSURE_MAIN(79, 0.0, MeasureUnit.NOTHING, 1),
-    BLOOD_PRESSURE_CUFF(80, 0.1, MeasureUnit.MM_HG, 1),
-    BLOOD_PRESSURE_PULSE(81, 0.00004578, MeasureUnit.VOLTS, 1),
     BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1),
-    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 1),
+    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2),
     HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1),
-    CONDUCTIVITY_GENERIC(2, 1.0, MeasureUnit.MICROSIEMENS, 1),
+    PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1),
+    TURBIDITY(14, 0.1, MeasureUnit.NTU, 1),
+    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 1),
     UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1)
 }
 
@@ -57,6 +59,8 @@ fun Byte.getSensorTypeFromId(): SensorType {
  * Enumeration of physical measurement units supported by the device's sensors.
  **/
 enum class MeasureUnit(val symbol: StringDesc) {
+    NTU(StringDesc.Resource(MR.strings.ntu_symbol)),
+    BEATS_PER_MIN(StringDesc.Resource(MR.strings.beats_heart)),
     AMPS(StringDesc.Resource(MR.strings.milliamps_symbol)),
     CELSIUS(StringDesc.Resource(MR.strings.celsius_symbol)),
     VOLTS(StringDesc.Resource(MR.strings.volts_symbol)),
@@ -84,7 +88,6 @@ fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Byte>): Byte
         val isNeeded = this.any { it.id == sensorId }
         if (isNeeded) acc or (1 shl index) else acc
     }
-
     return byteArrayOf(
         ((maskInt shr 8) and 0xFF).toByte(),
         (maskInt and 0xFF).toByte()
@@ -155,7 +158,8 @@ fun List<Short>.toChartData(
                 val count = sensor.valuesCount
                 val rawData = frame.subList(cursor, cursor + count)
                 val processedValues = rawData.map {
-                    kotlin.math.round(((it * sensor.multiplier) * 100.0) / 100.0)
+                    val processedValue = if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
+                    kotlin.math.round(((processedValue * sensor.multiplier) * 100.0) / 100.0)
                 }
                 cursor += count
                 resultMap[sensor]?.addAll(processedValues)

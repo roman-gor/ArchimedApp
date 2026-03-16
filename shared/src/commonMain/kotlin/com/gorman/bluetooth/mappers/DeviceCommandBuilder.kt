@@ -46,7 +46,7 @@ object DeviceCommandBuilder {
             DeviceRequest.SetupLoggingParameters(
                 sensors = sensorsArray,
                 rate = Rates.RATE_10_PER_SEC.byte,
-                samples = Samples.SAMPLES_100.byte,
+                samples = Samples.SAMPLES_10.byte,
                 sensorsCalibrate = 0x00.toByte()
             ),
             DeviceRequest.StartLogging

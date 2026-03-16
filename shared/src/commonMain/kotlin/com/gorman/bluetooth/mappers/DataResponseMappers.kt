@@ -32,7 +32,8 @@ fun DeviceResponse.ExperimentOnlineData.toUiState(availableSensors: List<Byte>):
         if (cursor + count <= sensorsValues.size) {
             val rawData = sensorsValues.subList(cursor, cursor + count)
             sensorsData[sensor] = rawData.map {
-                kotlin.math.round(((it * sensor.multiplier) * 100.0) / 100.0)
+                val processedValue = if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
+                kotlin.math.round(((processedValue * sensor.multiplier) * 100.0) / 100.0)
             }
         }
         cursor += count

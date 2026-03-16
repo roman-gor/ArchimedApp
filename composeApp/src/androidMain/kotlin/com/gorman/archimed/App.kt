@@ -205,11 +205,13 @@ fun App() {
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
                                         listOf(
+                                            SensorType.PH_SENSOR,
+//                                            SensorType.ACCELEROMETER_4G,
                                             SensorType.HUMIDITY,
-                                            SensorType.ACCELEROMETER_MEDIUM_SENSITIVE,
-                                            SensorType.EXTERNAL_TEMPERATURE,
-                                            // SensorType.EXTERNAL_ANALOG_CONNECTOR,
-                                            SensorType.LIGHT_MEDIUM_SENSITIVE
+//                                            SensorType.LIGHT_MEDIUM_SENSITIVE,
+//                                            SensorType.EXTERNAL_ANALOG_CONNECTOR,
+//                                            SensorType.EXTERNAL_TEMPERATURE,
+//                                            SensorType.AMBIENT_TEMPERATURE
                                         ),
                                         sampleRate = Rates.RATE_10_PER_SEC,
                                         sampleCount = Samples.SAMPLES_100,

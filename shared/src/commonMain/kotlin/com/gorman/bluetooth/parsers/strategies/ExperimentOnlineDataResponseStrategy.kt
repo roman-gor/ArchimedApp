@@ -6,8 +6,11 @@ import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.DeviceResponseStrategy
 import com.gorman.bluetooth.parsers.read2BytesAsShort
 import com.gorman.bluetooth.parsers.toUnsignedInt
+import com.gorman.logger.Logger
 
-internal class ExperimentOnlineDataResponseStrategy : DeviceResponseStrategy {
+internal class ExperimentOnlineDataResponseStrategy(
+    private val logger: Logger
+) : DeviceResponseStrategy {
     override val responseType = ResponsesTypes.GET_EXPERIMENT_ONLINE_DATA.type
 
     override fun parse(bytes: ByteArray): DeviceResponse {
@@ -20,6 +23,7 @@ internal class ExperimentOnlineDataResponseStrategy : DeviceResponseStrategy {
         val endIndex = bytes.size - 1
 
         val sensorsArray = bytes.copyOfRange(startIndex, endIndex)
+        logger.d("SENSORS IDS", "${sensorsArray.toList()}")
 
         return DeviceResponse.ExperimentOnlineData(
             dataLength = bytes[3],
