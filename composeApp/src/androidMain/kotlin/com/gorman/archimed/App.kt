@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,7 +35,9 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
 import com.gorman.bluetooth.constants.DeviceType
-import com.gorman.bluetooth.constants.Sensors
+import com.gorman.bluetooth.constants.Rates
+import com.gorman.bluetooth.constants.Samples
+import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -65,6 +68,7 @@ fun App() {
         val viewModel: BluetoothDeviceViewModel = koinViewModel()
         val state by viewModel.deviceState.collectAsStateWithLifecycle()
         val deviceList = state.devices.values.toList()
+        val context = LocalContext.current
 
         Column(
             modifier = Modifier
@@ -74,13 +78,11 @@ fun App() {
         ) {
             Text(
                 text = when (state.selectedDeviceType) {
-                    DeviceType.IDLE -> "Archimed"
                     DeviceType.ECOLOGY -> "Ecology"
                     DeviceType.PHYSICS -> "Physics"
                     DeviceType.BIOLOGY -> "Biology"
                     DeviceType.PHYSIOLOGY -> "Physiology"
-                    DeviceType.ENVIRONMENT -> "Environment"
-                    null -> "Archimed"
+                    DeviceType.UNKNOWN -> "Archimed"
                 },
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -114,30 +116,73 @@ fun App() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = state.statusDeviceData.toString())
-                        Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
+                        Text(
+                            text = "Сэмпл: ${state.experimentOnlineData.currentSample}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
-                        Text(text = state.onlineDataDeviceState.toString())
+
                         Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(MaterialTheme.colorScheme.onBackground)
                         )
-                        Text(text = state.experimentsHistoryDeviceState.toString())
-                        Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
-                        )
-                        Text(text = state.singleExperimentDeviceState.toString())
-                        Spacer(
-                            modifier = Modifier.fillMaxWidth().height(
-                                2.dp
-                            ).background(MaterialTheme.colorScheme.onBackground)
-                        )
+
+                        state.experimentOnlineData.sensorsData.forEach { (sensor, value) ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val sensorName = sensor.name
+                                    .replace("_", " ")
+                                    .lowercase()
+                                    .replaceFirstChar { it.uppercase() }
+
+                                Text(
+                                    text = sensorName,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                val unitSymbol = sensor.measureUnit.symbol.toString(context)
+
+                                val formattedValue = ((value * 100.0).toLong() / 100.0).toString()
+
+                                Text(
+                                    text = "$formattedValue $unitSymbol",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(MaterialTheme.colorScheme.onBackground)
+                            )
+                        }
+//
+//                        Text(text = state.statusDeviceData.toString())
+//
+//                        Text(text = state.experimentsHistoryDataState.toString())
+//                        Spacer(
+//                            modifier = Modifier.fillMaxWidth().height(
+//                                2.dp
+//                            ).background(MaterialTheme.colorScheme.onBackground)
+//                        )
+//                        Text(text = state.experimentsData.toString())
+//                        Spacer(
+//                            modifier = Modifier.fillMaxWidth().height(
+//                                2.dp
+//                            ).background(MaterialTheme.colorScheme.onBackground)
+//                        )
                     }
                 }
 
@@ -161,9 +206,9 @@ fun App() {
                             viewModel.onUiEvent(
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
-                                        listOf(Sensors.ACCELEROMETER),
-                                        rate = 10,
-                                        samples = 100,
+                                        listOf(SensorType.LIGHT_MEDIUM_SENSITIVE),
+                                        sampleRate = Rates.RATE_10_PER_SEC,
+                                        sampleCount = Samples.SAMPLES_100,
                                         shouldCalibrate = false
                                     )
                                 )
@@ -193,7 +238,9 @@ fun App() {
                             Button(
                                 onClick = {
                                     viewModel.onUiEvent(
-                                        BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.GetDownloadedInfo)
+                                        BluetoothUiEvent.OnSendCommand(
+                                            BluetoothUiEvent.DeviceCommand.GetExperimentsList
+                                        )
                                     )
                                 },
                                 modifier = Modifier.weight(1f)
@@ -201,7 +248,9 @@ fun App() {
                             Button(
                                 onClick = {
                                     viewModel.onUiEvent(
-                                        BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.SendNextDownload)
+                                        BluetoothUiEvent.OnSendCommand(
+                                            BluetoothUiEvent.DeviceCommand.SendNextDataPackage
+                                        )
                                     )
                                 },
                                 modifier = Modifier.weight(1f)
@@ -212,7 +261,7 @@ fun App() {
                             onClick = {
                                 viewModel.onUiEvent(
                                     BluetoothUiEvent.OnSendCommand(
-                                        BluetoothUiEvent.DeviceCommand.GetDownloadedStoreData(1)
+                                        BluetoothUiEvent.DeviceCommand.GetExperimentData(1)
                                     )
                                 )
                             },
@@ -245,7 +294,7 @@ fun App() {
                         Button(
                             onClick = {
                                 viewModel.onUiEvent(
-                                    BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.ClearAllSamplesMemory)
+                                    BluetoothUiEvent.OnSendCommand(BluetoothUiEvent.DeviceCommand.ClearDeviceMemory)
                                 )
                             },
                             modifier = Modifier.fillMaxWidth()

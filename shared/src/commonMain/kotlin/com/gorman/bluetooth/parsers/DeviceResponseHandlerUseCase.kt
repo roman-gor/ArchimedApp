@@ -1,5 +1,6 @@
 package com.gorman.bluetooth.parsers
 
+import com.gorman.bluetooth.constants.ResponsesTypes
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.logger.Logger
 
@@ -9,8 +10,8 @@ class DeviceResponseHandlerUseCase(
 ) {
     private var downloadBuffer = byteArrayOf()
     private var isCollectingDownload = false
-    private val downloadDataByte = 0x54.toByte()
-    private val downloadDataSize = 767
+    private val downloadDataByte = ResponsesTypes.GET_EXPERIMENT_DATA.type
+    private val downloadDataSize = ResponsesTypes.GET_EXPERIMENT_DATA.responseLength
 
     operator fun invoke(incomingBytes: ByteArray): List<DeviceResponse> {
         val parsedResponses = mutableListOf<DeviceResponse>()
@@ -23,7 +24,7 @@ class DeviceResponseHandlerUseCase(
                 val fullPacket = downloadBuffer.copyOfRange(0, downloadDataSize)
                 val remainder = downloadBuffer.copyOfRange(downloadDataSize, downloadBuffer.size)
 
-                strategies.find { it.responseCode == downloadDataByte }?.parse(fullPacket)?.let {
+                strategies.find { it.responseType == downloadDataByte }?.parse(fullPacket)?.let {
                     parsedResponses.add(it)
                 }
 
@@ -40,7 +41,7 @@ class DeviceResponseHandlerUseCase(
         val strategy = strategies.find { it.canParse(incomingBytes) }
 
         if (strategy != null) {
-            if (strategy.responseCode == downloadDataByte) {
+            if (strategy.responseType == downloadDataByte) {
                 isCollectingDownload = true
                 downloadBuffer = incomingBytes
                 logger.d("UART_RX", "Started gluing 0x54 packet")

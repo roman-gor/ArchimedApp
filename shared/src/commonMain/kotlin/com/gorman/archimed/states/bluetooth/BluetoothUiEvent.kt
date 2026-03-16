@@ -1,6 +1,8 @@
 package com.gorman.archimed.states.bluetooth
 
-import com.gorman.bluetooth.constants.Sensors
+import com.gorman.bluetooth.constants.Rates
+import com.gorman.bluetooth.constants.Samples
+import com.gorman.bluetooth.constants.SensorType
 
 sealed interface BluetoothUiEvent {
     data class OnConnect(val uuid: String?) : BluetoothUiEvent
@@ -11,23 +13,22 @@ sealed interface BluetoothUiEvent {
     sealed interface DeviceCommand {
         object GetStatus : DeviceCommand
         object StartDefaultLogging : DeviceCommand
+        data class StartLogging(
+            val sensors: List<SensorType>,
+            val sampleRate: Rates = Rates.RATE_10_PER_SEC,
+            val sampleCount: Samples = Samples.SAMPLES_100,
+            val shouldCalibrate: Boolean = false
+        ) : DeviceCommand
         object StopLogging : DeviceCommand
         object GetAllSensorsId : DeviceCommand
         object GetSensorsValues : DeviceCommand
-        object GetDownloadedInfo : DeviceCommand
-        object SendNextDownload : DeviceCommand
-        object ResendPrevDownload : DeviceCommand
-        object ClearAllSamplesMemory : DeviceCommand
+        object GetExperimentsList : DeviceCommand
+        data class GetExperimentData(val experimentNumber: Int) : DeviceCommand
+        object SendNextDataPackage : DeviceCommand
+        object ResendPrevDataPackage : DeviceCommand
+        object ClearDeviceMemory : DeviceCommand
         object TerminateDownloading : DeviceCommand
         object DeleteLastRecording : DeviceCommand
         object SetCurrentDateTime : DeviceCommand
-
-        data class StartLogging(
-            val sensors: List<Sensors>,
-            val rate: Int = 0,
-            val samples: Int = 0,
-            val shouldCalibrate: Boolean = false
-        ) : DeviceCommand
-        data class GetDownloadedStoreData(val experimentNumber: Int) : DeviceCommand
     }
 }

@@ -5,9 +5,19 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.moko.resources)
 }
 
 kotlin {
+
+    targets.all {
+        compilations.all {
+            compilerOptions.configure {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
+    }
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -21,6 +31,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+            export(libs.moko.resources)
         }
     }
     
@@ -29,6 +40,7 @@ kotlin {
             implementation(libs.kable)
             implementation(libs.bundles.koin.core)
             implementation(libs.bundles.kotlinx)
+            api(libs.moko.resources)
         }
 
         androidMain.dependencies {
@@ -47,4 +59,8 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
+}
+
+multiplatformResources {
+    resourcesPackage.set("com.gorman.archimed.shared")
 }
