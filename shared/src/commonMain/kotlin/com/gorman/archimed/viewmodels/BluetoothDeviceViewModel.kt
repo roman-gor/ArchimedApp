@@ -8,6 +8,7 @@ import com.gorman.archimed.states.bluetooth.ExperimentsData
 import com.gorman.archimed.states.bluetooth.StatusDeviceData
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.SensorType
+import com.gorman.bluetooth.constants.toSensorsList
 import com.gorman.bluetooth.mappers.DeviceCommandBuilder.setDateTimes
 import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startDefaultLogging
 import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startLogging
@@ -55,6 +56,9 @@ class BluetoothDeviceViewModel(
     private val availableSensorsList: List<Byte>
         get() = availableDeviceSensors.value.values.toList()
     private var rawStatusResponse: DeviceResponse.StatusDeviceData? = null
+
+    private var downloadingExperimentHeader: DeviceResponse.GetExperimentsData? = null
+    private val downloadingRawDataBuffer = mutableListOf<Short>()
 
     private data class DeviceResponsesDataState(
         val statusDeviceData: StatusDeviceData,
@@ -258,6 +262,7 @@ class BluetoothDeviceViewModel(
             is DeviceResponse.GetExperimentsData -> getExperimentData(parsedResponse)
             is DeviceResponse.ExperimentOnlineData -> {
                 experimentOnlineData.value = parsedResponse.toUiState(availableSensorsList)
+                logger.d("ONLINE", "${experimentOnlineData.value}")
             }
             is DeviceResponse.Unknown -> logger.e("ViewModel", "Response is in unknown type")
             else -> logger.d("ViewModel", "Handled other response type")
@@ -266,39 +271,61 @@ class BluetoothDeviceViewModel(
 
     private fun getExperimentData(parsedResponse: DeviceResponse.GetExperimentsData) {
         if (parsedResponse.isFullHistory) {
-            val newItem = parsedResponse
-                .toUiState(availableSensorsList)
+            val newItem = parsedResponse.toUiState(availableSensorsList)
             experimentsHistoryData.update { currentList ->
-                val isDuplicate =
-                    currentList.any { it.experimentNumber == newItem.experimentNumber }
+                val isDuplicate = currentList.any { it.experimentNumber == newItem.experimentNumber }
                 if (isDuplicate) currentList else currentList + newItem
             }
             logger.d("History", "$parsedResponse")
-        } else {
-            val currentState = experimentsData.value
+            return
+        }
 
-            val newDataChunk = parsedResponse.toUiState(
-                availableSensors = availableSensorsList,
-                knownSensors = currentState.activeSensors
+        if (parsedResponse.packetNumber == 0.toShort()) {
+            logger.d("Data", "Started downloading experiment. Saving header...")
+            downloadingExperimentHeader = parsedResponse
+            downloadingRawDataBuffer.clear()
+            downloadingRawDataBuffer.addAll(parsedResponse.sensorsValues)
+        } else {
+            downloadingRawDataBuffer.addAll(parsedResponse.sensorsValues)
+            logger.d(
+                "Data",
+                "Glued packet ${parsedResponse.packetNumber}. Buffer size: ${downloadingRawDataBuffer.size}"
+            )
+        }
+
+        if (isEndOfDownload()) {
+            logger.d("Data", "Download complete! Total raw values: ${downloadingRawDataBuffer.size}")
+
+            val header = downloadingExperimentHeader ?: return
+
+            val completeResponse = header.copy(
+                sensorsValues = downloadingRawDataBuffer.toList()
             )
 
-            if (parsedResponse.packetNumber == 0.toShort() || currentState.experimentNumber == 0.toByte()) {
-                experimentsData.value = newDataChunk
-            } else {
-                val mergedSensorsData = currentState.sensorsData.toMutableMap()
+            val finalUiState = completeResponse.toUiState(
+                availableSensors = availableSensorsList
+            )
 
-                newDataChunk.sensorsData.forEach { (sensor, newPoints) ->
-                    val oldPoints = mergedSensorsData[sensor] ?: emptyList()
-                    mergedSensorsData[sensor] = oldPoints + newPoints
-                }
+            experimentsData.value = finalUiState
+            logger.d("Data", "$finalUiState")
+            logger.d("Data", "Mapped successfully to UI!")
 
-                experimentsData.value = currentState.copy(
-                    sensorsData = mergedSensorsData
-                )
-            }
-
+            downloadingExperimentHeader = null
+            downloadingRawDataBuffer.clear()
+        } else {
             sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
         }
+    }
+
+    private fun isEndOfDownload(): Boolean {
+        val header = downloadingExperimentHeader ?: return false
+
+        val activeSensors = header.sensors.toSensorsList(availableSensorsList)
+        val frameSize = activeSensors.sumOf { it.valuesCount }
+
+        val expectedTotalValues = header.samplesCount * frameSize
+
+        return downloadingRawDataBuffer.size >= expectedTotalValues
     }
 
     private fun getRequestByCommand(command: BluetoothUiEvent.DeviceCommand): List<DeviceRequest> =

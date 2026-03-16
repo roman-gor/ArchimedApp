@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="app_name">Archimedes: study &amp; experiments</string>
+    <string name="milliamps_symbol">mA</string>
     <string name="volts_symbol">V</string>
     <string name="celsius_symbol">°C</string>
     <string name="millivolts_symbol">mV</string>

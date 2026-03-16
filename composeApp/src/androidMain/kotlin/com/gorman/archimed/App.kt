@@ -151,10 +151,8 @@ fun App() {
 
                                 val unitSymbol = sensor.measureUnit.symbol.toString(context)
 
-                                val formattedValue = ((value * 100.0).toLong() / 100.0).toString()
-
                                 Text(
-                                    text = "$formattedValue $unitSymbol",
+                                    text = "$value $unitSymbol",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -206,7 +204,13 @@ fun App() {
                             viewModel.onUiEvent(
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
-                                        listOf(SensorType.LIGHT_MEDIUM_SENSITIVE),
+                                        listOf(
+                                            SensorType.AIR_PRESSURE,
+                                            // SensorType.ACCELEROMETER_MEDIUM_SENSITIVE,
+                                            SensorType.EXTERNAL_TEMPERATURE,
+                                            // SensorType.EXTERNAL_ANALOG_CONNECTOR,
+                                            SensorType.AMBIENT_TEMPERATURE
+                                        ),
                                         sampleRate = Rates.RATE_10_PER_SEC,
                                         sampleCount = Samples.SAMPLES_100,
                                         shouldCalibrate = false
