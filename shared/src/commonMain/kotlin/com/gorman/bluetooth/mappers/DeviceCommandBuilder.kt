@@ -15,7 +15,7 @@ import kotlin.time.Instant
 object DeviceCommandBuilder {
     fun startLogging(
         command: BluetoothUiEvent.DeviceCommand.StartLogging,
-        availableDeviceSensors: List<Short>
+        availableDeviceSensors: List<Byte>
     ): List<DeviceRequest> {
         val sensorsArray = command.sensors.createSensorsMask(availableDeviceSensors)
 
@@ -37,7 +37,7 @@ object DeviceCommandBuilder {
         )
     }
 
-    fun startDefaultLogging(availableDeviceSensors: List<Short>): List<DeviceRequest> {
+    fun startDefaultLogging(availableDeviceSensors: List<Byte>): List<DeviceRequest> {
         val sensorsList = SensorType.entries
         val sensorsArray = sensorsList.createSensorsMask(availableDeviceSensors)
 

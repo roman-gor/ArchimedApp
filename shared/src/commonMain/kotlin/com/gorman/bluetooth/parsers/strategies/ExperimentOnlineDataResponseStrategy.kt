@@ -16,7 +16,7 @@ internal class ExperimentOnlineDataResponseStrategy(
     override fun parse(bytes: ByteArray): DeviceResponse {
         val actualLength = bytes[3].toUnsignedInt()
         if (!isChecksumValid(bytes, actualLength)) {
-            return DeviceResponse.Unknown(bytes[2].toShort(), bytes.toList())
+            return DeviceResponse.Unknown(bytes[2], bytes.toList())
         }
 
         val startIndex = 8
@@ -28,7 +28,7 @@ internal class ExperimentOnlineDataResponseStrategy(
 
         return DeviceResponse.ExperimentOnlineData(
             dataLength = bytes[3],
-            sensorType = bytes.read2BytesAsShort(4),
+            sensors = bytes.read2BytesAsShort(4),
             currentSample = bytes.read2BytesAsShort(6),
             sensorsValues = sensorsArray.getSensorsValues()
         )

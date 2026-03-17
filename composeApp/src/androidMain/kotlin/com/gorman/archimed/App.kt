@@ -168,21 +168,21 @@ fun App() {
                                     .background(MaterialTheme.colorScheme.onBackground)
                             )
                         }
-//
-//                        Text(text = state.statusDeviceData.toString())
-//
-//                        Text(text = state.experimentsHistoryDataState.toString())
-//                        Spacer(
-//                            modifier = Modifier.fillMaxWidth().height(
-//                                2.dp
-//                            ).background(MaterialTheme.colorScheme.onBackground)
-//                        )
-//                        Text(text = state.experimentsData.toString())
-//                        Spacer(
-//                            modifier = Modifier.fillMaxWidth().height(
-//                                2.dp
-//                            ).background(MaterialTheme.colorScheme.onBackground)
-//                        )
+
+                        Text(text = state.statusDeviceData.toString())
+
+                        Text(text = state.experimentsHistoryDataState.toString())
+                        Spacer(
+                            modifier = Modifier.fillMaxWidth().height(
+                                2.dp
+                            ).background(MaterialTheme.colorScheme.onBackground)
+                        )
+                        Text(text = state.experimentsData.toString())
+                        Spacer(
+                            modifier = Modifier.fillMaxWidth().height(
+                                2.dp
+                            ).background(MaterialTheme.colorScheme.onBackground)
+                        )
                     }
                 }
 

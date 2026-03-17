@@ -20,25 +20,18 @@ internal class ExperimentDataResponseStrategy(
                 "Download Strategy",
                 "Expected $expectedLength bytes, got ${bytes.size}. Buffering should happen in UseCase."
             )
-            return DeviceResponse.Unknown(bytes[2].toShort(), bytes.toList())
+            return DeviceResponse.Unknown(bytes[2], bytes.toList())
         }
 
         val experimentNumber = bytes[3]
         val packetNumber = bytes.read2BytesAsShort(4)
-        val dateTime = getDateTime(
-            day = bytes[11],
-            month = bytes[12],
-            year = bytes[13],
-            hour = bytes[14],
-            minute = bytes[15],
-            second = bytes[16],
-        )
+        val dateTime = getDateTime(dateTimeByteArray = bytes.copyOfRange(11, 17))
 
         return if (packetNumber == 0.toShort()) {
             DeviceResponse.GetExperimentsData(
                 experimentNumber = experimentNumber,
                 packetNumber = packetNumber,
-                sensorType = bytes.read2BytesAsShort(6),
+                sensors = bytes.read2BytesAsShort(6),
                 sampleRate = bytes[8],
                 samplesCount = bytes.read2BytesAsShort(9),
                 dateTime = dateTime,

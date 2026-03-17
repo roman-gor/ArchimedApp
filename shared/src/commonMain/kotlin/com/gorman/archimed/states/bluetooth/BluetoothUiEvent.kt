@@ -30,5 +30,6 @@ sealed interface BluetoothUiEvent {
         object TerminateDownloading : DeviceCommand
         object DeleteLastRecording : DeviceCommand
         object SetCurrentDateTime : DeviceCommand
+        object GetExternalSensorsData : DeviceCommand
     }
 }

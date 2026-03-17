@@ -1,7 +1,7 @@
 package com.gorman.bluetooth.parsers.strategies
 
 import com.gorman.bluetooth.constants.ResponsesTypes
-import com.gorman.bluetooth.constants.getSensorTypeFromIndex
+import com.gorman.bluetooth.constants.getSensorTypeFromId
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.DeviceResponseStrategy
 
@@ -12,13 +12,13 @@ internal class SensorsIdParametersResponseStrategy : DeviceResponseStrategy {
     override fun parse(bytes: ByteArray): DeviceResponse {
         if (!isChecksumValid(bytes, expectedLength) || bytes.size < 21) {
             return DeviceResponse.Unknown(
-                bytes[2].toShort(),
+                bytes[2],
                 bytes.toList()
             )
         }
 
-        val sensorsIdsMap = bytes.copyOfRange(3, 19).associate { it.getSensorTypeFromIndex() to it.toShort() }
-        val externalSensorPair = bytes[19].getSensorTypeFromIndex() to bytes[19].toShort()
+        val sensorsIdsMap = bytes.copyOfRange(3, 19).associateBy { it.getSensorTypeFromId() }
+        val externalSensorPair = bytes[19].getSensorTypeFromId() to bytes[19]
 
         return DeviceResponse.GetSensorIdParams(
             sensorsIdsMap = sensorsIdsMap,

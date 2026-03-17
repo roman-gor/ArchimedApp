@@ -9,25 +9,24 @@ import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.toChartData
 import com.gorman.bluetooth.constants.toSensorsList
 import com.gorman.bluetooth.models.DeviceResponse
-import com.gorman.bluetooth.parsers.toUnsignedInt
 import kotlin.collections.forEachIndexed
 
-fun DeviceResponse.StatusDeviceData.toUiState(availableSensors: List<Short>): StatusDeviceData =
+fun DeviceResponse.StatusDeviceData.toUiState(availableSensors: List<Byte>): StatusDeviceData =
     StatusDeviceData(
         archimedesVersion = archimedesVersion,
-        experimentsInMemory = experimentsInMemory.toUnsignedInt(),
-        lastUsedSensorsType = lastUsedSensorsType.toSensorsList(availableSensors),
+        experimentsInMemory = experimentsInMemory,
+        lastUsedSensorsType = lastUsedSensors.toSensorsList(availableSensors),
         lastSamplesRates = Rates.entries.firstOrNull { it.byte == lastSamplesRate },
         lastSamplesCount = Samples.entries.firstOrNull { it.byte == lastSamplesCount },
         dateTime = dateTime,
-        batteryLevel = batteryLevel.toUnsignedInt(),
-        memoryUsed = memoryUsed.toUnsignedInt(),
+        batteryLevel = batteryLevel,
+        memoryUsed = memoryUsed,
         externalAnalogSensor = externalAnalogSensor
     )
 
-fun DeviceResponse.ExperimentOnlineData.toUiState(availableSensors: List<Short>): ExperimentOnlineData {
+fun DeviceResponse.ExperimentOnlineData.toUiState(availableSensors: List<Byte>): ExperimentOnlineData {
     val sensorsData = mutableMapOf<SensorType, Double>()
-    val sensors = sensorType.toSensorsList(availableSensors)
+    val sensors = sensors.toSensorsList(availableSensors)
     sensors.forEachIndexed { index, sensorType ->
         val value = sensorsValues[index] * sensorType.multiplier
         val roundedValue = kotlin.math.round(value * 100.0) / 100.0
@@ -35,26 +34,26 @@ fun DeviceResponse.ExperimentOnlineData.toUiState(availableSensors: List<Short>)
     }
 
     return ExperimentOnlineData(
-        currentSample = currentSample.toInt(),
+        currentSample = currentSample,
         sensorsData = sensorsData
     )
 }
 
 fun DeviceResponse.GetExperimentsData.toUiState(
-    availableSensors: List<Short>,
+    availableSensors: List<Byte>,
     knownSensors: List<SensorType> = emptyList()
 ): ExperimentsData {
     val sensors = if (packetNumber == 0.toShort()) {
-        sensorType.toSensorsList(availableSensors)
+        sensors.toSensorsList(availableSensors)
     } else {
         knownSensors
     }
 
     return ExperimentsData(
-        experimentNumber = experimentNumber.toUnsignedInt(),
+        experimentNumber = experimentNumber,
         sensorsData = sensorsValues.toChartData(sensors),
-        sampleRate = Rates.entries.firstOrNull { it.byte == sampleRate },
-        samplesCount = Samples.entries.firstOrNull { it.count == samplesCount },
+        sampleRate = Rates.fromByte(sampleRate),
+        samplesCount = Samples.fromCount(samplesCount),
         experimentDateTime = dateTime,
         activeSensors = sensors
     )

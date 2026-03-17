@@ -51,8 +51,8 @@ class BluetoothDeviceViewModel(
     private val experimentOnlineData = MutableStateFlow(ExperimentOnlineData())
     private val experimentsHistoryData = MutableStateFlow(emptyList<ExperimentsData>())
     private val experimentsData = MutableStateFlow(ExperimentsData())
-    private val availableDeviceSensors = MutableStateFlow(emptyMap<SensorType, Short>())
-    private val availableSensorsList: List<Short>
+    private val availableDeviceSensors = MutableStateFlow(emptyMap<SensorType, Byte>())
+    private val availableSensorsList: List<Byte>
         get() = availableDeviceSensors.value.values.toList()
     private var rawStatusResponse: DeviceResponse.StatusDeviceData? = null
 
@@ -282,7 +282,7 @@ class BluetoothDeviceViewModel(
                 knownSensors = currentState.activeSensors
             )
 
-            if (parsedResponse.packetNumber == 0.toShort() || currentState.experimentNumber == 0) {
+            if (parsedResponse.packetNumber == 0.toShort() || currentState.experimentNumber == 0.toByte()) {
                 experimentsData.value = newDataChunk
             } else {
                 val mergedSensorsData = currentState.sensorsData.toMutableMap()
@@ -334,5 +334,6 @@ class BluetoothDeviceViewModel(
             BluetoothUiEvent.DeviceCommand.TerminateDownloading -> listOf(DeviceRequest.TerminateDownloading)
             BluetoothUiEvent.DeviceCommand.DeleteLastRecording -> listOf(DeviceRequest.DeleteLastRecording)
             BluetoothUiEvent.DeviceCommand.SetCurrentDateTime -> listOf(setDateTimes())
+            BluetoothUiEvent.DeviceCommand.GetExternalSensorsData -> listOf(DeviceRequest.GetAllSensorsId)
         }
 }

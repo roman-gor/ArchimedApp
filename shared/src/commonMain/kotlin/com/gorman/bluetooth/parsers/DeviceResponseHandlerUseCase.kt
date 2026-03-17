@@ -50,7 +50,7 @@ class DeviceResponseHandlerUseCase(
                     parsedResponses.addAll(invoke(byteArrayOf()))
                 }
             } else {
-                strategy.parse(incomingBytes)?.let { parsedResponses.add(it) }
+                parsedResponses.add(strategy.parse(incomingBytes))
             }
         } else {
             logger.d("UART_RX", "Garbage bytes or unhandled fragment received: size ${incomingBytes.size}")
