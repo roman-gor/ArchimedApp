@@ -331,7 +331,7 @@ class BluetoothDeviceViewModel(
         when (command) {
             BluetoothUiEvent.DeviceCommand.GetStatus -> listOf(DeviceRequest.GetStatus)
             BluetoothUiEvent.DeviceCommand.StartDefaultLogging ->
-                startDefaultLogging(availableSensorsList, deviceType.value)
+                startDefaultLogging(availableSensorsList)
             is BluetoothUiEvent.DeviceCommand.StartLogging -> startLogging(command, availableSensorsList)
             BluetoothUiEvent.DeviceCommand.StopLogging -> listOf(DeviceRequest.StopLogging)
             BluetoothUiEvent.DeviceCommand.GetAllSensorsId -> listOf(DeviceRequest.GetAllSensorsId)
