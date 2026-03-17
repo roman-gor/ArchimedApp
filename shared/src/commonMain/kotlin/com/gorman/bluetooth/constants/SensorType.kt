@@ -46,8 +46,8 @@ enum class SensorType(
     RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2),
     HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1),
     PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1),
-    TURBIDITY(14, 0.1, MeasureUnit.NTU, 1),
-    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 1),
+    TURBIDITY(14, 0.1, MeasureUnit.NTU, 3),
+    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 3),
     UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1);
 
     companion object {

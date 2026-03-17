@@ -207,7 +207,7 @@ fun App() {
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
                                         listOf(
-                                            SensorType.VOLTAGE_15V,
+                                            SensorType.TURBIDITY,
 //                                            SensorType.ACCELEROMETER_4G,
 //                                            SensorType.AMBIENT_TEMPERATURE,
 //                                            SensorType.LIGHT_MEDIUM_SENSITIVE,
