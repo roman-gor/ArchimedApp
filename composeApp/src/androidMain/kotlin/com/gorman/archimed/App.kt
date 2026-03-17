@@ -207,7 +207,7 @@ fun App() {
                                 BluetoothUiEvent.OnSendCommand(
                                     BluetoothUiEvent.DeviceCommand.StartLogging(
                                         listOf(
-                                            SensorType.TURBIDITY,
+                                            SensorType.MAGNETIC_FIELD,
 //                                            SensorType.ACCELEROMETER_4G,
 //                                            SensorType.AMBIENT_TEMPERATURE,
 //                                            SensorType.LIGHT_MEDIUM_SENSITIVE,
@@ -216,7 +216,7 @@ fun App() {
 //                                            SensorType.AMBIENT_TEMPERATURE
                                         ),
                                         sampleRate = Rates.RATE_10_PER_SEC,
-                                        sampleCount = Samples.SAMPLES_10,
+                                        sampleCount = Samples.SAMPLES_100,
                                         shouldCalibrate = false
                                     )
                                 )

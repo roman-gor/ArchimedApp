@@ -31,9 +31,9 @@ enum class SensorType(
     CONDUCTIVITY_MEDIUM_SENSITIVE(57, 1.0, MeasureUnit.MICROSIEMENS, 1, Pair(0.0, 2000.0)),
     CONDUCTIVITY_LOW_SENSITIVE(58, 0.01, MeasureUnit.MILLISIEMENS, 1, Pair(0.0, 30.0)),
     COMMON_ANALOG(75, 1.0, MeasureUnit.BITS, 1, Pair(0.0, 65535.0)),
-    ACCELEROMETER_2G(59, 0.01, MeasureUnit.G_FORCE, 3, Pair(-2.2, 2.2)),
-    ACCELEROMETER_4G(60, 0.01, MeasureUnit.G_FORCE, 3, Pair(-4.4, 4.4)),
-    ACCELEROMETER_8G(35, 0.01, MeasureUnit.G_FORCE, 3, Pair(-8.8, 8.8)),
+    ACCELEROMETER_2G(59, 0.001, MeasureUnit.G_FORCE, 3, Pair(-2.2, 2.2)),
+    ACCELEROMETER_4G(60, 0.001, MeasureUnit.G_FORCE, 3, Pair(-4.4, 4.4)),
+    ACCELEROMETER_8G(35, 0.001, MeasureUnit.G_FORCE, 3, Pair(-8.8, 8.8)),
     MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA, 3, Pair(-180.0, 180.0)),
     AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL, 1, Pair(0.0, 770.0)),
     VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS, 1, Pair(-2.2, 2.2)),
@@ -46,12 +46,12 @@ enum class SensorType(
     NITRATE_ION(73, 0.1, MeasureUnit.MILLIVOLTS, 1, Pair(-1100.0, 1100.0)),
     BLOOD_PRESSURE_MAIN(79, 0.0, MeasureUnit.MM_HG, 1, Pair(0.0, 300.0)),
     BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1, Pair(25.0, 45.0)),
-    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2, Pair(0.0, 1000.0)),
+    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2, Pair(0.0, 10000.0)),
     HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1, Pair(0.0, 100.0)),
     PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1, Pair(0.0, 30000.0)),
     TURBIDITY(14, 0.1, MeasureUnit.NTU, 3, Pair(0.0, 10000.0)),
     TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 3, Pair(0.0, 10000.0)),
-    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1, Pair(-10000.0, 10000.0));
+    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1, Pair(-10000.0, 10000.0))
 }
 
 fun Byte.getSensorTypeFromId(): SensorType {
@@ -105,12 +105,12 @@ fun List<SensorType>.createSensorsMask(availableDeviceSensors: List<Byte>): Byte
  */
 fun Short.toSensorsList(availableDeviceSensors: List<Byte>): List<SensorType> {
     val maskInt = this.toInt() and 0xFFFF
+    val availableSensorsRange = 0..15
 
-    return (0..15)
+    return availableSensorsRange
         .filter { index -> (maskInt and (1 shl index)) != 0 }
         .mapNotNull { index ->
-            availableDeviceSensors.getOrNull(index)
-        }.mapNotNull { sensorId ->
+            val sensorId = availableDeviceSensors.getOrNull(index)
             SensorType.entries.find { it.id == sensorId }
         }
 }
@@ -174,11 +174,18 @@ fun processValues(
     rawData: List<Short>,
     sensor: SensorType
 ): List<Double> {
+    val minValue = sensor.minMaxValue.first
+    val maxValue = sensor.minMaxValue.second
+
     val processedValues = rawData.map {
         val processedValue =
             if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
-        round(((processedValue * sensor.multiplier) * 100.0) / 100.0)
-
+        val roundedValue = round((processedValue * sensor.multiplier) * 1000) / 1000
+        if (roundedValue in minValue..maxValue) {
+            roundedValue
+        } else {
+            if (roundedValue < minValue) minValue else maxValue
+        }
     }
     return processedValues
 }
