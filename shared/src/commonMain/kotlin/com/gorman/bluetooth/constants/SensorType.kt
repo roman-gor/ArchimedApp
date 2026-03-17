@@ -62,7 +62,7 @@ enum class SensorType(
                 EXTERNAL_TEMPERATURE
             )
             DeviceType.PHYSICS -> listOf(
-                VOLTAGE_15V,
+                VOLTAGE_30V,
                 AIR_PRESSURE,
                 CURRENT_STRENGTH,
                 ACCELEROMETER_4G,
