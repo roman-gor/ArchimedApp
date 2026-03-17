@@ -16,6 +16,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google {
             mavenContent {
@@ -30,3 +31,6 @@ dependencyResolutionManagement {
 
 include(":composeApp")
 include(":shared")
+include(":flutter")
+val filePath = settingsDir.parentFile.toString() + "/ArchimedApp/uiflutter/.android/include_flutter.groovy"
+apply(from = File(filePath))

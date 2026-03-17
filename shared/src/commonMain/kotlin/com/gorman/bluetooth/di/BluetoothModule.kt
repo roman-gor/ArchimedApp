@@ -1,8 +1,8 @@
 package com.gorman.bluetooth.di
 
 import com.gorman.bluetooth.data.BluetoothManager
-import com.gorman.bluetooth.parsers.DeviceResponseHandlerUseCase
 import com.gorman.bluetooth.parsers.DeviceResponseStrategy
+import com.gorman.bluetooth.parsers.HandleDeviceResponseUseCase
 import com.gorman.bluetooth.parsers.strategies.ExperimentDataResponseStrategy
 import com.gorman.bluetooth.parsers.strategies.ExperimentOnlineDataResponseStrategy
 import com.gorman.bluetooth.parsers.strategies.ExternalSensorDataResponseStrategy
@@ -28,5 +28,5 @@ val bluetoothModule = module {
     singleOf(::GetExperimentsListResponseStrategy) bind DeviceResponseStrategy::class
     singleOf(::SensorValuesResponseStrategy) bind DeviceResponseStrategy::class
     singleOf(::ExternalSensorDataResponseStrategy) bind DeviceResponseStrategy::class
-    single { DeviceResponseHandlerUseCase(getAll<DeviceResponseStrategy>().toSet(), get()) }
+    single { HandleDeviceResponseUseCase(getAll<DeviceResponseStrategy>().toSet(), get()) }
 }

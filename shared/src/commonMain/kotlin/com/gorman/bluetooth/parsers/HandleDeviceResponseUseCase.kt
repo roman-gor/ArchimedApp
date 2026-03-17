@@ -4,7 +4,7 @@ import com.gorman.bluetooth.constants.ResponsesTypes
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.logger.Logger
 
-class DeviceResponseHandlerUseCase(
+class HandleDeviceResponseUseCase(
     private val strategies: Set<DeviceResponseStrategy>,
     private val logger: Logger
 ) {

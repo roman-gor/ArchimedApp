@@ -46,3 +46,10 @@ tasks.register("detektAll", Detekt::class) {
 dependencies {
     detektPlugins(libs.detekt.formatting.plugin)
 }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}

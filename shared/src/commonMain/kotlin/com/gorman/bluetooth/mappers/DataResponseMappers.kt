@@ -6,6 +6,7 @@ import com.gorman.archimed.states.bluetooth.StatusDeviceData
 import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.SensorType
+import com.gorman.bluetooth.constants.processValues
 import com.gorman.bluetooth.constants.toChartData
 import com.gorman.bluetooth.constants.toSensorsList
 import com.gorman.bluetooth.models.DeviceResponse
@@ -31,10 +32,7 @@ fun DeviceResponse.ExperimentOnlineData.toUiState(availableSensors: List<Byte>):
         val count = sensor.valuesCount
         if (cursor + count <= sensorsValues.size) {
             val rawData = sensorsValues.subList(cursor, cursor + count)
-            sensorsData[sensor] = rawData.map {
-                val processedValue = if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
-                kotlin.math.round(((processedValue * sensor.multiplier) * 100.0) / 100.0)
-            }
+            sensorsData[sensor] = processValues(rawData, sensor)
         }
         cursor += count
     }

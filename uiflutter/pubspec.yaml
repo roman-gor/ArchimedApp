@@ -1,0 +1,33 @@
+name: uiflutter
+description: "Flutter module for holding UI of application."
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/bg_light.png
+    - assets/images/bg_dark.png
+    - assets/images/main_image.svg
+  generate: true
+  module:
+    androidX: true
+    androidPackage: com.example.uiflutter
+    iosBundleIdentifier: com.example.uiflutter

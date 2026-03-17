@@ -15,7 +15,7 @@ import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startLogging
 import com.gorman.bluetooth.mappers.toUiState
 import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.models.DeviceResponse
-import com.gorman.bluetooth.parsers.DeviceResponseHandlerUseCase
+import com.gorman.bluetooth.parsers.HandleDeviceResponseUseCase
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import com.gorman.bluetooth.states.BluetoothDeviceState
 import com.gorman.bluetooth.states.DeviceConnectionState
@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 @Suppress("TooManyFunctions")
 class BluetoothDeviceViewModel(
     private val bluetoothRepository: IBluetoothRepository,
-    private val deviceResponseHandlerUseCase: DeviceResponseHandlerUseCase,
+    private val handleDeviceResponseUseCase: HandleDeviceResponseUseCase,
     private val logger: Logger
 ) : ViewModel() {
 
@@ -233,7 +233,7 @@ class BluetoothDeviceViewModel(
             bluetoothRepository.observePeripherals(uuid)
                 .catch { e -> logger.d("UART_RX", "Observation error: ${e.message}") }
                 .collect { bytes ->
-                    val parsedResponses = deviceResponseHandlerUseCase(bytes)
+                    val parsedResponses = handleDeviceResponseUseCase(bytes)
                     logger.d("UART_RX", "Received: $parsedResponses")
                     parsedResponses.forEach { parsedResponse ->
                         logger.d("UART_RX", "Parsed: $parsedResponse")
@@ -331,7 +331,7 @@ class BluetoothDeviceViewModel(
         when (command) {
             BluetoothUiEvent.DeviceCommand.GetStatus -> listOf(DeviceRequest.GetStatus)
             BluetoothUiEvent.DeviceCommand.StartDefaultLogging ->
-                startDefaultLogging(availableSensorsList, deviceType.value)
+                startDefaultLogging(availableSensorsList)
             is BluetoothUiEvent.DeviceCommand.StartLogging -> startLogging(command, availableSensorsList)
             BluetoothUiEvent.DeviceCommand.StopLogging -> listOf(DeviceRequest.StopLogging)
             BluetoothUiEvent.DeviceCommand.GetAllSensorsId -> listOf(DeviceRequest.GetAllSensorsId)

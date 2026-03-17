@@ -33,6 +33,7 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+            implementation(libs.android.splashscreen)
             implementation(projects.shared)
         }
     }
@@ -67,5 +68,5 @@ android {
 
 dependencies {
     debugImplementation(libs.compose.uiTooling)
+    implementation(project(":flutter"))
 }
-

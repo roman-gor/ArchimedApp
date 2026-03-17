@@ -22,3 +22,7 @@ keystore
 app/google-services.json
 *.hprof
 .kotlin
+uiflutter/.android
+uiflutter/.idea
+uiflutter/.ios
+uiflutter/.dart_tool

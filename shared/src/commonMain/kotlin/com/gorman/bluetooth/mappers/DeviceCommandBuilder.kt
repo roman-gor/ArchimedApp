@@ -1,7 +1,6 @@
 package com.gorman.bluetooth.mappers
 
 import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
-import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.SensorType
@@ -39,10 +38,11 @@ object DeviceCommandBuilder {
     }
 
     fun startDefaultLogging(
-        availableDeviceSensors: List<Byte>,
-        deviceType: DeviceType
+        availableDeviceSensors: List<Byte>
     ): List<DeviceRequest> {
-        val sensorsArray = SensorType.getFullSensors(deviceType).createSensorsMask(availableDeviceSensors)
+        val sensorsArray = SensorType.entries
+            .filter { it.id in availableDeviceSensors }
+            .createSensorsMask(availableDeviceSensors)
 
         return listOf(
             setDateTimes(),
