@@ -1,1 +1,0 @@
- W:\\work\\ArchimedApp\\uiflutter\\.dart_tool\\flutter_build\\6ae187309e29b3e9418d74b2c797910f\\native_assets.json: 
