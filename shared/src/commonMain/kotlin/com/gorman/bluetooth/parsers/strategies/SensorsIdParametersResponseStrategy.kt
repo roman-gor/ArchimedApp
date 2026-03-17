@@ -4,8 +4,11 @@ import com.gorman.bluetooth.constants.ResponsesTypes
 import com.gorman.bluetooth.constants.getSensorTypeFromId
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.DeviceResponseStrategy
+import com.gorman.logger.Logger
 
-internal class SensorsIdParametersResponseStrategy : DeviceResponseStrategy {
+internal class SensorsIdParametersResponseStrategy(
+    private val logger: Logger
+) : DeviceResponseStrategy {
     override val responseType = ResponsesTypes.GET_SENSORS_IDS.type
     private val expectedLength = ResponsesTypes.GET_SENSORS_IDS.responseLength
 
@@ -17,6 +20,7 @@ internal class SensorsIdParametersResponseStrategy : DeviceResponseStrategy {
             )
         }
 
+        logger.d("DDDD", "${bytes.copyOfRange(3, 19).toList()}")
         val sensorsIdsMap = bytes.copyOfRange(3, 19).associateBy { it.getSensorTypeFromId() }
         val externalSensorPair = bytes[19].getSensorTypeFromId() to bytes[19]
 

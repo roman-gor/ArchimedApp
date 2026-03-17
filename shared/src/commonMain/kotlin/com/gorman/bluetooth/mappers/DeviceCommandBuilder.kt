@@ -37,16 +37,19 @@ object DeviceCommandBuilder {
         )
     }
 
-    fun startDefaultLogging(availableDeviceSensors: List<Byte>): List<DeviceRequest> {
-        val sensorsList = SensorType.entries
-        val sensorsArray = sensorsList.createSensorsMask(availableDeviceSensors)
+    fun startDefaultLogging(
+        availableDeviceSensors: List<Byte>
+    ): List<DeviceRequest> {
+        val sensorsArray = SensorType.entries
+            .filter { it.id in availableDeviceSensors }
+            .createSensorsMask(availableDeviceSensors)
 
         return listOf(
             setDateTimes(),
             DeviceRequest.SetupLoggingParameters(
                 sensors = sensorsArray,
                 rate = Rates.RATE_10_PER_SEC.byte,
-                samples = Samples.SAMPLES_100.byte,
+                samples = Samples.SAMPLES_10.byte,
                 sensorsCalibrate = 0x00.toByte()
             ),
             DeviceRequest.StartLogging
