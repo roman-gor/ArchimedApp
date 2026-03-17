@@ -10,23 +10,24 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.gorman.archimed.ui.ArchimedApp
+import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            ArchimedApp {
-                Surface(
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .statusBarsPadding()
-                ) {
-                    App()
-                }
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .statusBarsPadding()
+            ) {
+                val intent = FlutterActivity
+                    .withCachedEngine("flutter_ui_main_engine")
+                    .build(this)
+                this.startActivity(intent)
             }
         }
     }
