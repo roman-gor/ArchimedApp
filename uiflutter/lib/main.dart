@@ -14,15 +14,17 @@ class ArchimedApplication extends StatelessWidget {
         theme: ThemeData(
           brightness: Brightness.light,
           colorScheme: ColorScheme.light(
-            primary: Color(0x000b74da),
-            surface: Colors.white
+            primary: Color(0xFF0b74da),
+            surface: Colors.white,
+            onSurface: Colors.black
           ),
         ),
         darkTheme: ThemeData(
           brightness: Brightness.dark,
           colorScheme: ColorScheme.dark(
-            primary: Color(0x000b74da),
-            surface: Color(0x000B0D32),
+            primary: Color(0xFF0b74da),
+            surface: Color(0xFF0B0D32),
+            onSurface: Colors.white
           ),
         ),
         themeMode: ThemeMode.system,

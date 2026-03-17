@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
                     .withCachedEngine("flutter_ui_main_engine")
                     .build(this)
                 this.startActivity(intent)
+                finish()
             }
         }
     }
