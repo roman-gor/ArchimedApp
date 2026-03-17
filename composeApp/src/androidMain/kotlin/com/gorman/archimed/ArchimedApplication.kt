@@ -10,7 +10,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 
 class ArchimedApplication : Application() {
-    lateinit var flutterEngine : FlutterEngine
+    lateinit var flutterEngine: FlutterEngine
 
     override fun onCreate() {
         super.onCreate()
