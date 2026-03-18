@@ -5,9 +5,7 @@ import com.gorman.bluetooth.states.DisconnectReason
 import com.juul.kable.State
 
 fun State.toDomain(): DeviceConnectionState = when (this) {
-    is State.Connecting.Bluetooth -> DeviceConnectionState.Connecting.Bluetooth
-    is State.Connecting.Services -> DeviceConnectionState.Connecting.Services
-    is State.Connecting.Observes -> DeviceConnectionState.Connecting.Observes
+    is State.Connecting -> DeviceConnectionState.Connecting
 
     is State.Connected -> DeviceConnectionState.Connected
 

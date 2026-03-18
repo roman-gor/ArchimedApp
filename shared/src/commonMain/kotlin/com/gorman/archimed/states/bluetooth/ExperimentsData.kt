@@ -4,7 +4,9 @@ import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.SensorType
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ExperimentsData(
     val experimentNumber: Byte = 0,
     val sensorsData: Map<SensorType, List<Double>> = mapOf(),

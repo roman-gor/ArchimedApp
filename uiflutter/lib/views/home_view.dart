@@ -1,12 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:uiflutter/l10n/app_localizations.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+  @override
+  State<StatefulWidget> createState() => HomeViewState();
+}
+
+
+Future<void> _checkPermissions() async {
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.bluetoothScan,
+    Permission.bluetoothConnect,
+    Permission.bluetooth,
+    Permission.location,
+  ].request();
+
+  if (statuses[Permission.bluetoothScan]!.isDenied) {
+    //Some code
+  }
+}
+
+class HomeViewState extends State<HomeView> {
+
+  static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
+
+  Stream<String>? _bluetoothDataState;
+
+  @override
+  void initState() {
+    super.initState();
+    _bluetoothDataState = _eventChannel
+        .receiveBroadcastStream()
+        .map((dynamic event) => event as String);
+  }
+
 
   @override
   Widget build(BuildContext context) {
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final backgroundImage = isDark
@@ -23,8 +57,15 @@ class HomeView extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
+            bottom: false,
+            top: false,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  top: 22
+              ),
               child: Column(
                 spacing: 8,
                 children: [
@@ -83,12 +124,98 @@ class HomeView extends StatelessWidget {
                   _iconTransparentButton(
                       color: Theme.of(context).colorScheme.onSurface,
                       icon: Icons.format_list_bulleted_rounded,
-                      onPressed: () {})
+                      onPressed: () {
+                        showDevicesSelectedDialog(context);
+                      })
                 ],
               ),
             )
           )
         ],
+      ),
+    );
+  }
+
+  void showDevicesSelectedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          elevation: 8,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: SizedBox(
+            width: 400,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Text(
+                    'Доступные устройства',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: 1000,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text('Устройство $index'),
+                          onTap: () {
+                            print('Выбрано устройство $index');
+                            Navigator.of(context).pop();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8),
+                    child: SizedBox(
+                        width: 120,
+                        height: 40,
+                        child: _uncoloredButton(
+                            context: context,
+                            text: AppLocalizations.of(context)!.close,
+                            onPressed: () => _checkPermissions()
+                        )
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _uncoloredButton({required BuildContext context, required String text, required Function()? onPressed}) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.tertiary,
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withAlpha(70),
+          width: 1.0,
+        ),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25.0),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onTertiary,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -158,8 +285,8 @@ class HomeView extends StatelessWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: SizedBox(
-                width: 140,
-                height: 50,
+                width: 90,
+                height: 42,
                 child: ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
@@ -169,11 +296,11 @@ class HomeView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(25.0),
                     ),
                   ),
-                  child: const Text(
-                    "Start",
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.start,
+                    style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: TextAlign.center,
