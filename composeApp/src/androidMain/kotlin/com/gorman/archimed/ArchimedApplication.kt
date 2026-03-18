@@ -58,8 +58,8 @@ class ArchimedApplication : Application() {
                                 Log.d("State Event Channel", state.toString())
                                 events?.success(stateJsonData)
                             }
-                        }.onFailure {
-                            Log.e("State Event Channel", "Failure Event Channel Listener")
+                        }.onFailure { e->
+                            Log.e("State Event Channel", "Failure: ${e.message}")
                         }
                     }
                 }

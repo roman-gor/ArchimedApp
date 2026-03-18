@@ -10,24 +10,25 @@ class HomeView extends StatefulWidget {
   State<StatefulWidget> createState() => HomeViewState();
 }
 
+
+Future<void> _checkPermissions() async {
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.bluetoothScan,
+    Permission.bluetoothConnect,
+    Permission.bluetooth,
+    Permission.location,
+  ].request();
+
+  if (statuses[Permission.bluetoothScan]!.isDenied) {
+    //Some code
+  }
+}
+
 class HomeViewState extends State<HomeView> {
 
   static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
 
   Stream<String>? _bluetoothDataState;
-
-  Future<void> _checkPermissions() async {
-    print("DEBUG: Запрос разрешений начался...");
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-      Permission.location,
-    ].request();
-
-    if (statuses[Permission.bluetoothScan]!.isDenied) {
-      print("Пользователь отклонил разрешение на сканирование");
-    }
-  }
 
   @override
   void initState() {
@@ -124,7 +125,7 @@ class HomeViewState extends State<HomeView> {
                       color: Theme.of(context).colorScheme.onSurface,
                       icon: Icons.format_list_bulleted_rounded,
                       onPressed: () {
-                        getStream();
+                        showDevicesSelectedDialog(context);
                       })
                 ],
               ),
@@ -133,15 +134,6 @@ class HomeViewState extends State<HomeView> {
         ],
       ),
     );
-  }
-
-  void getStream() {
-    _checkPermissions();
-    _bluetoothDataState?.listen((data) {
-      print("Пришли данные: $data");
-    });
-
-    showDevicesSelectedDialog(context);
   }
 
   void showDevicesSelectedDialog(BuildContext context) {
@@ -188,7 +180,8 @@ class HomeViewState extends State<HomeView> {
                         height: 40,
                         child: _uncoloredButton(
                             context: context,
-                            text: AppLocalizations.of(context)!.close
+                            text: AppLocalizations.of(context)!.close,
+                            onPressed: () => _checkPermissions()
                         )
                     ),
                   )
@@ -201,9 +194,9 @@ class HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _uncoloredButton({required BuildContext context, required String text}) {
+  Widget _uncoloredButton({required BuildContext context, required String text, required Function()? onPressed}) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.tertiary,
         side: BorderSide(
