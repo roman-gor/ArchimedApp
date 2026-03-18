@@ -118,6 +118,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @allow_bluetooth_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth and connect multisensor?'**
+  String get allow_bluetooth_desc;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @allow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get allow;
+
+  /// No description provided for @repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescan'**
+  String get repeat;
+
+  /// No description provided for @device_not_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get device_not_connected;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

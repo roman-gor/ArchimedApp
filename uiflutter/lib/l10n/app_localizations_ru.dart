@@ -19,4 +19,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get close => 'Закрыть';
+
+  @override
+  String get allow_bluetooth_desc => 'Разрешить Bluetooth и подключить мультидатчик?';
+
+  @override
+  String get back => 'Назад';
+
+  @override
+  String get allow => 'Разрешить';
+
+  @override
+  String get repeat => 'Повторить';
+
+  @override
+  String get device_not_connected => 'Не подключено';
 }

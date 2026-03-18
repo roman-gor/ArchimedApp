@@ -2,5 +2,10 @@
   "app_name": "INTlab",
   "available_devices": "Available devices",
   "start": "Start",
-  "close": "Close"
+  "close": "Close",
+  "allow_bluetooth_desc": "Allow Bluetooth and connect multisensor?",
+  "back": "Back",
+  "allow": "Allow",
+  "repeat": "Rescan",
+  "device_not_connected": "Not connected"
 }

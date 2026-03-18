@@ -19,4 +19,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get allow_bluetooth_desc => 'Allow Bluetooth and connect multisensor?';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get allow => 'Allow';
+
+  @override
+  String get repeat => 'Rescan';
+
+  @override
+  String get device_not_connected => 'Not connected';
 }
