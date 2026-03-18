@@ -23,8 +23,15 @@ class HomeView extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
+            bottom: false,
+            top: false,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  top: 22
+              ),
               child: Column(
                 spacing: 8,
                 children: [
