@@ -3,8 +3,6 @@ package com.gorman.bluetooth.constants
 import com.gorman.archimed.shared.MR
 import dev.icerock.moko.resources.desc.Resource
 import dev.icerock.moko.resources.desc.StringDesc
-import kotlin.Pair
-import kotlin.math.round
 
 /**
  * A complete registry of supported hardware sensors for the device Archimedes.
@@ -17,41 +15,42 @@ enum class SensorType(
     val multiplier: Double,
     val measureUnit: MeasureUnit,
     val valuesCount: Int,
-    val minMaxValue: Pair<Double, Double>
+    val minValue: Double,
+    val maxValue: Double
 ) {
-    HEART_PULSE(22, 1.0, MeasureUnit.BEATS_PER_MIN, 2, Pair(0.0, 300.0)),
-    CURRENT_STRENGTH(28, 0.1, MeasureUnit.AMPS, 1, Pair(0.0, 1000.0)),
-    AMBIENT_TEMPERATURE(30, 0.1, MeasureUnit.CELSIUS, 1, Pair(-25.0, 65.0)),
-    EXTERNAL_TEMPERATURE(51, 0.01, MeasureUnit.CELSIUS, 1, Pair(-55.0, 185.0)),
-    EXTERNAL_ANALOG_CONNECTOR(52, 0.001, MeasureUnit.VOLTS, 1, Pair(0.0, 5.0)),
-    LIGHT_HIGH_SENSITIVE(53, 0.1, MeasureUnit.LUX, 1, Pair(0.0, 1000.0)),
-    LIGHT_MEDIUM_SENSITIVE(54, 1.0, MeasureUnit.LUX, 1, Pair(0.0, 20.0)),
-    LIGHT_LOW_SENSITIVE(55, 0.01, MeasureUnit.KLX, 1, Pair(0.0, 180.0)),
-    CONDUCTIVITY_HIGH_SENSITIVE(56, 0.1, MeasureUnit.MICROSIEMENS, 1, Pair(0.0, 200.0)),
-    CONDUCTIVITY_MEDIUM_SENSITIVE(57, 1.0, MeasureUnit.MICROSIEMENS, 1, Pair(0.0, 2000.0)),
-    CONDUCTIVITY_LOW_SENSITIVE(58, 0.01, MeasureUnit.MILLISIEMENS, 1, Pair(0.0, 30.0)),
-    COMMON_ANALOG(75, 1.0, MeasureUnit.BITS, 1, Pair(0.0, 65535.0)),
-    ACCELEROMETER_2G(59, 0.001, MeasureUnit.G_FORCE, 3, Pair(-2.2, 2.2)),
-    ACCELEROMETER_4G(60, 0.001, MeasureUnit.G_FORCE, 3, Pair(-4.4, 4.4)),
-    ACCELEROMETER_8G(35, 0.001, MeasureUnit.G_FORCE, 3, Pair(-8.8, 8.8)),
-    MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA, 3, Pair(-180.0, 180.0)),
-    AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL, 1, Pair(0.0, 770.0)),
-    VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS, 1, Pair(-2.2, 2.2)),
-    VOLTAGE_5V(64, 0.001, MeasureUnit.VOLTS, 1, Pair(-5.5, 5.5)),
-    VOLTAGE_10V(65, 0.001, MeasureUnit.VOLTS, 1, Pair(-11.0, 11.0)),
-    VOLTAGE_15V(66, 0.001, MeasureUnit.VOLTS, 1, Pair(-17.0, 17.0)),
-    VOLTAGE_30V(67, 0.01, MeasureUnit.VOLTS, 1, Pair(-33.0, 33.0)),
-    EXTERNAL_TEMPERATURE_NTC(74, 0.1, MeasureUnit.CELSIUS, 1, Pair(-30.0, 130.0)),
-    CHLORIDE_ION(72, 0.1, MeasureUnit.MILLIVOLTS, 1, Pair(-1100.0, 1100.0)),
-    NITRATE_ION(73, 0.1, MeasureUnit.MILLIVOLTS, 1, Pair(-1100.0, 1100.0)),
-    BLOOD_PRESSURE_MAIN(79, 0.0, MeasureUnit.MM_HG, 1, Pair(0.0, 300.0)),
-    BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1, Pair(25.0, 45.0)),
-    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2, Pair(0.0, 10000.0)),
-    HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1, Pair(0.0, 100.0)),
-    PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1, Pair(0.0, 30000.0)),
-    TURBIDITY(14, 0.1, MeasureUnit.NTU, 3, Pair(0.0, 10000.0)),
-    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 3, Pair(0.0, 10000.0)),
-    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1, Pair(-10000.0, 10000.0))
+    HEART_PULSE(22, 1.0, MeasureUnit.BEATS_PER_MIN, 2, 0.0, 300.0),
+    CURRENT_STRENGTH(28, 0.1, MeasureUnit.AMPS, 1, 0.0, 1000.0),
+    AMBIENT_TEMPERATURE(30, 0.1, MeasureUnit.CELSIUS, 1, -25.0, 65.0),
+    EXTERNAL_TEMPERATURE(51, 0.01, MeasureUnit.CELSIUS, 1, -55.0, 185.0),
+    EXTERNAL_ANALOG_CONNECTOR(52, 0.001, MeasureUnit.VOLTS, 1, 0.0, 5.0),
+    LIGHT_HIGH_SENSITIVE(53, 0.1, MeasureUnit.LUX, 1, 0.0, 1000.0),
+    LIGHT_MEDIUM_SENSITIVE(54, 1.0, MeasureUnit.LUX, 1, 0.0, 20.0),
+    LIGHT_LOW_SENSITIVE(55, 0.01, MeasureUnit.KLX, 1, 0.0, 180.0 ),
+    CONDUCTIVITY_HIGH_SENSITIVE(56, 0.1, MeasureUnit.MICROSIEMENS, 1, 0.0, 200.0),
+    CONDUCTIVITY_MEDIUM_SENSITIVE(57, 1.0, MeasureUnit.MICROSIEMENS, 1, 0.0, 2000.0),
+    CONDUCTIVITY_LOW_SENSITIVE(58, 0.01, MeasureUnit.MILLISIEMENS, 1, 0.0, 30.0),
+    COMMON_ANALOG(75, 1.0, MeasureUnit.BITS, 1, 0.0, 65535.0),
+    ACCELEROMETER_2G(59, 0.001, MeasureUnit.G_FORCE, 3, -2.2, 2.2),
+    ACCELEROMETER_4G(60, 0.001, MeasureUnit.G_FORCE, 3, -4.4, 4.4),
+    ACCELEROMETER_8G(35, 0.001, MeasureUnit.G_FORCE, 3, -8.8, 8.8),
+    MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA, 3, -180.0, 180.0),
+    AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL, 1, 0.0, 770.0),
+    VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS, 1, -2.2, 2.2),
+    VOLTAGE_5V(64, 0.001, MeasureUnit.VOLTS, 1, -5.5, 5.5),
+    VOLTAGE_10V(65, 0.001, MeasureUnit.VOLTS, 1, -11.0, 11.0),
+    VOLTAGE_15V(66, 0.001, MeasureUnit.VOLTS, 1, -17.0, 17.0),
+    VOLTAGE_30V(67, 0.01, MeasureUnit.VOLTS, 1, -33.0, 33.0),
+    EXTERNAL_TEMPERATURE_NTC(74, 0.1, MeasureUnit.CELSIUS, 1, -30.0, 130.0),
+    CHLORIDE_ION(72, 0.1, MeasureUnit.MILLIVOLTS, 1, -1100.0, 1100.0),
+    NITRATE_ION(73, 0.1, MeasureUnit.MILLIVOLTS, 1, -1100.0, 1100.0),
+    BLOOD_PRESSURE_MAIN(79, 0.0, MeasureUnit.MM_HG, 1, 0.0, 300.0),
+    BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1, 25.0, 45.0),
+    RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2, 0.0, 10000.0),
+    HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1, 0.0, 100.0),
+    PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1, 0.0, 30000.0),
+    TURBIDITY(14, 0.1, MeasureUnit.NTU, 3, 0.0, 10000.0),
+    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 3, 0.0, 10000.0),
+    UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1, -10000.0, 10000.0)
 }
 
 fun Byte.getSensorTypeFromId(): SensorType {
@@ -174,13 +173,13 @@ fun processValues(
     rawData: List<Short>,
     sensor: SensorType
 ): List<Double> {
-    val minValue = sensor.minMaxValue.first
-    val maxValue = sensor.minMaxValue.second
+    val minValue = sensor.minValue
+    val maxValue = sensor.maxValue
 
     val processedValues = rawData.map {
         val processedValue =
             if (sensor == SensorType.CURRENT_STRENGTH) it.toInt() - 32750 else it.toInt()
-        val roundedValue = round((processedValue * sensor.multiplier) * 1000) / 1000
+        val roundedValue = processedValue * sensor.multiplier
         if (roundedValue in minValue..maxValue) {
             roundedValue
         } else {
