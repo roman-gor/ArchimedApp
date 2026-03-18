@@ -4,7 +4,7 @@ import FlutterPluginRegistrant
 
 @Observable
 class FlutterDependencies {
- let flutterEngine = FlutterEngine(name: "my flutter engine")
+ let flutterEngine = FlutterEngine(name: "flutter_ui_engine")
  init() {
    flutterEngine.run()
    GeneratedPluginRegistrant.register(with: self.flutterEngine);
