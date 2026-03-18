@@ -10,4 +10,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get app_name => 'INTlab';
+
+  @override
+  String get available_devices => 'Доступные устройства';
+
+  @override
+  String get start => 'Начать';
+
+  @override
+  String get close => 'Закрыть';
 }

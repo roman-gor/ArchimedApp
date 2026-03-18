@@ -16,7 +16,10 @@ class ArchimedApplication extends StatelessWidget {
           colorScheme: ColorScheme.light(
             primary: Color(0xFF0b74da),
             surface: Colors.white,
-            onSurface: Colors.black
+            onSurface: Colors.black,
+            secondary: Colors.white,
+            tertiary: Color(0xFFF3F9FF),
+            onTertiary: Color(0xFF0b74da)
           ),
         ),
         darkTheme: ThemeData(
@@ -24,7 +27,10 @@ class ArchimedApplication extends StatelessWidget {
           colorScheme: ColorScheme.dark(
             primary: Color(0xFF0b74da),
             surface: Color(0xFF0B0D32),
-            onSurface: Colors.white
+            onSurface: Colors.white,
+            secondary: Color(0xFF10274E),
+            tertiary: Color(0xFF0B0D32),
+            onTertiary: Colors.white
           ),
         ),
         themeMode: ThemeMode.system,

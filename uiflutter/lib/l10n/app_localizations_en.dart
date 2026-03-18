@@ -10,4 +10,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get app_name => 'INTlab';
+
+  @override
+  String get available_devices => 'Available devices';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get close => 'Close';
 }

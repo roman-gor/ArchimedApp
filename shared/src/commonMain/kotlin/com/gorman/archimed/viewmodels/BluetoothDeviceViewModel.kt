@@ -119,8 +119,8 @@ class BluetoothDeviceViewModel(
             selectedDeviceType = deviceParams.deviceType,
             statusDeviceData = responseData.statusDeviceData,
             experimentOnlineData = responseData.experimentOnlineData,
-            experimentsHistoryDataState = responseData.experimentsHistoryData,
-            experimentsData = responseData.experimentsData
+            experimentsHistoryData = responseData.experimentsHistoryData,
+            experimentData = responseData.experimentsData
         )
     }.onStart {
         scan()
@@ -146,6 +146,7 @@ class BluetoothDeviceViewModel(
                 scannedDevices.update { currentDevices ->
                     currentDevices + (peripheralDeviceState.uuid to peripheralDeviceState)
                 }
+                logger.d("Devices", scannedDevices.value.toString())
             }
         }
     }

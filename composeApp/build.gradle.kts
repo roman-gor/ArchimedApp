@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -34,6 +35,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.android.splashscreen)
+            implementation(libs.bundles.kotlinx)
             implementation(projects.shared)
         }
     }

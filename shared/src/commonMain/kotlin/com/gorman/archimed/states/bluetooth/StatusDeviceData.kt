@@ -5,7 +5,9 @@ import com.gorman.bluetooth.constants.Rates
 import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.SensorType
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class StatusDeviceData(
     val archimedesVersion: DeviceType = DeviceType.UNKNOWN,
     val experimentsInMemory: Byte = 0,

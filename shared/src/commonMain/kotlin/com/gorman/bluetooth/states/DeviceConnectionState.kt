@@ -1,6 +1,8 @@
 package com.gorman.bluetooth.states
 
-// TODO(Think `Do you need this class? Does it use anywhere?`)
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class DeviceConnectionState {
     sealed class Connecting : DeviceConnectionState() {
         data object Bluetooth : Connecting()

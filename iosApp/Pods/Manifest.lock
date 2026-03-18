@@ -2,20 +2,27 @@ PODS:
   - Flutter (1.0.0)
   - FlutterPluginRegistrant (0.0.1):
     - Flutter
+    - permission_handler_apple
+  - permission_handler_apple (9.3.0):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `../uiflutter/.ios/Flutter`)
   - FlutterPluginRegistrant (from `../uiflutter/.ios/Flutter/FlutterPluginRegistrant`)
+  - permission_handler_apple (from `../uiflutter/.ios/.symlinks/plugins/permission_handler_apple/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: "../uiflutter/.ios/Flutter"
   FlutterPluginRegistrant:
     :path: "../uiflutter/.ios/Flutter/FlutterPluginRegistrant"
+  permission_handler_apple:
+    :path: "../uiflutter/.ios/.symlinks/plugins/permission_handler_apple/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  FlutterPluginRegistrant: 1bf2b93dcc6a731089dfe77f7a867be153c5008f
+  FlutterPluginRegistrant: 4b5422c2402c417d7767956d440fa0dc9349be76
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
 
 PODFILE CHECKSUM: 755ecf3df6e39d922de4308860f1e0c41528073a
 

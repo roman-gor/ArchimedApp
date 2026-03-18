@@ -100,6 +100,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'INTlab'**
   String get app_name;
+
+  /// No description provided for @available_devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Available devices'**
+  String get available_devices;
+
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
