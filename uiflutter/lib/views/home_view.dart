@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 import 'package:uiflutter/l10n/app_localizations.dart';
+import 'package:uiflutter/utils/method_channel_commands.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
@@ -21,7 +23,10 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   bool _hasPermissions = false;
   bool _wasPermanentlyDenied = false;
 
+  var logger = Logger();
+
   static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
+  static const MethodChannel _methodChannel = MethodChannel('com.gorman.archimed/methods');
 
   Stream<BluetoothDeviceState>? _bluetoothDataState;
 
@@ -117,12 +122,17 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                           selectedDeviceId: state?.selectedDeviceId,
                           selectedDeviceType: state?.selectedDeviceType,
                           isDeviceSelected: isDeviceSelected,
-                          onListClick: () {
+                          onListClick: () async {
                             if (_wasPermanentlyDenied && !_hasPermissions) {
                               showBluetoothDeniedDialog(context);
                             } else if (!_wasPermanentlyDenied && !_hasPermissions) {
                               showPermissionExplanationDialog(context);
                             } else {
+                              try {
+                                _methodChannel.invokeMethod(MethodChannelCommands.startScan.name);
+                              } on PlatformException catch (e) {
+                                logger.e("Method Channel Start Scan error ${e.message}");
+                              }
                               showDevicesSelectedDialog(
                                   context,
                                   currentState: state,
@@ -136,8 +146,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                             children: [
                               ToolsBlock(),
                               Expanded(
-                                  child: ManagingBlockWidget(
-                                      isDeviceConnected: isDeviceSelected)
+                                  child: ManagingBlockWidget(isDeviceConnected: isDeviceSelected)
                               )
                             ],
                           ),
