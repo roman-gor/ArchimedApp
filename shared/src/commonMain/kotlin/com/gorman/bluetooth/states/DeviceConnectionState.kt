@@ -1,16 +1,25 @@
 package com.gorman.bluetooth.states
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class DeviceConnectionState {
+
     @Serializable
+    @SerialName("connecting")
     data object Connecting : DeviceConnectionState()
+
     @Serializable
+    @SerialName("connected")
     data object Connected : DeviceConnectionState()
+
     @Serializable
+    @SerialName("disconnecting")
     data object Disconnecting : DeviceConnectionState()
+
     @Serializable
+    @SerialName("disconnected")
     data class Disconnected(val reason: DisconnectReason? = null) : DeviceConnectionState()
 }
 

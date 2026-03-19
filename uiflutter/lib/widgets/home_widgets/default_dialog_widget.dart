@@ -7,6 +7,7 @@ class DefaultDialogWidget extends StatelessWidget {
   const DefaultDialogWidget({
     super.key,
     required this.icon,
+    required this.bgColor,
     required this.text,
     required this.dismissText,
     required this.confirmText,
@@ -15,6 +16,7 @@ class DefaultDialogWidget extends StatelessWidget {
   });
 
   final IconData icon;
+  final Color bgColor;
   final String text;
   final String dismissText;
   final String confirmText;
@@ -23,8 +25,6 @@ class DefaultDialogWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
-
     return Dialog(
       backgroundColor: Theme.of(context).colorScheme.secondary,
       elevation: 8,
@@ -41,13 +41,13 @@ class DefaultDialogWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: primaryColor.withAlpha(30),
+                    color: bgColor.withAlpha(30),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
                     size: 28,
-                    color: primaryColor,
+                    color: bgColor,
                   ),
                 ),
                 const SizedBox(width: 16),

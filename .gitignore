@@ -26,3 +26,6 @@ uiflutter/.android
 uiflutter/.idea
 uiflutter/.ios
 uiflutter/.dart_tool
+iosApp/Pods/*
+*.freezed.dart
+*.g.dart

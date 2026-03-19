@@ -148,6 +148,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not connected'**
   String get device_not_connected;
+
+  /// No description provided for @permissions_denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth permissions were denied'**
+  String get permissions_denied;
+
+  /// No description provided for @connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

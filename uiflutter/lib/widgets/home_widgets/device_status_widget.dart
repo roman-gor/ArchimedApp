@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/l10n/app_localizations.dart';
-import 'package:uiflutter/widgets/home_widgets/devices_select_dialog.dart';
+import 'package:uiflutter/states/bluetooth_states.dart';
 import 'package:uiflutter/widgets/home_widgets/icon_transparent_button_widget.dart';
 
 class DeviceStatusWidget extends StatelessWidget {
   const DeviceStatusWidget({
     super.key,
-    required this.isDeviceSelected
+    required this.isDeviceSelected,
+    required this.onListClick,
+    required this.selectedDeviceId,
+    required this.selectedDeviceType,
   });
 
   final bool isDeviceSelected;
+  final VoidCallback? onListClick;
+  final String? selectedDeviceId;
+  final DeviceType? selectedDeviceType;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +54,7 @@ class DeviceStatusWidget extends StatelessWidget {
                       IconTransparentButton(
                         color: Theme.of(context).colorScheme.onSurface,
                         icon: Icons.format_list_bulleted_rounded,
-                        onPressed: () => showDevicesSelectedDialog(context),
+                        onPressed: onListClick,
                       ),
                     ] else ...[
                       Icon(
@@ -66,7 +72,7 @@ class DeviceStatusWidget extends StatelessWidget {
                       IconTransparentButton(
                         color: Theme.of(context).colorScheme.onSurface,
                         icon: Icons.format_list_bulleted_rounded,
-                        onPressed: () => showDevicesSelectedDialog(context),
+                        onPressed: onListClick,
                       ),
                     ]
                   ],
@@ -75,15 +81,6 @@ class DeviceStatusWidget extends StatelessWidget {
           )
         ],
       ),
-    );
-  }
-
-  void showDevicesSelectedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return DevicesSelectDialog();
-      },
     );
   }
 }

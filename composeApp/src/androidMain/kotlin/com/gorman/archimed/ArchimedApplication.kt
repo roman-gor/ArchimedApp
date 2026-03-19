@@ -4,10 +4,13 @@ import android.app.Application
 import android.util.Log
 import com.gorman.archimed.di.initKoin
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
+import com.gorman.bluetooth.constants.MethodChannelCommands
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -55,10 +58,10 @@ class ArchimedApplication : Application() {
                         runCatching {
                             viewModel.deviceState.collect { state ->
                                 val stateJsonData = Json.encodeToString(state)
-                                Log.d("State Event Channel", state.toString())
+                                Log.d("State Event Channel", stateJsonData)
                                 events?.success(stateJsonData)
                             }
-                        }.onFailure { e->
+                        }.onFailure { e ->
                             Log.e("State Event Channel", "Failure: ${e.message}")
                         }
                     }
@@ -68,5 +71,34 @@ class ArchimedApplication : Application() {
                     job?.cancel()
                 }
             })
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.gorman.archimed/methods")
+            .setMethodCallHandler { call, result ->
+                observeMethodChannelCommands(call, viewModel, result)
+            }
+    }
+
+    private fun observeMethodChannelCommands(
+        call: MethodCall,
+        viewModel: BluetoothDeviceViewModel,
+        result: MethodChannel.Result
+    ) {
+        when (call.method) {
+            MethodChannelCommands.START_SCAN.value -> {
+                runCatching { viewModel.startScan() }
+                    .onSuccess { result.success(null) }
+                    .onFailure { e -> result.error("Error start scan", "${e.message}", null) }
+            }
+
+            MethodChannelCommands.STOP_SCAN.value -> {
+                runCatching { viewModel.stopScan() }
+                    .onSuccess { result.success(null) }
+                    .onFailure { e -> result.error("Error stop scan", "${e.message}", null) }
+            }
+
+            "connectToDevice" -> {
+                //TODO(ADD UI EVENTS)
+            }
+        }
     }
 }

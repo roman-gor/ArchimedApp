@@ -7,5 +7,7 @@
   "back": "Назад",
   "allow": "Разрешить",
   "repeat": "Повторить",
-  "device_not_connected": "Не подключено"
+  "device_not_connected": "Не подключено",
+  "permissions_denied": "Разрешения на работу Bluetooth не были получены",
+  "connected": "Подключено"
 }
