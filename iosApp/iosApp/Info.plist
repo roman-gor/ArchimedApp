@@ -3,13 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string></string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string></string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string></string>
+	<string>App need this for connection to multisensors devices</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string></string>
+	<string>App need this for connection to multisensors devices</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UILaunchScreen</key>

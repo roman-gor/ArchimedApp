@@ -34,4 +34,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get device_not_connected => 'Not connected';
+
+  @override
+  String get permissions_denied => 'Bluetooth permissions were denied';
 }

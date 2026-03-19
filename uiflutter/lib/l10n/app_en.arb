@@ -7,5 +7,6 @@
   "back": "Back",
   "allow": "Allow",
   "repeat": "Rescan",
-  "device_not_connected": "Not connected"
+  "device_not_connected": "Not connected",
+  "permissions_denied": "Bluetooth permissions were denied"
 }

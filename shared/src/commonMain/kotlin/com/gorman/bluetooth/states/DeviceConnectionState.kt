@@ -4,12 +4,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class DeviceConnectionState {
+
     @Serializable
     data object Connecting : DeviceConnectionState()
+
     @Serializable
     data object Connected : DeviceConnectionState()
+
     @Serializable
     data object Disconnecting : DeviceConnectionState()
+
     @Serializable
     data class Disconnected(val reason: DisconnectReason? = null) : DeviceConnectionState()
 }
