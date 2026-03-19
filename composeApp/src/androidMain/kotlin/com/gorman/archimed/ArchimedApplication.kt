@@ -55,7 +55,7 @@ class ArchimedApplication : Application() {
                         runCatching {
                             viewModel.deviceState.collect { state ->
                                 val stateJsonData = Json.encodeToString(state)
-                                Log.d("State Event Channel", state.toString())
+                                Log.d("State Event Channel", stateJsonData)
                                 events?.success(stateJsonData)
                             }
                         }.onFailure { e ->

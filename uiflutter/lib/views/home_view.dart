@@ -5,7 +5,8 @@ import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
-
+import 'dart:convert';
+import 'package:uiflutter/states/bluetooth_states.dart';
 import '../utils/permission_processing.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
@@ -22,9 +23,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
 
-  Stream<String>? _bluetoothDataState;
-
-  bool _isDeviceSelected = false;
+  Stream<BluetoothDeviceState>? _bluetoothDataState;
 
   @override
   void initState() {
@@ -32,7 +31,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _bluetoothDataState = _eventChannel
         .receiveBroadcastStream()
-        .map((dynamic event) => event as String);
+        .map((dynamic event) {
+          final String jsonString = event as String;
+          final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+          return BluetoothDeviceState.fromJson(jsonMap);
+        });
   }
 
   @override
@@ -88,43 +91,62 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           body: SafeArea(
             bottom: false,
             top: false,
-            child: Padding(
-                padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                    top: 22
-                ),
-                child: Column(
-                  spacing: 8,
-                  children: [
-                    DeviceStatusWidget(
-                      isDeviceSelected: _isDeviceSelected,
-                      onListClick: () {
-                        if (_wasPermanentlyDenied && !_hasPermissions) {
-                          showBluetoothDeniedDialog(context);
-                        } else if (!_wasPermanentlyDenied && !_hasPermissions) {
-                          showPermissionExplanationDialog(context);
-                        } else {
-                          showDevicesSelectedDialog(context);
-                        }
-                      },
+            child: StreamBuilder<BluetoothDeviceState>(
+              stream: _bluetoothDataState,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Channel error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                  );
+                }
+
+                final state = snapshot.data;
+                final bool isDeviceSelected = state?.selectedDeviceId != null;
+
+                return Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: 16,
+                        top: 22
                     ),
-                    Expanded(
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          ToolsBlock(),
-                          Expanded(
-                              child: ManagingBlockWidget(
-                                  isDeviceConnected: _isDeviceSelected)
-                          )
-                        ],
-                      ),
+                    child: Column(
+                      spacing: 8,
+                      children: [
+                        DeviceStatusWidget(
+                          selectedDeviceId: state?.selectedDeviceId,
+                          selectedDeviceType: state?.selectedDeviceType,
+                          isDeviceSelected: isDeviceSelected,
+                          onListClick: () {
+                            if (_wasPermanentlyDenied && !_hasPermissions) {
+                              showBluetoothDeniedDialog(context);
+                            } else if (!_wasPermanentlyDenied && !_hasPermissions) {
+                              showPermissionExplanationDialog(context);
+                            } else {
+                              showDevicesSelectedDialog(
+                                  context,
+                                  currentState: state,
+                                  onDeviceClick: (String deviceId) {  });
+                            }
+                          },
+                        ),
+                        Expanded(
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              ToolsBlock(),
+                              Expanded(
+                                  child: ManagingBlockWidget(
+                                      isDeviceConnected: isDeviceSelected)
+                              )
+                            ],
+                          ),
+                        )
+                      ],
                     )
-                  ],
-                )
-            ),
+                );
+              },
+            )
           ),
         )
     );
@@ -211,12 +233,33 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     );
   }
 
-  void showDevicesSelectedDialog(BuildContext context) {
+  void showDevicesSelectedDialog(BuildContext context, {
+    required void Function(String) onDeviceClick,
+    required BluetoothDeviceState? currentState,
+  }) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return DevicesSelectDialog();
-      },
+        builder: (BuildContext dialogContext) {
+          return StreamBuilder<BluetoothDeviceState>(
+              stream: _bluetoothDataState,
+              initialData: currentState,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final state = snapshot.data!;
+
+                return DevicesSelectDialog(
+                  availableDevices: state.devices,
+                  selectedDeviceType: state.selectedDeviceType,
+                  selectedDeviceId: state.selectedDeviceId,
+                  onDeviceClick: onDeviceClick,
+                  onCloseDialog: () => Navigator.of(dialogContext).pop(),
+                );
+              }
+          );
+        }
     );
   }
 }

@@ -37,4 +37,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get permissions_denied => 'Разрешения на работу Bluetooth не были получены';
+
+  @override
+  String get connected => 'Подключено';
 }
