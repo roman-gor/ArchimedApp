@@ -1,9 +1,5 @@
 package com.gorman.bluetooth.constants
 
-import com.gorman.archimed.shared.MR
-import dev.icerock.moko.resources.desc.Resource
-import dev.icerock.moko.resources.desc.StringDesc
-
 /**
  * A complete registry of supported hardware sensors for the device Archimedes.
  * @property id The decimal identifier (ID) of the sensor.
@@ -60,24 +56,24 @@ fun Byte.getSensorTypeFromId(): SensorType {
 /**
  * Enumeration of physical measurement units supported by the device's sensors.
  **/
-enum class MeasureUnit(val symbol: StringDesc) {
-    NTU(StringDesc.Resource(MR.strings.ntu_symbol)),
-    BEATS_PER_MIN(StringDesc.Resource(MR.strings.beats_heart)),
-    AMPS(StringDesc.Resource(MR.strings.milliamps_symbol)),
-    CELSIUS(StringDesc.Resource(MR.strings.celsius_symbol)),
-    VOLTS(StringDesc.Resource(MR.strings.volts_symbol)),
-    MILLIVOLTS(StringDesc.Resource(MR.strings.millivolts_symbol)),
-    LUX(StringDesc.Resource(MR.strings.lux_symbol)),
-    KLX(StringDesc.Resource(MR.strings.klx_symbol)),
-    MICROSIEMENS(StringDesc.Resource(MR.strings.microsiemens_symbol)),
-    MILLISIEMENS(StringDesc.Resource(MR.strings.millisiemens_symbol)),
-    BITS(StringDesc.Resource(MR.strings.bits_symbol)),
-    G_FORCE(StringDesc.Resource(MR.strings.g_force_symbol)),
-    MILLITESLA(StringDesc.Resource(MR.strings.millitesla_symbol)),
-    KILOPASCAL(StringDesc.Resource(MR.strings.kilopascal_symbol)),
-    MM_HG(StringDesc.Resource(MR.strings.mm_hg_symbol)),
-    PERCENT(StringDesc.Resource(MR.strings.percent_symbol)),
-    NOTHING(StringDesc.Resource(MR.strings.nothing_symbol))
+enum class MeasureUnit {
+    NTU,
+    BEATS_PER_MIN,
+    AMPS,
+    CELSIUS,
+    VOLTS,
+    MILLIVOLTS,
+    LUX,
+    KLX,
+    MICROSIEMENS,
+    MILLISIEMENS,
+    BITS,
+    G_FORCE,
+    MILLITESLA,
+    KILOPASCAL,
+    MM_HG,
+    PERCENT,
+    NOTHING
 }
 
 /**

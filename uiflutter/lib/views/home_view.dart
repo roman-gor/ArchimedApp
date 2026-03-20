@@ -5,7 +5,6 @@ import 'package:uiflutter/data/permissions_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 import 'package:logger/logger.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
 import 'package:uiflutter/utils/method_channel_commands.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
@@ -13,6 +12,7 @@ import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'dart:convert';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import '../states/bluetooth/bluetooth_ui_event.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatefulWidget {
@@ -93,63 +93,86 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                             builder: (context, snapshot) {
                               if (snapshot.hasError) {
                                 return Center(
-                                  child: Text('Channel error: ${snapshot.error}',
-                                      style: const TextStyle(color: Colors.red)),
+                                  child: Text(
+                                      'Channel error: ${snapshot.error}',
+                                      style: const TextStyle(color: Colors
+                                          .red)),
                                 );
                               }
 
                               final bluetoothState = snapshot.data;
-                              final bool isDeviceSelected = bluetoothState?.selectedDeviceId != null;
+                              final EnhancedBluetoothPeripheral? currentDevice = bluetoothState
+                                  ?.devices[bluetoothState.selectedDeviceId];
+                              final bool isDeviceSelected = bluetoothState
+                                  ?.selectedDeviceId != null;
 
                               return BlocBuilder<PermissionsCubit, PermissionsState>(
                                 builder: (context, permissionsState) {
-                                  return  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        bottom: 16,
-                        top: 22
-                    ),
-                    child: Column(
-                      spacing: 8,
-                      children: [
-                        DeviceStatusWidget(
-                          selectedDeviceId: state?.selectedDeviceId,
-                          selectedDeviceType: state?.selectedDeviceType,
-                          isDeviceSelected: isDeviceSelected,
-                          onListClick: () async {
-                            if (_wasPermanentlyDenied && !_hasPermissions) {
-                              showBluetoothDeniedDialog(context);
-                            } else if (!_wasPermanentlyDenied && !_hasPermissions) {
-                              showPermissionExplanationDialog(context);
-                            } else {
-                              try {
-                                _methodChannel.invokeMethod(MethodChannelCommands.startScan.name);
-                              } on PlatformException catch (e) {
-                                logger.e("Method Channel Start Scan error ${e.message}");
-                              }
-                              showDevicesSelectedDialog(
-                                  context,
-                                  currentState: state,
-                                  onDeviceClick: (String deviceId) {  });
+                                  return Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          bottom: 16,
+                                          top: 22
+                                      ),
+                                      child: Column(
+                                        spacing: 8,
+                                        children: [
+                                          DeviceStatusWidget(
+                                            selectedDeviceType: bluetoothState?.selectedDeviceType,
+                                            currentDevice: currentDevice,
+                                            onListClick: () async {
+                                              if (permissionsState is PermissionsPermanentlyDenied) {
+                                                showBluetoothDeniedDialog(context);
+                                              } else
+                                              if (permissionsState is PermissionsDenied) {
+                                                showPermissionExplanationDialog(context);
+                                              } else {
+                                                try {
+                                                  _methodChannel.invokeMethod(
+                                                      MethodChannelCommands.onUiEvent.name, 
+                                                      <String, String> {
+                                                        "command": jsonEncode(BluetoothUiEvent.onStartScan().toJson())
+                                                      }
+                                                  );
+                                                } on PlatformException catch (e) {
+                                                  logger.e("Method Channel Start Scan error ${e.message}");
+                                                } 
+                                                showDevicesSelectedDialog(
+                                                    context,
+                                                    currentState: bluetoothState,
+                                                    onDeviceClick: (String deviceId) {
+                                                      _methodChannel.invokeMethod(
+                                                          MethodChannelCommands.onUiEvent.name,
+                                                          <String, String> {
+                                                            "command": jsonEncode(BluetoothUiEvent.onConnect(deviceId).toJson())
+                                                          }
+                                                      );
+                                                    });
+                                              }
+                                            },
+                                          ),
+                                          Expanded(
+                                            child: Row(
+                                              spacing: 8,
+                                              children: [
+                                                ToolsBlock(),
+                                                Expanded(
+                                                    child: ManagingBlockWidget(
+                                                        isDeviceConnected: isDeviceSelected)
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                  );
+                                },
+                              );
                             }
-                          },
-                        ),
-                        Expanded(
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              ToolsBlock(),
-                              Expanded(
-                                  child: ManagingBlockWidget(isDeviceConnected: isDeviceSelected)
-                              )
-                            ],
-                          ),
                         )
-                      ],
                     )
-                );
-              },
+                )
             )
         )
     );
@@ -214,8 +237,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
                 return DevicesSelectDialog(
                   availableDevices: state.devices,
-                  selectedDeviceType: state.selectedDeviceType,
-                  selectedDeviceId: state.selectedDeviceId,
                   onDeviceClick: onDeviceClick,
                   onCloseDialog: () => Navigator.of(dialogContext).pop(),
                 );
@@ -224,9 +245,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         }
     ).then( (value) async {
       try {
-        _methodChannel.invokeMethod(MethodChannelCommands.stopScan.name);
+        _methodChannel.invokeMethod(
+            MethodChannelCommands.onUiEvent.name,
+            <String, String> {
+              "command": jsonEncode(BluetoothUiEvent.onStopScan().toJson())
+            }
+        );
       } on PlatformException catch (e) {
-        logger.e("Method Channel Start Scan error ${e.message}");
+        logger.e("Method Channel Stop Scan error ${e.message}");
       }
     });
   }

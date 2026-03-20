@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+
+import '../../extensions/build_context_local.dart';
+
+class LoadingConnectionWidget extends StatelessWidget {
+  const LoadingConnectionWidget({super.key, required this.title});
+  
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      spacing: 8,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: context.colors.onSurface.withAlpha(180),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(
+            color: context.colors.onSurface,
+            strokeWidth: 2,
+          ),
+        ),
+      ],
+    );
+  }
+}

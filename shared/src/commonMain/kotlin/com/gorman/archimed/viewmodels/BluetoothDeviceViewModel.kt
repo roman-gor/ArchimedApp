@@ -131,16 +131,18 @@ class BluetoothDeviceViewModel(
         initialValue = BluetoothDeviceState()
     )
 
-    fun onUiEvent(uiEvent: BluetoothUiEvent) {
+    fun onUiEvent(uiEvent: BluetoothUiEvent?) {
         when (uiEvent) {
             is BluetoothUiEvent.OnConnect -> connect(uiEvent.uuid)
             is BluetoothUiEvent.OnDisconnect -> disconnect(uiEvent.uuid)
             BluetoothUiEvent.OnScan -> startScan()
+            BluetoothUiEvent.OnStopScan -> stopScan()
             is BluetoothUiEvent.OnSendCommand -> sendCommand(uiEvent.command)
+            else -> Unit
         }
     }
 
-    fun startScan() {
+    private fun startScan() {
         logger.d("SCAN STARTED", "Started")
         scanJob?.cancel()
 
@@ -155,7 +157,7 @@ class BluetoothDeviceViewModel(
         }
     }
 
-    fun stopScan() {
+    private fun stopScan() {
         logger.d("SCAN STOPPED", "Started")
         scanJob?.cancel()
         scanJob = null
@@ -175,6 +177,14 @@ class BluetoothDeviceViewModel(
             if (currentSelected != null && currentSelected != uuid) {
                 logger.d("DISCONNECTING OLD", "Disconnecting $currentSelected before connecting to new")
                 bluetoothRepository.disconnect(currentSelected)
+            } else if (currentSelected == uuid) {
+                logger.d("DISCONNECTING", "Disconnecting $currentSelected")
+                bluetoothRepository.disconnect(currentSelected)
+
+                selectedDeviceId.value = null
+                connectionJob?.cancel()
+
+                return@launch
             }
 
             selectedDeviceId.value = uuid
@@ -185,6 +195,7 @@ class BluetoothDeviceViewModel(
             }.onFailure { e ->
                 logger.d("CONNECTING", "Connection failed: ${e.message}")
                 connectionState.value = DeviceConnectionState.Disconnected()
+                selectedDeviceId.value = null
             }
         }
     }

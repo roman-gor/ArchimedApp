@@ -25,15 +25,22 @@ sealed class DeviceConnectionState {
 
 @Serializable
 sealed class DisconnectReason {
+    @Serializable
+    @SerialName("peripheral_disconnected")
     data object PeripheralDisconnected : DisconnectReason()
-    data object CentralDisconnected : DisconnectReason()
+    @Serializable
+    @SerialName("failed")
     data object Failed : DisconnectReason()
-    data object L2CapFailure : DisconnectReason()
+    @Serializable
+    @SerialName("timeout")
     data object Timeout : DisconnectReason()
-    data object LinkManagerProtocolTimeout : DisconnectReason()
+    @Serializable
+    @SerialName("unknown_device")
     data object UnknownDevice : DisconnectReason()
+    @Serializable
+    @SerialName("cancelled")
     data object Cancelled : DisconnectReason()
-    data object ConnectionLimitReached : DisconnectReason()
-    data object EncryptionTimedOut : DisconnectReason()
-    data class Unknown(val code: Int) : DisconnectReason()
+    @Serializable
+    @SerialName("unknown")
+    data class Unknown(@SerialName("code") val code: Int) : DisconnectReason()
 }
