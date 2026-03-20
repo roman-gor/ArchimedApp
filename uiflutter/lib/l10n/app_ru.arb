@@ -6,7 +6,7 @@
   "allow_bluetooth_desc": "Разрешить Bluetooth и подключить мультидатчик?",
   "back": "Назад",
   "allow": "Разрешить",
-  "repeat": "Повторить",
-  "device_not_connected": "Не подключено",
+  "rescan": "Повторить",
+  "not_connected": "Не подключено",
   "permissions_denied": "Разрешения на работу Bluetooth не были получены"
 }

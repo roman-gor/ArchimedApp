@@ -6,7 +6,7 @@
   "allow_bluetooth_desc": "Allow Bluetooth and connect multisensor?",
   "back": "Back",
   "allow": "Allow",
-  "repeat": "Rescan",
-  "device_not_connected": "Not connected",
+  "rescan": "Rescan",
+  "not_connected": "Not connected",
   "permissions_denied": "Bluetooth permissions were denied"
 }

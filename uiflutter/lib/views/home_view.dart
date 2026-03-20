@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
+import 'package:uiflutter/data/permissions_cubit.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/states/permissions_state.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
-
-import '../utils/permission_processing.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatefulWidget {
@@ -17,18 +18,20 @@ class HomeView extends StatefulWidget {
 
 class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
-  bool _hasPermissions = false;
-  bool _wasPermanentlyDenied = false;
-
   static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
 
   Stream<String>? _bluetoothDataState;
 
   bool _isDeviceSelected = false;
 
+  late final PermissionsCubit _permissionsCubit;
+
   @override
   void initState() {
     super.initState();
+    
+    _permissionsCubit = PermissionsCubit();
+    
     WidgetsBinding.instance.addObserver(this);
     _bluetoothDataState = _eventChannel
         .receiveBroadcastStream()
@@ -38,94 +41,87 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   @override
   void dispose() {
     super.dispose();
+    _permissionsCubit.close();
     WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      checkInitialPermissions(
-        onAllGranted: () {
-          setState(() {
-            _hasPermissions = true;
-            _wasPermanentlyDenied = false;
-          });
-        },
-        onPermanentlyDenied: () {
-          setState(() {
-            _hasPermissions = false;
-            _wasPermanentlyDenied = true;
-          });
-        },
-        onOtherCases: () {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            showPermissionExplanationDialog(context);
-          });
-        }
-      );
+      _permissionsCubit.checkInitialPermissions();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme
-        .of(context)
-        .brightness == Brightness.dark;
+    final isDark = context.themes.brightness == Brightness.dark;
 
-    final backgroundImage = isDark
-        ? 'assets/images/bg_dark.png'
-        : 'assets/images/bg_light.png';
+    final backgroundImage = isDark ? 'assets/images/bg_dark.png' : 'assets/images/bg_light.png';
 
-    return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(backgroundImage),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            bottom: false,
-            top: false,
-            child: Padding(
-                padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                    top: 22
+    return BlocProvider.value(
+        value: _permissionsCubit,
+        child: BlocListener<PermissionsCubit, PermissionsState>(
+            listener: (context, state) {
+              if (state is PermissionsDenied) {
+                showPermissionExplanationDialog(context);
+              }
+            },
+            child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(backgroundImage),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                child: Column(
-                  spacing: 8,
-                  children: [
-                    DeviceStatusWidget(
-                      isDeviceSelected: _isDeviceSelected,
-                      onListClick: () {
-                        if (_wasPermanentlyDenied && !_hasPermissions) {
-                          showBluetoothDeniedDialog(context);
-                        } else if (!_wasPermanentlyDenied && !_hasPermissions) {
-                          showPermissionExplanationDialog(context);
-                        } else {
-                          showDevicesSelectedDialog(context);
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: SafeArea(
+                    bottom: false,
+                    top: false,
+                    child: BlocBuilder<PermissionsCubit, PermissionsState>(
+                        builder: (context, state) {
+                          return Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16,
+                                  right: 16,
+                                  bottom: 16,
+                                  top: 22
+                              ),
+                              child: Column(
+                                spacing: 8,
+                                children: [
+                                  DeviceStatusWidget(
+                                    isDeviceSelected: _isDeviceSelected,
+                                    onListClick: () {
+                                      if (state is PermissionsPermanentlyDenied) {
+                                        showBluetoothDeniedDialog(context);
+                                      } else if (state is PermissionsDenied) {
+                                        showPermissionExplanationDialog(context);
+                                      } else {
+                                        showDevicesSelectedDialog(context);
+                                      }
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      spacing: 8,
+                                      children: [
+                                        ToolsBlock(),
+                                        Expanded(
+                                            child: ManagingBlockWidget(
+                                                isDeviceConnected: _isDeviceSelected)
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              )
+                          );
                         }
-                      },
                     ),
-                    Expanded(
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          ToolsBlock(),
-                          Expanded(
-                              child: ManagingBlockWidget(
-                                  isDeviceConnected: _isDeviceSelected)
-                          )
-                        ],
-                      ),
-                    )
-                  ],
+                  ),
                 )
-            ),
-          ),
+            )
         )
     );
   }
@@ -136,34 +132,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         builder: (BuildContext context) {
           return DefaultDialogWidget(
             icon: Icons.bluetooth,
-            bgColor: Theme
-                .of(context)
-                .colorScheme
-                .primary,
-            text: AppLocalizations.of(context)!.allow_bluetooth_desc,
-            dismissText: AppLocalizations.of(context)!.back,
-            confirmText: AppLocalizations.of(context)!.allow,
+            bgColor: context.colors.primary,
+            text: context.strings.allow_bluetooth_desc,
+            dismissText: context.strings.back,
+            confirmText: context.strings.allow,
             onConfirm: () {
-              requestPermissions(
-                onAllGranted: () {
-                  setState(() {
-                    _hasPermissions = true;
-                    _wasPermanentlyDenied = false;
-                  });
-                },
-                onPermanentlyDenied: () {
-                  setState(() {
-                    _hasPermissions = false;
-                    _wasPermanentlyDenied = true;
-                  });
-                },
-                onOtherCases: () {
-                  setState(() {
-                    _hasPermissions = false;
-                    _wasPermanentlyDenied = false;
-                  });
-                },
-              );
+              _permissionsCubit.requestPermissions();
               Navigator.of(context).pop();
             },
             onDismiss: () => Navigator.of(context).pop(),
@@ -179,30 +153,11 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           return DefaultDialogWidget(
             icon: Icons.bluetooth_disabled,
             bgColor: Colors.red,
-            text: AppLocalizations.of(context)!.permissions_denied,
-            dismissText: AppLocalizations.of(context)!.back,
-            confirmText: AppLocalizations.of(context)!.allow,
+            text: context.strings.permissions_denied,
+            dismissText: context.strings.back,
+            confirmText: context.strings.allow,
             onConfirm: () {
-              requestPermissions(
-                onAllGranted: () {
-                  setState(() {
-                    _hasPermissions = true;
-                    _wasPermanentlyDenied = false;
-                  });
-                },
-                onPermanentlyDenied: () {
-                  setState(() {
-                    _hasPermissions = false;
-                    _wasPermanentlyDenied = true;
-                  });
-                },
-                onOtherCases: () {
-                  setState(() {
-                    _hasPermissions = false;
-                    _wasPermanentlyDenied = false;
-                  });
-                },
-              );
+              _permissionsCubit.requestPermissions();
               Navigator.of(context).pop();
             },
             onDismiss: () => Navigator.of(context).pop(),

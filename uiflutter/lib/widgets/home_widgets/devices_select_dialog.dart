@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -9,7 +10,7 @@ class DevicesSelectDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: context.colors.secondary,
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: SizedBox(
@@ -20,10 +21,10 @@ class DevicesSelectDialog extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                AppLocalizations.of(context)!.available_devices,
+                context.strings.available_devices,
                 style: TextStyle(
                   fontSize: 20,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: context.colors.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
@@ -47,7 +48,7 @@ class DevicesSelectDialog extends StatelessWidget {
                     width: 120,
                     height: 40,
                     child: UncoloredButtonWidget(
-                        text: AppLocalizations.of(context)!.close,
+                        text: context.strings.close,
                         onPressed: () {}
                     )
                 ),
