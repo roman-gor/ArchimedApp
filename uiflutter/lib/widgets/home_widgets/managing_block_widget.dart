@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import '../../l10n/app_localizations.dart';
 
 class ManagingBlockWidget extends StatelessWidget {
   const ManagingBlockWidget({

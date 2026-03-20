@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
-import 'package:uiflutter/states/bluetooth_states.dart';
-import 'package:uiflutter/widgets/home_widgets/icon_transparent_button_widget.dart';
+import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 
 class DeviceStatusWidget extends StatelessWidget {
   const DeviceStatusWidget({

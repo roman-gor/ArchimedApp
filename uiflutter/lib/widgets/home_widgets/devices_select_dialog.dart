@@ -3,7 +3,7 @@ import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../states/bluetooth_states.dart';
+import '../../states/bluetooth/bluetooth_states.dart';
 
 class DevicesSelectDialog extends StatelessWidget {
   const DevicesSelectDialog({

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uiflutter/data/permissions_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
@@ -7,10 +8,8 @@ import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:convert';
-import 'package:uiflutter/states/bluetooth_states.dart';
-import '../utils/permission_processing.dart';
+import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatefulWidget {
@@ -66,76 +65,87 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     return BlocProvider.value(
         value: _permissionsCubit,
         child: BlocListener<PermissionsCubit, PermissionsState>(
-            listener: (context, state) {
-              if (state is PermissionsDenied) {
+            listener: (context, permissionState) {
+              if (permissionState is PermissionsDenied) {
                 showPermissionExplanationDialog(context);
               }
             },
             child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(backgroundImage),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            bottom: false,
-            top: false,
-            child: StreamBuilder<BluetoothDeviceState>(
-              stream: _bluetoothDataState,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Channel error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-                  );
-                }
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(backgroundImage),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: SafeArea(
+                        bottom: false,
+                        top: false,
+                        child: StreamBuilder<BluetoothDeviceState>(
+                            stream: _bluetoothDataState,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text('Channel error: ${snapshot.error}',
+                                      style: const TextStyle(color: Colors.red)),
+                                );
+                              }
 
-                final state = snapshot.data;
-                final bool isDeviceSelected = state?.selectedDeviceId != null;
+                              final bluetoothState = snapshot.data;
+                              final bool isDeviceSelected = bluetoothState?.selectedDeviceId != null;
 
-                BlocBuilder<PermissionsCubit, PermissionsState>(
-                  builder: (context, state) {
-                    return Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        bottom: 16,
-                        top: 22
-                    ),
-                    child: Column(
-                      spacing: 8,
-                      children: [
-                      DeviceStatusWidget(
-                      isDeviceSelected: _isDeviceSelected,
-                      onListClick: () {
-                        if (state is PermissionsPermanentlyDenied) {
-                          showBluetoothDeniedDialog(context);
-                        } else if (state is PermissionsDenied) {
-                          showPermissionExplanationDialog(context);
-                        } else {
-                          showDevicesSelectedDialog(context);
-                        }
-                      },
-                        Expanded(
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              ToolsBlock(),
-                              Expanded(
-                                  child: ManagingBlockWidget(
-                                      isDeviceConnected: isDeviceSelected)
-                              )
-                            ],
-                          ),
+                              return BlocBuilder<PermissionsCubit, PermissionsState>(
+                                builder: (context, permissionsState) {
+                                  return Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          bottom: 16,
+                                          top: 22
+                                      ),
+                                      child: Column(
+                                        spacing: 8,
+                                        children: [
+                                          DeviceStatusWidget(
+                                            isDeviceSelected: isDeviceSelected,
+                                            onListClick: () {
+                                              if (permissionsState is PermissionsPermanentlyDenied) {
+                                                showBluetoothDeniedDialog(context);
+                                              } else if (permissionsState is PermissionsDenied) {
+                                                showPermissionExplanationDialog(context);
+                                              } else {
+                                                showDevicesSelectedDialog(
+                                                    context,
+                                                    onDeviceClick: (String deviceId) {},
+                                                    currentState: bluetoothState);
+                                              }
+                                            },
+                                            selectedDeviceId: bluetoothState?.selectedDeviceId,
+                                            selectedDeviceType: bluetoothState?.selectedDeviceType,
+                                          ),
+                                          Expanded(
+                                            child: Row(
+                                              spacing: 8,
+                                              children: [
+                                                ToolsBlock(),
+                                                Expanded(
+                                                    child: ManagingBlockWidget(
+                                                        isDeviceConnected: isDeviceSelected)
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                  );
+                                },
+                              );
+                            }
                         )
-                      ],
                     )
-                );
-              },
+                )
             )
-          ),
         )
     );
   }
