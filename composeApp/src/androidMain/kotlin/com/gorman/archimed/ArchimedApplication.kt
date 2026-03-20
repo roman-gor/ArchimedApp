@@ -3,6 +3,7 @@ package com.gorman.archimed
 import android.app.Application
 import android.util.Log
 import com.gorman.archimed.di.initKoin
+import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
 import com.gorman.bluetooth.constants.MethodChannelCommands
 import io.flutter.embedding.engine.FlutterEngine
@@ -84,20 +85,15 @@ class ArchimedApplication : Application() {
         result: MethodChannel.Result
     ) {
         when (call.method) {
-            MethodChannelCommands.START_SCAN.value -> {
-                runCatching { viewModel.startScan() }
+            MethodChannelCommands.ON_UI_EVENT.value -> {
+                runCatching {
+                    val commandJson = call.argument<String>("command")
+                    val bluetoothUiEvent = commandJson?.let { Json.decodeFromString<BluetoothUiEvent>(commandJson) }
+                    Log.d("Bluetooth Ui Event", bluetoothUiEvent.toString())
+                    viewModel.onUiEvent(bluetoothUiEvent)
+                }
                     .onSuccess { result.success(null) }
                     .onFailure { e -> result.error("Error start scan", "${e.message}", null) }
-            }
-
-            MethodChannelCommands.STOP_SCAN.value -> {
-                runCatching { viewModel.stopScan() }
-                    .onSuccess { result.success(null) }
-                    .onFailure { e -> result.error("Error stop scan", "${e.message}", null) }
-            }
-
-            "connectToDevice" -> {
-                //TODO(ADD UI EVENTS)
             }
         }
     }

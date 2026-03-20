@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../extensions/build_context_local.dart';
+
 class UncoloredButtonWidget extends StatelessWidget {
   const UncoloredButtonWidget({super.key, required this.text, this.onPressed});
 
@@ -14,9 +16,9 @@ class UncoloredButtonWidget extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.tertiary,
+          backgroundColor: context.colors.tertiary,
           side: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withAlpha(70),
+            color: context.colors.primary.withAlpha(70),
             width: 1.0,
           ),
           elevation: 4,
@@ -27,7 +29,7 @@ class UncoloredButtonWidget extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onTertiary,
+            color: context.colors.onTertiary,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),

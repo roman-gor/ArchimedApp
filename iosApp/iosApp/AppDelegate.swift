@@ -36,26 +36,18 @@ class AppDelegate: FlutterAppDelegate {
     fileprivate func observeMethodChannelCommands(_ methodChannel: FlutterMethodChannel) {
         methodChannel.setMethodCallHandler { (call: FlutterMethodCall, result: @escaping FlutterResult) in
             switch call.method {
-            case MethodChannelCommands.startScan.value:
-                let scanResult = Result {
-                    IosBluetoothStreamHandler.shared.startScanning()
+            case MethodChannelCommands.onUiEvent.value:
+                guard let args = call.arguments as? [String: Any],
+                      let commandString = args["command"] as? String else {
+                    
+                    result(FlutterError(code: "INVALID_ARGUMENT",
+                                        message: "Missing 'command' string",
+                                        details: nil))
+                    return
                 }
-                switch scanResult {
-                case .success:
-                    result(nil)
-                case .failure(let error):
-                    result(FlutterError(code: "ERROR START SCAN", message: "Scanning was not started", details: error))
-                }
-            case MethodChannelCommands.stopScan.value:
-                let scanResult = Result {
-                    IosBluetoothStreamHandler.shared.stopScanning()
-                }
-                switch scanResult {
-                case .success:
-                    result(nil)
-                case .failure(let error):ß
-                    result(FlutterError(code: "ERROR STOP SCAN", message: "Scanning was not stopped", details: error))
-                }
+                
+                IosBluetoothStreamHandler.shared.onUiEvent(eventJson: commandString)
+                result(nil)
             default:
                 result(FlutterMethodNotImplemented)
             }

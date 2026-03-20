@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
 
 class ColoredButtonWidget extends StatelessWidget {
   const ColoredButtonWidget({super.key, required this.text, this.onPressed});
@@ -14,7 +15,7 @@ class ColoredButtonWidget extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: context.colors.primary,
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),

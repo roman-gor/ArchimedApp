@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:uiflutter/views/home_view.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 void main() => runApp(const ArchimedApplication());
 

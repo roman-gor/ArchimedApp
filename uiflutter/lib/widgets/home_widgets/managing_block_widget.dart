@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import '../../l10n/app_localizations.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
 
 class ManagingBlockWidget extends StatelessWidget {
   const ManagingBlockWidget({
@@ -17,7 +17,7 @@ class ManagingBlockWidget extends StatelessWidget {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.0),
-          color: Theme.of(context).colorScheme.surface,
+          color: context.colors.surface,
         ),
         child: Stack(
           children: [
@@ -34,7 +34,7 @@ class ManagingBlockWidget extends StatelessWidget {
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDeviceConnected
-                          ? Theme.of(context).colorScheme.primary
+                          ? context.colors.primary
                           : Colors.grey,
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -42,7 +42,7 @@ class ManagingBlockWidget extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      AppLocalizations.of(context)!.start,
+                      context.strings.start,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,

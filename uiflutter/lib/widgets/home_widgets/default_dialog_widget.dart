@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
 import 'colored_button_widget.dart';
@@ -26,7 +27,7 @@ class DefaultDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: context.colors.secondary,
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
@@ -55,7 +56,7 @@ class DefaultDialogWidget extends StatelessWidget {
                   child: Text(
                     text,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: context.colors.onSurface,
                       fontSize: 16,
                       height: 1.3,
                     ),

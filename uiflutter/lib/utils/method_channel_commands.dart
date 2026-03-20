@@ -1,6 +1,5 @@
 enum MethodChannelCommands {
-  startScan("startScan"),
-  stopScan("stopScan");
+  onUiEvent("onUiEvent");
 
   const MethodChannelCommands(this.name);
 
