@@ -97,34 +97,39 @@ class DevicesSelectDialog extends StatelessWidget {
           child: SizedBox(
               width: 346,
               height: 70,
-              child: Align(
-                alignment: Alignment.center,
-                child: Row(
+              child: Row(
                   spacing: 8,
                   children: [
                     SizedBox(width: 8),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 8,
-                      children: [
-                        Text(
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             device.peripheral.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurface
-                            )),
-                        Text(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
                             device.peripheral.uuid,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurface.withAlpha(180)
-                            )),
-                      ],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context).colorScheme.onSurface.withAlpha(180),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Spacer(),
                     if (selectedDeviceId == device.peripheral.uuid) ...[
                       Text(
                         AppLocalizations.of(context)!.connected,
@@ -137,14 +142,13 @@ class DevicesSelectDialog extends StatelessWidget {
                         Icons.check_circle,
                         color: Colors.green,
                         size: 28,
-                      ),
+                      )
                     ],
                     SizedBox(width: 8),
                   ],
                 ),
               )
           ),
-        )
-    );
+        );
   }
 }

@@ -269,7 +269,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               }
           );
         }
-    );
+    ).then( (value) async {
+      try {
+        _methodChannel.invokeMethod(MethodChannelCommands.stopScan.name);
+      } on PlatformException catch (e) {
+        logger.e("Method Channel Start Scan error ${e.message}");
+      }
+    });
   }
 }
 

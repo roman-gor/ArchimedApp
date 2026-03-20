@@ -53,7 +53,7 @@ class AppDelegate: FlutterAppDelegate {
                 switch scanResult {
                 case .success:
                     result(nil)
-                case .failure(let error):ß
+                case .failure(let error):
                     result(FlutterError(code: "ERROR STOP SCAN", message: "Scanning was not stopped", details: error))
                 }
             default:
