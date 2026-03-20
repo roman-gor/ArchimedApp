@@ -27,5 +27,7 @@ uiflutter/.idea
 uiflutter/.ios
 uiflutter/.dart_tool
 iosApp/Pods/*
+*.DS_Store
+xcuserdata
 *.freezed.dart
 *.g.dart
