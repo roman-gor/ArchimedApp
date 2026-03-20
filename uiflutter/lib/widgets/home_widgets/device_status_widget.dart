@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
-import 'package:uiflutter/states/bluetooth_states.dart';
-import 'package:uiflutter/widgets/home_widgets/icon_transparent_button_widget.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 
 class DeviceStatusWidget extends StatelessWidget {
   const DeviceStatusWidget({
@@ -20,7 +19,7 @@ class DeviceStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
+      height: 44,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -29,53 +28,53 @@ class DeviceStatusWidget extends StatelessWidget {
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(36.0),
-                color: Theme.of(context).colorScheme.surface,
+                color: context.colors.surface,
               ),
-              child: Align(
-                alignment: Alignment.center,
-                child: Row(
-                  spacing: 8,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 1),
-                    if (isDeviceSelected) ...[
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 28,
-                      ),
-                      Text(
-                        "Biology",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
+              child: InkWell(
+                onTap: onListClick,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(width: 1),
+                      if (isDeviceSelected) ...[
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 24,
                         ),
-                      ),
-                      IconTransparentButton(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        icon: Icons.format_list_bulleted_rounded,
-                        onPressed: onListClick,
-                      ),
-                    ] else ...[
-                      Icon(
-                        Icons.sensors_off_rounded,
-                        color: Theme.of(context).colorScheme.onTertiary,
-                        size: 28,
-                      ),
-                      Text(
-                        AppLocalizations.of(context)!.device_not_connected,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 16,
+                        Text(
+                          "Biology",
+                          style: TextStyle(
+                            color: context.colors.onSurface,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
-                      IconTransparentButton(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        icon: Icons.format_list_bulleted_rounded,
-                        onPressed: onListClick,
-                      ),
-                    ]
-                  ],
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.format_list_bulleted_rounded,
+                          color: context.colors.onSurface,
+                          size: 24
+                        )
+                      ] else ...[
+                        Icon(
+                          Icons.sensors_off_rounded,
+                          color: context.colors.onTertiary,
+                          size: 24,
+                        ),
+                        Text(
+                          context.strings.not_connected,
+                          style: TextStyle(
+                            color: context.colors.onSurfaceVariant,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(width: 1),
+                    ],
+                  ),
                 ),
               )
           )

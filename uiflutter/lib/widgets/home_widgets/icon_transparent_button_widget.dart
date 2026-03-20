@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class IconTransparentButton extends StatelessWidget {
+class IconTransparentButtonWidget extends StatelessWidget {
   final Color? color;
   final IconData? icon;
   final VoidCallback? onPressed;
 
-  const IconTransparentButton({
+  const IconTransparentButtonWidget({
     super.key,
     this.color,
     this.icon,

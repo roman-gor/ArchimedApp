@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/widgets/home_widgets/icon_transparent_button_widget.dart';
 
 class ToolsBlock extends StatelessWidget {
@@ -11,30 +12,30 @@ class ToolsBlock extends StatelessWidget {
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.0),
-          color: Theme.of(context).colorScheme.surface,
+          color: context.colors.surface,
         ),
         child: Column(
           spacing: 0,
           children: [
-            IconTransparentButton(
-                color: Theme.of(context).colorScheme.onSurface,
+            IconTransparentButtonWidget(
+                color: context.colors.onSurface,
                 icon: Icons.format_list_bulleted_rounded,
                 onPressed: () {}),
-            IconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
+            IconTransparentButtonWidget(
+                color: context.colors.primary,
                 icon: Icons.local_drink_rounded,
                 onPressed: () {}),
-            IconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
+            IconTransparentButtonWidget(
+                color: context.colors.primary,
                 icon: Icons.book_rounded,
                 onPressed: () {}),
-            IconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
+            IconTransparentButtonWidget(
+                color: context.colors.primary,
                 icon: Icons.list_alt_outlined,
                 onPressed: () {}),
             Expanded(child: SizedBox()),
-            IconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
+            IconTransparentButtonWidget(
+                color: context.colors.primary,
                 icon: Icons.settings_rounded,
                 onPressed: () {})
           ],

@@ -18,6 +18,8 @@ dependencies:
   json_annotation: ^4.8.1
   permission_handler: ^11.0.0
   device_info_plus: ^12.3.0
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
   logger: ^2.7.0
 
 dev_dependencies:
