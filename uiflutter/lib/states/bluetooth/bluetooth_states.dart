@@ -1,44 +1,184 @@
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'bluetooth_states.freezed.dart';
 part 'bluetooth_states.g.dart';
 
 enum SensorType {
-  @JsonValue('HEART_PULSE') heartPulse(MeasureUnits.beatsPerMin),
-  @JsonValue('CURRENT_STRENGTH') currentStrength(MeasureUnits.amps),
-  @JsonValue('AMBIENT_TEMPERATURE') ambientTemperature(MeasureUnits.celsius),
-  @JsonValue('EXTERNAL_TEMPERATURE') externalTemperature(MeasureUnits.celsius),
-  @JsonValue('EXTERNAL_ANALOG_CONNECTOR') externalAnalogConnector(MeasureUnits.volts),
-  @JsonValue('LIGHT_HIGH_SENSITIVE') lightHighSensitive(MeasureUnits.lux),
-  @JsonValue('LIGHT_MEDIUM_SENSITIVE') lightMediumSensitive(MeasureUnits.lux),
-  @JsonValue('LIGHT_LOW_SENSITIVE') lightLowSensitive(MeasureUnits.klx),
-  @JsonValue('CONDUCTIVITY_HIGH_SENSITIVE') conductivityHighSensitive(MeasureUnits.microSiemens),
-  @JsonValue('CONDUCTIVITY_MEDIUM_SENSITIVE') conductivityMediumSensitive(MeasureUnits.microSiemens),
-  @JsonValue('CONDUCTIVITY_LOW_SENSITIVE') conductivityLowSensitive(MeasureUnits.milliSiemens),
-  @JsonValue('COMMON_ANALOG') commonAnalog(MeasureUnits.bits),
-  @JsonValue('ACCELEROMETER_2G') accelerometer2g(MeasureUnits.gForce),
-  @JsonValue('ACCELEROMETER_4G') accelerometer4g(MeasureUnits.gForce),
-  @JsonValue('ACCELEROMETER_8G') accelerometer8g(MeasureUnits.gForce),
-  @JsonValue('MAGNETIC_FIELD') magneticField(MeasureUnits.milliTesla),
-  @JsonValue('AIR_PRESSURE') airPressure(MeasureUnits.kiloPascal),
-  @JsonValue('VOLTAGE_2V') voltage2v(MeasureUnits.volts),
-  @JsonValue('VOLTAGE_5V') voltage5v(MeasureUnits.volts),
-  @JsonValue('VOLTAGE_10V') voltage10v(MeasureUnits.volts),
-  @JsonValue('VOLTAGE_15V') voltage15v(MeasureUnits.volts),
-  @JsonValue('VOLTAGE_30V') voltage30v(MeasureUnits.volts),
-  @JsonValue('EXTERNAL_TEMPERATURE_NTC') externalTemperatureNtc(MeasureUnits.celsius),
-  @JsonValue('CHLORIDE_ION') chlorideIon(MeasureUnits.milliVolts),
-  @JsonValue('NITRATE_ION') nitrateIon(MeasureUnits.milliVolts),
-  @JsonValue('BLOOD_PRESSURE_MAIN') bloodPressureMain(MeasureUnits.mmHg),
-  @JsonValue('BODY_TEMPERATURE') bodyTemperature(MeasureUnits.celsius),
-  @JsonValue('RESPIRATORY_RATE') respiratoryRate(MeasureUnits.celsius),
-  @JsonValue('HUMIDITY') humidity(MeasureUnits.percent),
-  @JsonValue('PH_SENSOR') phSensor(MeasureUnits.microSiemens),
-  @JsonValue('TURBIDITY') turbidity(MeasureUnits.ntu),
-  @JsonValue('TURBIDITY_SEC') turbiditySec(MeasureUnits.ntu),
-  @JsonValue('UNKNOWN') unknown(MeasureUnits.nothing);
-  
-  const SensorType(this.unit);
+  @JsonValue('HEART_PULSE') heartPulse(
+    unit: MeasureUnits.beatsPerMin,
+    imagePath: "assets/images/ic_heart_pulse.svg",
+    color: Color(0xFF0AE7D9)
+  ),
+  @JsonValue('CURRENT_STRENGTH') currentStrength(
+    unit: MeasureUnits.amps,
+    imagePath: "assets/images/ic_current_strength.svg",
+    color: Color(0xFFC28BCB)
+  ),
+  @JsonValue('AMBIENT_TEMPERATURE') ambientTemperature(
+    unit: MeasureUnits.celsius,
+    imagePath: "assets/images/ic_ambient_temp_light.svg",
+    color: Color(0xFF71BE63)
+  ),
+  @JsonValue('EXTERNAL_TEMPERATURE') externalTemperature(
+    unit: MeasureUnits.celsius,
+    imagePath: "assets/images/ic_temp_high.svg",
+    color: Color(0xFFDD6A00)
+  ),
+  @JsonValue('EXTERNAL_ANALOG_CONNECTOR') externalAnalogConnector(
+    unit: MeasureUnits.volts,
+    imagePath: "assets/images/ic_external.svg",
+    color: Color(0xFF4E5B7D)
+  ),
+  @JsonValue('LIGHT_HIGH_SENSITIVE') lightHighSensitive(
+    unit: MeasureUnits.lux,
+    imagePath: "assets/images/ic_illumination",
+    color: Color(0xFFFFB800)
+  ),
+  @JsonValue('LIGHT_MEDIUM_SENSITIVE') lightMediumSensitive(
+    unit: MeasureUnits.lux,
+    imagePath: "assets/image/ic_illumination.svg",
+    color: Color(0xFFFFB800)
+  ),
+  @JsonValue('LIGHT_LOW_SENSITIVE') lightLowSensitive(
+    unit: MeasureUnits.klx,
+    imagePath: "assets/image/ic_illumination.svg",
+    color: Color(0xFFFFB800)
+  ),
+  @JsonValue('CONDUCTIVITY_HIGH_SENSITIVE') conductivityHighSensitive(
+    unit: MeasureUnits.microSiemens,
+    imagePath: "assets/images/ic_conductivity.svg",
+    color: Color(0xFFE360F9)
+  ),
+  @JsonValue('CONDUCTIVITY_MEDIUM_SENSITIVE') conductivityMediumSensitive(
+    unit: MeasureUnits.microSiemens,
+    imagePath: "assets/images/ic_conductivity.svg",
+    color: Color(0xFFE360F9)
+  ),
+  @JsonValue('CONDUCTIVITY_LOW_SENSITIVE') conductivityLowSensitive(
+    unit: MeasureUnits.milliSiemens,
+    imagePath: "assets/images/ic_conductivity.svg",
+    color: Color(0xFFE360F9),
+  ),
+  @JsonValue('COMMON_ANALOG') commonAnalog(
+    unit: MeasureUnits.bits,
+    imagePath: "assets/images/ic_gps.svg",
+    color: Color(0xFF2E1F84)
+  ),
+  @JsonValue('ACCELEROMETER_2G') accelerometer2g(
+    unit: MeasureUnits.gForce,
+    imagePath: "assets/images_ic_accelerometer.svg",
+    color: Color(0xFF0075FF),
+  ),
+  @JsonValue('ACCELEROMETER_4G') accelerometer4g(
+    unit: MeasureUnits.gForce,
+    imagePath: "assets/images_ic_accelerometer.svg",
+    color: Color(0xFF0075FF),
+  ),
+  @JsonValue('ACCELEROMETER_8G') accelerometer8g(
+    unit: MeasureUnits.gForce,
+    imagePath: "assets/images_ic_accelerometer.svg",
+    color: Color(0xFF0075FF),
+  ),
+  @JsonValue('MAGNETIC_FIELD') magneticField(
+    unit: MeasureUnits.milliTesla,
+    imagePath: "assets/images/ic_magnetic_field.svg",
+    color: Color(0xFF9F3900)
+  ),
+  @JsonValue('AIR_PRESSURE') airPressure(
+    unit: MeasureUnits.kiloPascal,
+    imagePath: "assets/images/ic_air_pressure.svg",
+    color: Color(0xFF4B629C)
+  ),
+  @JsonValue('VOLTAGE_2V') voltage2v(
+    unit: MeasureUnits.volts,
+    imagePath: "assets/images/ic_voltage.svg",
+    color: Color(0xFFCCA43E),
+  ),
+  @JsonValue('VOLTAGE_5V') voltage5v(
+    unit: MeasureUnits.volts,
+    imagePath: "assets/images/ic_voltage.svg",
+    color: Color(0xFFCCA43E),
+  ),
+  @JsonValue('VOLTAGE_10V') voltage10v(
+    unit: MeasureUnits.volts,
+    imagePath: "assets/images/ic_voltage.svg",
+    color: Color(0xFFCCA43E),
+  ),
+  @JsonValue('VOLTAGE_15V') voltage15v(
+    unit: MeasureUnits.volts,
+    imagePath: "assets/images/ic_voltage.svg",
+    color: Color(0xFFCCA43E),
+  ),
+  @JsonValue('VOLTAGE_30V') voltage30v(
+    unit: MeasureUnits.volts,
+    imagePath: "assets/images/ic_voltage.svg",
+    color: Color(0xFFCCA43E),
+  ),
+  @JsonValue('EXTERNAL_TEMPERATURE_NTC') externalTemperatureNtc(
+    unit: MeasureUnits.celsius,
+    imagePath: "assets/images/ic_temp_probe.svg",
+    color: Color(0xFFFF6187)
+  ),
+  @JsonValue('CHLORIDE_ION') chlorideIon(
+    unit: MeasureUnits.milliVolts,
+    imagePath: "assets/images/ic_ion.svg",
+    color: Color(0xFF859B69)
+  ),
+  @JsonValue('NITRATE_ION') nitrateIon(
+    unit: MeasureUnits.milliVolts,
+    imagePath: "assets/images/ic_ion.svg",
+    color: Color(0xFF82A7A9)
+  ),
+  @JsonValue('BLOOD_PRESSURE_MAIN') bloodPressureMain(
+    unit: MeasureUnits.mmHg,
+    imagePath: "assets/images/ic_blood_pressure.svg",
+    color: Color(0xFF009AA4)
+  ),
+  @JsonValue('BODY_TEMPERATURE') bodyTemperature(
+    unit: MeasureUnits.celsius,
+    imagePath: "assets/images/ic_body_temp.svg",
+    color: Color(0xFFE2C6AD)
+  ),
+  @JsonValue('RESPIRATORY_RATE') respiratoryRate(
+    unit: MeasureUnits.celsius,
+    imagePath: "assets/images/ic_respiratory_rate.svg",
+    color: Color(0xFF407F83)
+  ),
+  @JsonValue('HUMIDITY') humidity(
+    unit: MeasureUnits.percent,
+    imagePath: "assets/images/ic_humidity.svg",
+    color: Color(0xFF2CC5E7)
+  ),
+  @JsonValue('PH_SENSOR') phSensor(
+    unit: MeasureUnits.microSiemens,
+    imagePath: "assets/images/ic_ph.svg",
+    color: Color(0xFF7544FF)
+  ),
+  @JsonValue('TURBIDITY') turbidity(
+    unit: MeasureUnits.ntu,
+    imagePath: "assets/images/ic_turbidity.svg",
+    color: Color(0xFF5ED5EF)
+  ),
+  @JsonValue('COLORIMETRIC') colorimetric(
+    unit: MeasureUnits.percent,
+    imagePath: "assets/images/ic_colors.svg",
+    color: Color(0xFFC10058)
+  ),
+  @JsonValue('UNKNOWN') unknown(
+    unit: MeasureUnits.nothing,
+    imagePath: "",
+    color: Colors.black
+  );
+
+  const SensorType({
+    required this.unit,
+    required this.imagePath,
+    required this.color
+  });
+
   final MeasureUnits unit;
+  final String imagePath;
+  final Color color;
 }
 
 enum MeasureUnits {

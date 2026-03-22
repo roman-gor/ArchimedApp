@@ -5,6 +5,9 @@ package com.gorman.bluetooth.constants
  * @property id The decimal identifier (ID) of the sensor.
  * @property multiplier The multiplier (bit value).
  * @property measureUnit The physical unit of measurement ([MeasureUnit]) in which this sensor operates.
+ * @property valuesCount The amount of values sending from device.
+ * @property minValue The minimal value of sensor.
+ * @property maxValue The maximum value of sensor.
  **/
 enum class SensorType(
     val id: Byte,
@@ -31,10 +34,10 @@ enum class SensorType(
     ACCELEROMETER_8G(35, 0.001, MeasureUnit.G_FORCE, 3, -8.8, 8.8),
     MAGNETIC_FIELD(61, 0.01, MeasureUnit.MILLITESLA, 3, -180.0, 180.0),
     AIR_PRESSURE(62, 0.1, MeasureUnit.KILOPASCAL, 1, 0.0, 770.0),
-    VOLTAGE_2V(63, 0.001, MeasureUnit.VOLTS, 1, -2.2, 2.2),
-    VOLTAGE_5V(64, 0.001, MeasureUnit.VOLTS, 1, -5.5, 5.5),
-    VOLTAGE_10V(65, 0.001, MeasureUnit.VOLTS, 1, -11.0, 11.0),
-    VOLTAGE_15V(66, 0.001, MeasureUnit.VOLTS, 1, -17.0, 17.0),
+    VOLTAGE_2V(63, 0.01, MeasureUnit.VOLTS, 1, -2.2, 2.2),
+    VOLTAGE_5V(64, 0.01, MeasureUnit.VOLTS, 1, -5.5, 5.5),
+    VOLTAGE_10V(65, 0.01, MeasureUnit.VOLTS, 1, -11.0, 11.0),
+    VOLTAGE_15V(66, 0.01, MeasureUnit.VOLTS, 1, -17.0, 17.0),
     VOLTAGE_30V(67, 0.01, MeasureUnit.VOLTS, 1, -33.0, 33.0),
     EXTERNAL_TEMPERATURE_NTC(74, 0.1, MeasureUnit.CELSIUS, 1, -30.0, 130.0),
     CHLORIDE_ION(72, 0.1, MeasureUnit.MILLIVOLTS, 1, -1100.0, 1100.0),
@@ -43,9 +46,9 @@ enum class SensorType(
     BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1, 25.0, 45.0),
     RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2, 0.0, 10000.0),
     HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1, 0.0, 100.0),
-    PH_SENSOR(2, 1.0, MeasureUnit.MICROSIEMENS, 1, 0.0, 30000.0),
-    TURBIDITY(14, 0.1, MeasureUnit.NTU, 3, 0.0, 10000.0),
-    TURBIDITY_SEC(31, 0.1, MeasureUnit.NTU, 3, 0.0, 10000.0),
+    PH_SENSOR(2, 0.01, MeasureUnit.MICROSIEMENS, 1, 0.0, 14.0),
+    TURBIDITY(14, 1.0, MeasureUnit.NTU, 1, 0.0, 200.0),
+    COLORIMETRIC(31, 0.1, MeasureUnit.PERCENT, 3, 0.0, 620.0),
     UNKNOWN(-1, 1.0, MeasureUnit.NOTHING, 1, -10000.0, 10000.0)
 }
 
