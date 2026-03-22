@@ -32,7 +32,7 @@ class DefaultDialogWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+        padding: EdgeInsets.all(context.dimens.paddingExtraLarge),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -42,7 +42,7 @@ class DefaultDialogWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: bgColor.withAlpha(30),
+                    color: bgColor.withValues(alpha: context.opacities.low),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

@@ -10,14 +10,14 @@ class LoadingConnectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: 8,
+      spacing: context.dimens.paddingMedium,
       children: [
         Text(
           title,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
-            color: context.colors.onSurface.withAlpha(180),
+            color: context.colors.onSurface.withValues(alpha: context.opacities.high),
           ),
         ),
         SizedBox(

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uiflutter/data/bluetooth_cubit.dart';
+import 'package:uiflutter/data/home_tabs_cubit.dart';
 import 'package:uiflutter/data/permissions_cubit.dart';
+import 'package:uiflutter/data/theme_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/theme_tab_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import '../states/bluetooth/bluetooth_ui_event.dart';
@@ -22,6 +25,8 @@ class HomeView extends StatefulWidget {
 class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   late final PermissionsCubit _permissionsCubit;
   late final BluetoothCubit _bluetoothCubit;
+  late final HomeTabsCubit _homeTabsCubit;
+  late final ThemeCubit _themeCubit;
 
   @override
   void initState() {
@@ -29,6 +34,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
     _permissionsCubit = PermissionsCubit();
     _bluetoothCubit = BluetoothCubit();
+    _homeTabsCubit = HomeTabsCubit();
+    _themeCubit = ThemeCubit();
 
     WidgetsBinding.instance.addObserver(this);
   }
@@ -38,6 +45,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     super.dispose();
     _permissionsCubit.close();
     _bluetoothCubit.close();
+    _homeTabsCubit.close();
+    _themeCubit.close();
     WidgetsBinding.instance.removeObserver(this);
   }
 
@@ -60,6 +69,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       providers: [
         BlocProvider.value(value: _permissionsCubit),
         BlocProvider.value(value: _bluetoothCubit),
+        BlocProvider.value(value: _homeTabsCubit),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -118,14 +128,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   return BlocBuilder<PermissionsCubit, PermissionsState>(
                     builder: (context, permissionsState) {
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          bottom: 16,
-                          top: 22,
+                        padding: EdgeInsets.only(
+                          left: context.dimens.paddingLarge,
+                          right: context.dimens.paddingLarge,
+                          bottom: context.dimens.paddingLarge,
+                          top: context.dimens.paddingExtraLarge,
                         ),
                         child: Column(
-                          spacing: 8,
+                          spacing: context.dimens.paddingMedium,
                           children: [
                             DeviceStatusWidget(
                               selectedDeviceType:
@@ -155,16 +165,34 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                               },
                             ),
                             Expanded(
-                              child: Row(
-                                spacing: 8,
-                                children: [
-                                  ToolsBlock(),
-                                  Expanded(
-                                    child: ManagingBlockWidget(
-                                      isDeviceConnected: isDeviceSelected,
-                                    ),
-                                  ),
-                                ],
+                              child: BlocBuilder<HomeTabsCubit, HomeTabs>(
+                                builder: (context, currentTab) {
+                                  return Row(
+                                    spacing: context.dimens.paddingMedium,
+                                    children: [
+                                      ToolsBlock(
+                                        selectedTab: currentTab,
+                                        onTabClick: (tab) {
+                                          _homeTabsCubit.switchTab(tab);
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: IndexedStack(
+                                          index: currentTab.index,
+                                          children: [
+                                            ManagingBlockWidget(
+                                              isDeviceConnected:
+                                                  isDeviceSelected,
+                                            ),
+                                            _buildMaterialsTab(),
+                                            _buildDocsTab(),
+                                            ThemeTabWidget(),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -178,6 +206,30 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMaterialsTab() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+        color: context.colors.surface,
+      ),
+      child: const Center(child: Text("Materials Tab Content")),
+    );
+  }
+
+  Widget _buildDocsTab() {
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            color: context.colors.surface,
+          ),
+          child: const Center(child: Text("Docs Content")),
+        );
+      },
     );
   }
 

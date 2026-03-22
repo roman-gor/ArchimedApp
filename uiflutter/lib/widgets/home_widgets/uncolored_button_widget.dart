@@ -18,7 +18,7 @@ class UncoloredButtonWidget extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: context.colors.tertiary,
           side: BorderSide(
-            color: context.colors.primary.withAlpha(70),
+            color: context.colors.primary.withValues(alpha: context.opacities.low),
             width: 1.0,
           ),
           elevation: 4,
