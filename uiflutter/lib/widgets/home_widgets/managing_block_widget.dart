@@ -10,13 +10,17 @@ class ManagingBlockWidget extends StatelessWidget {
   const ManagingBlockWidget({
     super.key,
     required this.isDeviceConnected,
+    required this.isExperimentLoading,
     required this.deviceType,
-    required this.experimentsHistoryList
+    required this.experimentsHistoryList,
+    required this.onExperimentClick
   });
 
   final bool isDeviceConnected;
+  final bool isExperimentLoading;
   final DeviceType? deviceType;
   final List<ExperimentsData>? experimentsHistoryList;
+  final void Function(int) onExperimentClick;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,17 @@ class ManagingBlockWidget extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            if (isDeviceConnected) ...[
+            if (isExperimentLoading) ...[
+              Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 80),
+                  child: CircularProgressIndicator(
+                    color: context.colors.onSurface,
+                  ),
+                )
+              )
+            ] else if (isDeviceConnected) ...[
               _historyWidget(context)
             ] else ...[
               _placeholderWidget()
@@ -76,32 +90,33 @@ class ManagingBlockWidget extends StatelessWidget {
 
   Widget _historyWidget(BuildContext context) {
     return Expanded(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 80),
-        child: ListView.separated(
-          itemCount: experimentsHistoryList?.length ?? 0,
-          itemBuilder: (BuildContext context, int index) {
-            final experimentEntry = experimentsHistoryList?[index] ?? ExperimentsData();
-            return _historyItemWidget(
-                context: context,
-                experiment: experimentEntry
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(
-              height: 20,
-              child: Align(
-                  alignment: Alignment.center,
-                  child: Divider(
-                    color: context.colors.onSurface.withValues(alpha: context.opacities.low),
-                    height: 1,
-                    thickness: 1,
-                  )
-              ),
-            );
-          },
-        ),
-      )
+      child: ListView.separated(
+        reverse: true,
+        padding: const EdgeInsets.only(top: 0, bottom: 80),
+        itemCount: experimentsHistoryList?.length ?? 0,
+        itemBuilder: (BuildContext context, int index) {
+          final experimentEntry = experimentsHistoryList?[index] 
+              ?? ExperimentsData();
+          return _historyItemWidget(
+              context: context,
+              experiment: experimentEntry
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(
+            height: 20,
+            child: Align(
+                alignment: Alignment.center,
+                child: Divider(
+                  color: context.colors.onSurface
+                      .withValues(alpha: context.opacities.low),
+                  height: 1,
+                  thickness: 1,
+                )
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -115,53 +130,82 @@ class ManagingBlockWidget extends StatelessWidget {
         Localizations.localeOf(context).languageCode
     );
 
-    return Expanded(
-        child: SizedBox(
-            height: 40,
-            child: InkWell(
-              onTap: () {},
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: context.dimens.paddingMedium,
-                children: [
-                  SizedBox(width: 4,),
-                  Text(
-                    deviceType?.getName(context) ?? "Device",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: context.colors.onSurface
-                    ),
+    final double iconWidth = 44.0;
+    final double spacing = context.dimens.paddingMedium;
+
+    return SizedBox(
+        height: 44,
+        child: InkWell(
+            onTap: () { onExperimentClick(experiment.experimentNumber); },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: context.dimens.paddingMedium,
+              children: [
+                SizedBox(width: 4,),
+                Text(
+                  deviceType?.getName(context) ?? "Device",
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: context.colors.onSurface
                   ),
-                  SizedBox(width: context.dimens.paddingLarge,),
-                  Text(
-                    dateString,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: context.colors.onSurface.withValues(
-                            alpha: context.opacities.medium
-                        )
-                    ),
-                  ),
-                  const Spacer(),
-                  ...experiment.activeSensors.take(5).map((sensor) {
-                    return _sensorIcon(context: context, path: sensor.imagePath);
-                  }),
-                  if (experiment.activeSensors.length > 6)
-                    _sensorIconPlaceholderWidget(context, "${experiment.activeSensors.length - 5}")
-                  else if (experiment.activeSensors.length == 6)
-                    _sensorIcon(context: context, path: experiment.activeSensors[5].imagePath),
-                  RotatedBox(
-                      quarterTurns: 2,
-                      child: Icon(
-                        Icons.arrow_back_ios_rounded,
-                        color: context.colors.secondaryContainer
-                            .withValues(alpha: context.opacities.medium),
-                        size: 20,
+                ),
+                SizedBox(width: context.dimens.paddingLarge,),
+                Text(
+                  dateString,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: context.colors.onSurface.withValues(
+                          alpha: context.opacities.medium
                       )
                   ),
-                  SizedBox(width: 4,)
-                ],
-              )
+                ),
+                SizedBox(width: context.dimens.paddingLarge,),
+                Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double availableWidth = constraints.maxWidth;
+
+                        int maxItems = ((availableWidth + spacing) / (iconWidth + spacing)).floor();
+
+                        if (maxItems < 1) return const SizedBox.shrink();
+
+                        int totalSensors = experiment.activeSensors.length;
+                        List<Widget> sensorWidgets = [];
+
+                        if (totalSensors <= maxItems) {
+                          sensorWidgets = experiment.activeSensors.map((sensor) {
+                            return _sensorIcon(context: context, path: sensor.imagePath);
+                          }).toList();
+                        } else {
+                          int visibleSensors = maxItems - 1;
+                          int hiddenCount = totalSensors - visibleSensors;
+                          sensorWidgets = experiment.activeSensors.take(visibleSensors).map((sensor) {
+                            return _sensorIcon(context: context, path: sensor.imagePath);
+                          }).toList();
+                          sensorWidgets.add(
+                              _sensorIconPlaceholderWidget(context, "$hiddenCount")
+                          );
+                        }
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          spacing: spacing,
+                          children: sensorWidgets,
+                        );
+                      },
+                    )
+                ),
+                RotatedBox(
+                    quarterTurns: 2,
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      color: context.colors.secondaryContainer
+                          .withValues(alpha: context.opacities.medium),
+                      size: 20,
+                    )
+                ),
+                SizedBox(width: 4,)
+              ],
             )
         )
     );

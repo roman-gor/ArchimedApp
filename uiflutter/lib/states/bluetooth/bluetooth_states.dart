@@ -324,7 +324,8 @@ class PeripheralDeviceState with _$PeripheralDeviceState {
 class BluetoothDeviceState with _$BluetoothDeviceState {
   const factory BluetoothDeviceState({
     @Default({}) Map<String, EnhancedBluetoothPeripheral> devices,
-    bool? isScanning,
+    @Default(false) bool isScanning,
+    @Default(false) bool isExperimentLoading,
     String? selectedDeviceId,
     @Default(DeviceType.unknown) DeviceType selectedDeviceType,
     @Default(StatusDeviceData()) StatusDeviceData statusDeviceData,

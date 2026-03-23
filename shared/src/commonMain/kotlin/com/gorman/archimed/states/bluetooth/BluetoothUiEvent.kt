@@ -65,7 +65,9 @@ sealed interface BluetoothUiEvent {
 
         @Serializable
         @SerialName("get_experiment_data")
-        data class GetExperimentData(val experimentNumber: Int) : DeviceCommand
+        data class GetExperimentData(
+            @SerialName("experiment_number") val experimentNumber: Int
+        ) : DeviceCommand
 
         @Serializable
         @SerialName("send_next_data_package")

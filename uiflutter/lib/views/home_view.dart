@@ -7,6 +7,7 @@ import 'package:uiflutter/data/permissions_cubit.dart';
 import 'package:uiflutter/data/theme_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
+import 'package:uiflutter/views/experiment_view.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
@@ -83,25 +84,16 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           BlocListener<BluetoothCubit, BluetoothDeviceState?>(
             listener: (context, bluetoothState) {
               if (bluetoothState == null) return;
-
-              final device =
-                  bluetoothState.devices[bluetoothState.selectedDeviceId];
-              device?.connectedState.maybeWhen(
-                disconnected: (reason) {
-                  reason?.maybeWhen(
-                    unknown: (code) {
-                      if (code == 147) {
-                        Fluttertoast.showToast(
-                          msg: context.strings.could_not_connect,
-                          backgroundColor: context.colors.surface,
-                          textColor: context.colors.onSurface,
-                        );
-                      }
-                    },
-                    orElse: () {},
-                  );
-                },
-                orElse: () {},
+              
+              final device = 
+                bluetoothState.devices[bluetoothState.selectedDeviceId];
+              _bluetoothCubit.observeConnectionState(
+                    device?.connectedState, 
+                    () => Fluttertoast.showToast(
+                      msg: context.strings.could_not_connect,
+                      backgroundColor: context.colors.surface,
+                      textColor: context.colors.onSurface,
+                    ),
               );
             },
           ),
@@ -122,8 +114,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                 builder: (context, bluetoothState) {
                   final currentDevice =
                       bluetoothState?.devices[bluetoothState.selectedDeviceId];
-                  final bool isDeviceSelected =
-                      bluetoothState?.selectedDeviceId != null;
 
                   return BlocBuilder<PermissionsCubit, PermissionsState>(
                     builder: (context, permissionsState) {
@@ -139,14 +129,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                           children: [
                             DeviceStatusWidget(
                               selectedDeviceType:
-                                  bluetoothState?.selectedDeviceType,
+                              bluetoothState?.selectedDeviceType,
                               currentDevice: currentDevice,
                               onListClick: () {
                                 if (permissionsState
-                                    is PermissionsPermanentlyDenied) {
+                                is PermissionsPermanentlyDenied) {
                                   showBluetoothDeniedDialog(context);
                                 } else if (permissionsState
-                                    is PermissionsDenied) {
+                                is PermissionsDenied) {
                                   showPermissionExplanationDialog(context);
                                 } else {
                                   _bluetoothCubit.sendCommand(
@@ -181,9 +171,18 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                           index: currentTab.index,
                                           children: [
                                             ManagingBlockWidget(
-                                              isDeviceConnected: isDeviceSelected, 
+                                              isDeviceConnected: _bluetoothCubit.isDeviceConnected,
+                                              isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
                                               experimentsHistoryList: bluetoothState?.experimentsHistoryData,
+                                              onExperimentClick: (id) {
+                                                Navigator.push(
+                                                  context, 
+                                                  MaterialPageRoute(
+                                                    builder: (context) => ExperimentView(experimentId: id)
+                                                  )
+                                                );
+                                              },
                                             ),
                                             _buildMaterialsTab(),
                                             _buildDocsTab(),
