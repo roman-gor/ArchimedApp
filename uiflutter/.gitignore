@@ -46,3 +46,7 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+app_localizations.dart
+app_localizations_en.dart
+app_localizations_ru.dart

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
+import 'package:uiflutter/data/permissions_cubit.dart';
+import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/states/permissions_state.dart';
+import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -10,129 +16,153 @@ class HomeView extends StatefulWidget {
   State<StatefulWidget> createState() => HomeViewState();
 }
 
-
-Future<void> _checkPermissions() async {
-  Map<Permission, PermissionStatus> statuses = await [
-    Permission.bluetoothScan,
-    Permission.bluetoothConnect,
-    Permission.bluetooth,
-    Permission.location,
-  ].request();
-
-  if (statuses[Permission.bluetoothScan]!.isDenied) {
-    //Some code
-  }
-}
-
-class HomeViewState extends State<HomeView> {
+class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
 
   Stream<String>? _bluetoothDataState;
 
+  bool _isDeviceSelected = false;
+
+  late final PermissionsCubit _permissionsCubit;
+
   @override
   void initState() {
     super.initState();
+    
+    _permissionsCubit = PermissionsCubit();
+    
+    WidgetsBinding.instance.addObserver(this);
     _bluetoothDataState = _eventChannel
         .receiveBroadcastStream()
         .map((dynamic event) => event as String);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _permissionsCubit.close();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _permissionsCubit.checkInitialPermissions();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = context.themes.brightness == Brightness.dark;
 
-    final backgroundImage = isDark
-        ? 'assets/images/bg_dark.png'
-        : 'assets/images/bg_light.png';
+    final backgroundImage = isDark ? 'assets/images/bg_dark.png' : 'assets/images/bg_light.png';
 
-    return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(backgroundImage),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            bottom: false,
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                  top: 22
-              ),
-              child: Column(
-                spacing: 8,
-                children: [
-                  _blockDeviceStatusInformation(context),
-                  Expanded(
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        _blockTools(context),
-                        Expanded(child: _blockManaging(context))
-                      ],
+    return BlocProvider.value(
+        value: _permissionsCubit,
+        child: BlocListener<PermissionsCubit, PermissionsState>(
+            listener: (context, state) {
+              if (state is PermissionsDenied) {
+                showPermissionExplanationDialog(context);
+              }
+            },
+            child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(backgroundImage),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: SafeArea(
+                    bottom: false,
+                    top: false,
+                    child: BlocBuilder<PermissionsCubit, PermissionsState>(
+                        builder: (context, state) {
+                          return Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16,
+                                  right: 16,
+                                  bottom: 16,
+                                  top: 22
+                              ),
+                              child: Column(
+                                spacing: 8,
+                                children: [
+                                  DeviceStatusWidget(
+                                    isDeviceSelected: _isDeviceSelected,
+                                    onListClick: () {
+                                      if (state is PermissionsPermanentlyDenied) {
+                                        showBluetoothDeniedDialog(context);
+                                      } else if (state is PermissionsDenied) {
+                                        showPermissionExplanationDialog(context);
+                                      } else {
+                                        showDevicesSelectedDialog(context);
+                                      }
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      spacing: 8,
+                                      children: [
+                                        ToolsBlock(),
+                                        Expanded(
+                                            child: ManagingBlockWidget(
+                                                isDeviceConnected: _isDeviceSelected)
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              )
+                          );
+                        }
                     ),
-                  )
-                ],
-              )
-            ),
-          ),
+                  ),
+                )
+            )
         )
     );
   }
 
-  Widget _blockDeviceStatusInformation(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(36.0),
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            child: Align(
-              alignment: Alignment.center,
-              child: Row(
-                spacing: 8,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 1),
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 28,
-                  ),
-                  Text(
-                    "Biology",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal
-                    ),
-                  ),
-                  _iconTransparentButton(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      icon: Icons.format_list_bulleted_rounded,
-                      onPressed: () {
-                        showDevicesSelectedDialog(context);
-                      })
-                ],
-              ),
-            )
-          )
-        ],
-      ),
+  void showPermissionExplanationDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DefaultDialogWidget(
+            icon: Icons.bluetooth,
+            bgColor: context.colors.primary,
+            text: context.strings.allow_bluetooth_desc,
+            dismissText: context.strings.back,
+            confirmText: context.strings.allow,
+            onConfirm: () {
+              _permissionsCubit.requestPermissions();
+              Navigator.of(context).pop();
+            },
+            onDismiss: () => Navigator.of(context).pop(),
+          );
+        }
+    );
+  }
+
+  void showBluetoothDeniedDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DefaultDialogWidget(
+            icon: Icons.bluetooth_disabled,
+            bgColor: Colors.red,
+            text: context.strings.permissions_denied,
+            dismissText: context.strings.back,
+            confirmText: context.strings.allow,
+            onConfirm: () {
+              _permissionsCubit.requestPermissions();
+              Navigator.of(context).pop();
+            },
+            onDismiss: () => Navigator.of(context).pop(),
+          );
+        }
     );
   }
 
@@ -140,176 +170,9 @@ class HomeViewState extends State<HomeView> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          elevation: 8,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: SizedBox(
-            width: 400,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    'Доступные устройства',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: 1000,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListTile(
-                          title: Text('Устройство $index'),
-                          onTap: () {
-                            print('Выбрано устройство $index');
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8),
-                    child: SizedBox(
-                        width: 120,
-                        height: 40,
-                        child: _uncoloredButton(
-                            context: context,
-                            text: AppLocalizations.of(context)!.close,
-                            onPressed: () => _checkPermissions()
-                        )
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        );
+        return DevicesSelectDialog();
       },
     );
   }
-
-  Widget _uncoloredButton({required BuildContext context, required String text, required Function()? onPressed}) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.tertiary,
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary.withAlpha(70),
-          width: 1.0,
-        ),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25.0),
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onTertiary,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _blockTools(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.0),
-          color: Theme.of(context).colorScheme.surface,
-        ),
-        child: Column(
-          spacing: 0,
-          children: [
-            _iconTransparentButton(
-                color: Theme.of(context).colorScheme.onSurface,
-                icon: Icons.format_list_bulleted_rounded,
-                onPressed: () {}),
-            _iconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
-                icon: Icons.local_drink_rounded,
-                onPressed: () {}),
-            _iconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
-                icon: Icons.book_rounded,
-                onPressed: () {}),
-            _iconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
-                icon: Icons.list_alt_outlined,
-                onPressed: () {}),
-            Expanded(child: SizedBox()),
-            _iconTransparentButton(
-                color: Theme.of(context).colorScheme.primary,
-                icon: Icons.settings_rounded,
-                onPressed: () {})
-          ],
-        )
-    );
-  }
-
-  Widget _iconTransparentButton({Color? color, IconData? icon, Function()? onPressed}) {
-    return IconButton(
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(),
-      icon: Icon(icon),
-      color: color,
-      iconSize: 26,
-      onPressed: onPressed,
-    );
-  }
-
-  Widget _blockManaging(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.0),
-          color: Theme.of(context).colorScheme.surface,
-        ),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: SvgPicture.asset('assets/images/main_image.svg'),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 90,
-                height: 42,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.start,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
-            )
-          ],
-        )
-    );
-  }
 }
+

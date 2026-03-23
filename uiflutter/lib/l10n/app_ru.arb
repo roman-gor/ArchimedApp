@@ -2,5 +2,11 @@
   "app_name": "INTlab",
   "available_devices": "Доступные устройства",
   "start": "Начать",
-  "close": "Закрыть"
+  "close": "Закрыть",
+  "allow_bluetooth_desc": "Разрешить Bluetooth и подключить мультидатчик?",
+  "back": "Назад",
+  "allow": "Разрешить",
+  "rescan": "Повторить",
+  "not_connected": "Не подключено",
+  "permissions_denied": "Разрешения на работу Bluetooth не были получены"
 }
