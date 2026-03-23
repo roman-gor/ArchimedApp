@@ -5,8 +5,15 @@ import 'package:uiflutter/extensions/theme_opacities.dart';
 import 'package:uiflutter/views/home_view.dart';
 import 'data/theme_cubit.dart';
 import 'l10n/app_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() => runApp(const ArchimedApplication());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await initializeDateFormatting();
+
+  runApp(const ArchimedApplication());
+}
 
 class ArchimedApplication extends StatelessWidget {
   const ArchimedApplication({super.key});
@@ -30,6 +37,7 @@ class ArchimedApplication extends StatelessWidget {
                 tertiary: Color(0xFFF3F9FF),
                 onTertiary: Color(0xFF0b74da),
                 surfaceContainer: Color(0xFF81D4FA),
+                secondaryContainer: Color(0xFF222222)
               ),
               extensions: const [
                 ThemeDimensions(
@@ -52,6 +60,7 @@ class ArchimedApplication extends StatelessWidget {
                 tertiary: Color(0xFF0B0D32),
                 onTertiary: Colors.white,
                 surfaceContainer: Color(0xFF1A237E),
+                secondaryContainer: Color(0xFFFFFFFF)
               ),
               extensions: const [
                 ThemeDimensions(

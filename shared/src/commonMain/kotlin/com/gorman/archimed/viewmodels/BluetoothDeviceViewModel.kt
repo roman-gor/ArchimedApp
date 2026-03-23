@@ -9,13 +9,13 @@ import com.gorman.archimed.states.bluetooth.StatusDeviceData
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.toSensorsList
-import com.gorman.bluetooth.mappers.DeviceCommandBuilder.setDateTimes
 import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startDefaultLogging
 import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startLogging
 import com.gorman.bluetooth.mappers.toUiState
 import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.models.DeviceResponse
 import com.gorman.bluetooth.parsers.HandleDeviceResponseUseCase
+import com.gorman.bluetooth.parsers.setDateTimes
 import com.gorman.bluetooth.repository.IBluetoothRepository
 import com.gorman.bluetooth.states.BluetoothDeviceState
 import com.gorman.bluetooth.states.DeviceConnectionState
@@ -238,6 +238,8 @@ class BluetoothDeviceViewModel(
                         delay(300)
                         sendCommand(BluetoothUiEvent.DeviceCommand.GetStatus)
                         sendCommand(BluetoothUiEvent.DeviceCommand.GetAllSensorsId)
+                        sendCommand(BluetoothUiEvent.DeviceCommand.GetExperimentsList)
+                        sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
                     }
                     is DeviceConnectionState.Disconnected -> {
                         observationJob?.cancel()

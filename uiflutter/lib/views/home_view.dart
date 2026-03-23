@@ -181,8 +181,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                           index: currentTab.index,
                                           children: [
                                             ManagingBlockWidget(
-                                              isDeviceConnected:
-                                                  isDeviceSelected,
+                                              isDeviceConnected: isDeviceSelected, 
+                                              deviceType: bluetoothState?.selectedDeviceType,
+                                              experimentsHistoryList: bluetoothState?.experimentsHistoryData,
                                             ),
                                             _buildMaterialsTab(),
                                             _buildDocsTab(),
