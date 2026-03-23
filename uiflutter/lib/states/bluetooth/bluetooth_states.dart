@@ -327,6 +327,7 @@ class BluetoothDeviceState with _$BluetoothDeviceState {
     @Default(false) bool isScanning,
     @Default(false) bool isExperimentLoading,
     String? selectedDeviceId,
+    SensorType? selectedSensor,
     @Default(DeviceType.unknown) DeviceType selectedDeviceType,
     @Default(StatusDeviceData()) StatusDeviceData statusDeviceData,
     @Default([]) List<ExperimentsData> experimentsHistoryData,

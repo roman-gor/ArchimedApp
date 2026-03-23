@@ -58,6 +58,10 @@ class BluetoothCubit extends Cubit<BluetoothDeviceState?> {
       orElse: () { isDeviceConnected = false; },
     );
   }
+  
+  void selectSensor(SensorType newSensor) {
+    emit(state?.copyWith(selectedSensor: newSensor));
+  }
 
   @override
   Future<void> close() {

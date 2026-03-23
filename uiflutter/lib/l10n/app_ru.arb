@@ -70,5 +70,6 @@
   "unit_nothing": "",
   "theme": "Тема",
   "system_theme_active": "Системная тема активна",
-  "use_system_theme": "Использовать системную тему"
+  "use_system_theme": "Использовать системную тему",
+  "again": "Повторить"
 }
