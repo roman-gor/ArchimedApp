@@ -1,39 +1,32 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Archimed Application
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+**Archimedes** is a cross-platform mobile application designed to interact with the Archimedes device via BLE (Bluetooth Low Energy).
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## About project
+The app allows users to connect to the Archimedes hardware, read real-time sensor data, and manage device settings.
+It leverages **Kotlin Multiplatform (KMM)** for shared business logic and BLE communication, paired with a **Flutter** UI for a seamless experience on both iOS and Android.
 
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## Tech Stack
+- **Languages**: Kotlin, Dart
+- **UI**: Flutter
+- **Shared Logic**: Kotlin Multiplatform (KMM)
+- **Communication**: BLE (Bluetooth Low Energy)
 
-### Build and Run Android Application
+## Features
+- Scanning and connecting to the Archimedes device via BLE
+- Real-time display of sensor metrics (temperature, humidity, pressure, etc.)
+- Cross-platform shared core logic (KMM) ensuring consistency between Android and iOS
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
-
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
-
----
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Setup
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed
+- Android Studio (for Android build and KMM shared module editing)
+- Xcode (for iOS build)
+### Installation
+- Clone the repository
+- Install Flutter dependencies: ```flutter pub get```
+- Generate localization files: ```flutter gen-l10n```
+- Generate freezed dependencies: ```dart run build_runner build --delete-conflicting-outputs```
+- To work on iOS platform (Xcode) you need to generate podfile dependencies:
+  - Install CocoaPods (```brew install cocoapods```) with Terminal
+  - Run ```pod install --repo-update```

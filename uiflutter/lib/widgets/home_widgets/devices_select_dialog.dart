@@ -30,7 +30,7 @@ class DevicesSelectDialog extends StatelessWidget {
         width: 400,
         height: MediaQuery.of(context).size.height * 0.8,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(context.dimens.paddingLarge),
           child: Column(
             children: [
               Text(
@@ -54,7 +54,7 @@ class DevicesSelectDialog extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(context.dimens.paddingMedium),
                 child: SizedBox(
                   width: 120,
                   height: 40,
@@ -80,7 +80,7 @@ class DevicesSelectDialog extends StatelessWidget {
       color: context.colors.surface,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(context.dimens.borderRadius),
         side: BorderSide(color: Colors.grey, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
@@ -92,7 +92,7 @@ class DevicesSelectDialog extends StatelessWidget {
           child: Row(
             spacing: 8,
             children: [
-              SizedBox(width: 8),
+              SizedBox(width: context.dimens.paddingMedium),
               Expanded(
                 child: Text(
                   device.peripheral.name,
@@ -106,7 +106,7 @@ class DevicesSelectDialog extends StatelessWidget {
                 ),
               ),
               observingConnectionState(device, context),
-              SizedBox(width: 8),
+              SizedBox(width: context.dimens.paddingMedium),
             ],
           ),
         ),
@@ -120,14 +120,14 @@ class DevicesSelectDialog extends StatelessWidget {
   ) {
     return device.connectedState.maybeWhen(
       connected: () => Row(
-        spacing: 8,
+        spacing: context.dimens.paddingMedium,
         children: [
           Text(
             context.strings.connected,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: context.colors.onSurface.withAlpha(180),
+              color: context.colors.onSurface.withValues(alpha: context.opacities.high),
             ),
           ),
           const Icon(Icons.check_circle, color: Colors.green, size: 28),

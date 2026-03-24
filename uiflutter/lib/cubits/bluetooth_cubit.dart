@@ -14,6 +14,8 @@ class BluetoothCubit extends Cubit<BluetoothDeviceState?> {
   final _logger = Logger();
   static const EventChannel _eventChannel = EventChannel('com.gorman.archimed/events');
   static const MethodChannel _methodChannel = MethodChannel('com.gorman.archimed/methods');
+  
+  bool isDeviceConnected = false;
 
   StreamSubscription? _subscription;
 
@@ -40,6 +42,25 @@ class BluetoothCubit extends Cubit<BluetoothDeviceState?> {
     } on PlatformException catch (e) {
       _logger.e("Method Channel error: ${e.message}");
     }
+  }
+  
+  void observeConnectionState(DeviceConnectionState? state, VoidCallback onShowToast) {
+    isDeviceConnected = false;
+    state?.maybeWhen(
+      connected: () => isDeviceConnected = true,
+      disconnected: (reason) {
+        isDeviceConnected = false;
+        reason?.maybeWhen(
+          unknown: (code) { if (code == 147) { onShowToast(); } },
+          orElse: () {},
+        );
+      },
+      orElse: () { isDeviceConnected = false; },
+    );
+  }
+  
+  void selectSensor(SensorType newSensor) {
+    emit(state?.copyWith(selectedSensor: newSensor));
   }
 
   @override

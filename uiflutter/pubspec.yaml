@@ -22,6 +22,7 @@ dependencies:
   bloc: ^9.2.0
   logger: ^2.7.0
   fluttertoast: ^9.0.0
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -37,6 +38,31 @@ flutter:
     - assets/images/bg_light.png
     - assets/images/bg_dark.png
     - assets/images/main_image.svg
+    - assets/images/ic_external.svg
+    - assets/images/ic_ion.svg
+    - assets/images/ic_barometer.svg
+    - assets/images/ic_turbidity.svg
+    - assets/images/ic_respiratory_rate.svg
+    - assets/images/ic_body_temp.svg
+    - assets/images/ic_heart_pulse.svg
+    - assets/images/ic_blood_pressure.svg
+    - assets/images/ic_voltage.svg
+    - assets/images/ic_magnetic_field.svg
+    - assets/images/ic_current_strength.svg
+    - assets/images/ic_pressure.svg
+    - assets/images/ic_temp_high.svg
+    - assets/images/ic_colors.svg
+    - assets/images/ic_ph_probe.svg
+    - assets/images/ic_ph.svg
+    - assets/images/ic_temp_probe.svg
+    - assets/images/ic_humidity.svg
+    - assets/images/ic_illumination.svg
+    - assets/images/ic_conductivity.svg
+    - assets/images/ic_accelerometer.svg
+    - assets/images/ic_ambient_temp_light.svg
+    - assets/images/ic_ambient_temp_dark.svg
+    - assets/images/ic_air_pressure.svg
+    - assets/images/ic_gps.svg
   generate: true
   module:
     androidX: true

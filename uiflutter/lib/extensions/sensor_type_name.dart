@@ -36,7 +36,7 @@ extension SensorTypeLocal on SensorType {
       case SensorType.humidity: return context.strings.humidity;
       case SensorType.phSensor: return context.strings.ph_sensor;
       case SensorType.turbidity: return context.strings.turbidity;
-      case SensorType.turbiditySec: return context.strings.turbidity;
+      case SensorType.colorimetric: return context.strings.turbidity;
       case SensorType.unknown: return context.strings.unknown;
     }
   }
@@ -64,4 +64,25 @@ extension MeasureUnitsLocal on MeasureUnits {
       case MeasureUnits.nothing: return context.strings.unit_nothing;
     }
   }
+}
+
+extension SamplesLocal on Samples {
+  int get count =>
+      switch(this) {
+        Samples.samples10 => 10,
+        Samples.samples100 => 100,
+        Samples.samples1000 => 1000,
+        Samples.samples10000 => 10000,
+      };
+}
+
+extension RatesLocal on Rates {
+  double get count =>
+      switch(this) {
+        Rates.rate1PerSec => 1,
+        Rates.rate10PerSec => 10,
+        Rates.rate100PerSec => 100,
+        Rates.rate20000PerSec => 20000,
+        Rates.rate1PerMin => 0.016
+      };
 }
