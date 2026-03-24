@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uiflutter/data/home_tabs_cubit.dart';
+import 'package:uiflutter/cubits/home_tabs_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 
 class ToolsBlock extends StatelessWidget {

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:uiflutter/data/bluetooth_cubit.dart';
-import 'package:uiflutter/data/home_tabs_cubit.dart';
-import 'package:uiflutter/data/permissions_cubit.dart';
-import 'package:uiflutter/data/theme_cubit.dart';
+import 'package:uiflutter/cubits/bluetooth_cubit.dart';
+import 'package:uiflutter/cubits/home_tabs_cubit.dart';
+import 'package:uiflutter/cubits/permissions_cubit.dart';
+import 'package:uiflutter/cubits/theme_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/navigation/navigator_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 import 'package:uiflutter/views/experiment_view.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
@@ -174,15 +175,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                               isDeviceConnected: _bluetoothCubit.isDeviceConnected,
                                               isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
-                                              experimentsHistoryList: bluetoothState?.experimentsHistoryData,
-                                              onExperimentClick: (id) {
-                                                Navigator.push(
-                                                  context, 
-                                                  MaterialPageRoute(
-                                                    builder: (context) => ExperimentView(experimentId: id)
-                                                  )
-                                                );
-                                              },
+                                              experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
+                                              onExperimentClick: (id) => NavigatorLocal.goTo(
+                                                BlocProvider.value(
+                                                  value: context.read<BluetoothCubit>(),
+                                                  child: ExperimentView(experimentId: id),
+                                                )
+                                              )
                                             ),
                                             _buildMaterialsTab(),
                                             _buildDocsTab(),
@@ -245,9 +244,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           confirmText: context.strings.allow,
           onConfirm: () {
             _permissionsCubit.requestPermissions();
-            Navigator.of(context).pop();
+            NavigatorLocal.goBack();
           },
-          onDismiss: () => Navigator.of(context).pop(),
+          onDismiss: () => NavigatorLocal.goBack()
         );
       },
     );
@@ -265,9 +264,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           confirmText: context.strings.allow,
           onConfirm: () {
             _permissionsCubit.requestPermissions();
-            Navigator.of(context).pop();
+            NavigatorLocal.goBack();
           },
-          onDismiss: () => Navigator.of(context).pop(),
+          onDismiss: () => NavigatorLocal.goBack()
         );
       },
     );
@@ -291,7 +290,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             return DevicesSelectDialog(
               availableDevices: state.devices,
               onDeviceClick: onDeviceClick,
-              onCloseDialog: () => Navigator.of(dialogContext).pop(),
+              onCloseDialog: () => NavigatorLocal.goBack(),
             );
           },
         );

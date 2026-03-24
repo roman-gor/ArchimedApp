@@ -31,54 +31,57 @@ class ManagingBlockWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(context.dimens.borderRadius),
           color: context.colors.surface,
         ),
-        child: Stack(
+        child: Column (
           children: [
-            if (isExperimentLoading) ...[
-              Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 80),
-                  child: CircularProgressIndicator(
-                    color: context.colors.onSurface,
-                  ),
-                )
-              )
-            ] else if (isDeviceConnected) ...[
-              _historyWidget(context)
-            ] else ...[
-              _placeholderWidget()
-            ],
+            Expanded(
+              child: _contentBuild(context),
+            ),
+            SizedBox(height: context.dimens.paddingLarge,),
             Align(
-                alignment: Alignment.bottomRight,
-                child: SizedBox(
-                  width: 90,
-                  height: 42,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDeviceConnected
-                          ? context.colors.primary
-                          : Colors.grey,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
-                    ),
-                    child: Text(
-                      context.strings.start,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
+              alignment: Alignment.bottomRight,
+              child: SizedBox(
+                width: 90,
+                height: 42,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDeviceConnected
+                        ? context.colors.primary
+                        : Colors.grey,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25.0),
                     ),
                   ),
-                )
+                  child: Text(
+                    context.strings.start,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             )
           ],
         )
     );
+  }
+  
+  Widget _contentBuild(BuildContext context) {
+    if (isExperimentLoading) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: context.colors.onSurface,
+        ),
+      );
+    } else if (isDeviceConnected) {
+      return _historyWidget(context);
+    } else {
+      return _placeholderWidget();
+    }
   }
   
   Widget _placeholderWidget() {
@@ -91,8 +94,7 @@ class ManagingBlockWidget extends StatelessWidget {
   Widget _historyWidget(BuildContext context) {
     return Expanded(
       child: ListView.separated(
-        reverse: true,
-        padding: const EdgeInsets.only(top: 0, bottom: 80),
+        padding: EdgeInsets.zero,
         itemCount: experimentsHistoryList?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
           final experimentEntry = experimentsHistoryList?[index] 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 
-import '../../data/theme_cubit.dart';
+import '../../cubits/theme_cubit.dart';
 
 class ThemeTabWidget extends StatelessWidget {
   const ThemeTabWidget({super.key});
