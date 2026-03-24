@@ -18,7 +18,13 @@ object DeviceCommandBuilder {
         command: BluetoothUiEvent.DeviceCommand.StartLogging,
         availableDeviceSensors: List<Byte>
     ): List<DeviceRequest> {
-        val sensorsArray = command.sensors.createSensorsMask(availableDeviceSensors)
+        val sensorsArray = if (command.sensors.isEmpty()) {
+            SensorType.entries
+                .filter { it.id in availableDeviceSensors }
+                .createSensorsMask(availableDeviceSensors)
+        } else {
+            command.sensors.createSensorsMask(availableDeviceSensors)
+        }
 
         val shouldCalibrate = when (command.shouldCalibrate) {
             true -> 0x01
@@ -37,24 +43,4 @@ object DeviceCommandBuilder {
             DeviceRequest.StartLogging
         )
     }
-
-    fun startDefaultLogging(
-        availableDeviceSensors: List<Byte>
-    ): List<DeviceRequest> {
-        val sensorsArray = SensorType.entries
-            .filter { it.id in availableDeviceSensors }
-            .createSensorsMask(availableDeviceSensors)
-
-        return listOf(
-            setDateTimes(),
-            DeviceRequest.SetupLoggingParameters(
-                sensors = sensorsArray,
-                rate = Rates.RATE_10_PER_SEC.byte,
-                samples = Samples.SAMPLES_10.byte,
-                sensorsCalibrate = 0x00.toByte()
-            ),
-            DeviceRequest.StartLogging
-        )
-    }
-    
 }

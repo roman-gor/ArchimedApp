@@ -5,9 +5,9 @@ import '../../extensions/build_context_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
 
 class TableWidget extends StatelessWidget {
-  const TableWidget({super.key, required this.experimentData});
+  const TableWidget({super.key, required this.sensorsData});
 
-  final ExperimentsData experimentData;
+  final Map<SensorType, List<double>> sensorsData;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class TableWidget extends StatelessWidget {
 
   Map<int, TableColumnWidth> _getColumnWidths() {
     Map<int, TableColumnWidth> columnWidths = {};
-    final rawLength = experimentData.sensorsData.length;
+    final rawLength = sensorsData.length;
     for (int i = 1; i <= rawLength; i++) {
       columnWidths[i] = const MaxColumnWidth(
         FixedColumnWidth(120),
@@ -43,7 +43,7 @@ class TableWidget extends StatelessWidget {
   List<TableRow> _parsedSensorsData(BuildContext context) {
     List<TableRow> tableRows = [];
 
-    final activeSensors = experimentData.activeSensors;
+    final activeSensors = sensorsData.keys;
     if (activeSensors.isEmpty) return tableRows;
 
     List<Widget> headerCells = [
@@ -79,9 +79,9 @@ class TableWidget extends StatelessWidget {
     );
     int totalSamples = 0;
     final firstSensor = activeSensors.first;
-    if (experimentData.sensorsData.containsKey(firstSensor)) {
+    if (sensorsData.containsKey(firstSensor)) {
       totalSamples =
-          experimentData.sensorsData[firstSensor]!.length ~/
+          sensorsData[firstSensor]!.length ~/
           firstSensor.valueAmount;
     }
     for (int i = 0; i < totalSamples; i++) {
@@ -95,7 +95,7 @@ class TableWidget extends StatelessWidget {
       ];
 
       for (var sensor in activeSensors) {
-        final rawData = experimentData.sensorsData[sensor] ?? [];
+        final rawData = sensorsData[sensor] ?? [];
         final valuesCount = sensor.valueAmount;
         String cellText = '-';
 

@@ -9,7 +9,6 @@ import com.gorman.archimed.states.bluetooth.StatusDeviceData
 import com.gorman.bluetooth.constants.DeviceType
 import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.toSensorsList
-import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startDefaultLogging
 import com.gorman.bluetooth.mappers.DeviceCommandBuilder.startLogging
 import com.gorman.bluetooth.mappers.toUiState
 import com.gorman.bluetooth.models.DeviceRequest
@@ -64,6 +63,8 @@ class BluetoothDeviceViewModel(
     private var downloadingExperimentHeader: DeviceResponse.GetExperimentsData? = null
     private val downloadingRawDataBuffer = mutableListOf<Short>()
     private val isExperimentLoading = MutableStateFlow(false)
+    private val isOnlineDataLoading = MutableStateFlow(false)
+    private var hasReceivedFirstOnlineData = false
 
     private data class DeviceResponsesDataState(
         val statusDeviceData: StatusDeviceData,
@@ -76,7 +77,8 @@ class BluetoothDeviceViewModel(
         val deviceId: String?,
         val connectionState: DeviceConnectionState,
         val deviceType: DeviceType = DeviceType.UNKNOWN,
-        val isExperimentLoading: Boolean
+        val isExperimentLoading: Boolean,
+        val isOnlineDataLoading: Boolean
     )
 
     private val deviceResponsesDataState = combine(
@@ -92,9 +94,10 @@ class BluetoothDeviceViewModel(
         selectedDeviceId,
         connectionState,
         deviceType,
-        isExperimentLoading
-    ) { id, connection, type, isExpLoading ->
-        DeviceParametersState(id, connection, type, isExpLoading)
+        isExperimentLoading,
+        isOnlineDataLoading
+    ) { id, connection, type, isExpLoading, isOnlineLoading ->
+        DeviceParametersState(id, connection, type, isExpLoading, isOnlineLoading)
     }
 
     val deviceState: StateFlow<BluetoothDeviceState> = combine(
@@ -122,6 +125,7 @@ class BluetoothDeviceViewModel(
             devices = deviceFlows,
             isScanning = true,
             isExperimentLoading = deviceParams.isExperimentLoading,
+            isOnlineDataLoading = deviceParams.isOnlineDataLoading,
             selectedDeviceId = deviceParams.deviceId,
             selectedDeviceType = deviceParams.deviceType,
             statusDeviceData = responseData.statusDeviceData,
@@ -283,6 +287,13 @@ class BluetoothDeviceViewModel(
                     .toUiState(availableSensorsList)
                 rawStatusResponse = parsedResponse
                 bluetoothRepository.setDeviceType(detectedType)
+                if (hasReceivedFirstOnlineData && isOnlineDataLoading.value) {
+                    hasReceivedFirstOnlineData = false
+                    isOnlineDataLoading.value = false
+                    sendCommand(BluetoothUiEvent.DeviceCommand.GetExperimentsList)
+                    sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
+                    logger.d("Experiment Online Data", "The end of responding data")
+                }
             }
             is DeviceResponse.GetSensorIdParams -> {
                 availableDeviceSensors.value = parsedResponse.sensorsIdsMap
@@ -296,7 +307,17 @@ class BluetoothDeviceViewModel(
                 getExperimentData(parsedResponse)
             }
             is DeviceResponse.ExperimentOnlineData -> {
-                experimentOnlineData.value = parsedResponse.toUiState(availableSensorsList)
+                hasReceivedFirstOnlineData = true
+                val newUiState = parsedResponse.toUiState(availableSensorsList)
+
+                experimentOnlineData.update { currentState ->
+                    val mergedSensorsData = currentState.sensorsData.toMutableMap()
+                    newUiState.sensorsData.forEach { (sensor, newValues) ->
+                        val existingValues = mergedSensorsData[sensor] ?: emptyList()
+                        mergedSensorsData[sensor] = existingValues + newValues
+                    }
+                    currentState.copy(sensorsData = mergedSensorsData)
+                }
             }
             is DeviceResponse.Unknown -> logger.e("ViewModel", "Response is in unknown type")
             else -> logger.d("ViewModel", "Handled other response type")
@@ -366,10 +387,16 @@ class BluetoothDeviceViewModel(
     private fun getRequestByCommand(command: BluetoothUiEvent.DeviceCommand): List<DeviceRequest> =
         when (command) {
             BluetoothUiEvent.DeviceCommand.GetStatus -> listOf(DeviceRequest.GetStatus)
-            BluetoothUiEvent.DeviceCommand.StartDefaultLogging ->
-                startDefaultLogging(availableSensorsList)
-            is BluetoothUiEvent.DeviceCommand.StartLogging -> startLogging(command, availableSensorsList)
-            BluetoothUiEvent.DeviceCommand.StopLogging -> listOf(DeviceRequest.StopLogging)
+            is BluetoothUiEvent.DeviceCommand.StartLogging -> {
+                experimentOnlineData.value = ExperimentOnlineData()
+                isOnlineDataLoading.value = true
+                hasReceivedFirstOnlineData = false
+                startLogging(command, availableSensorsList)
+            }
+            BluetoothUiEvent.DeviceCommand.StopLogging -> {
+                isOnlineDataLoading.value = false
+                listOf(DeviceRequest.StopLogging)
+            }
             BluetoothUiEvent.DeviceCommand.GetAllSensorsId -> listOf(DeviceRequest.GetAllSensorsId)
             BluetoothUiEvent.DeviceCommand.GetSensorsValues -> listOf(
                 setDateTimes(),

@@ -13,7 +13,8 @@ class ManagingBlockWidget extends StatelessWidget {
     required this.isExperimentLoading,
     required this.deviceType,
     required this.experimentsHistoryList,
-    required this.onExperimentClick
+    required this.onExperimentClick,
+    required this.onStartExperiment
   });
 
   final bool isDeviceConnected;
@@ -21,6 +22,7 @@ class ManagingBlockWidget extends StatelessWidget {
   final DeviceType? deviceType;
   final List<ExperimentsData>? experimentsHistoryList;
   final void Function(int) onExperimentClick;
+  final VoidCallback onStartExperiment;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,7 @@ class ManagingBlockWidget extends StatelessWidget {
                 width: 90,
                 height: 42,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () { if (isDeviceConnected) { onStartExperiment(); } },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isDeviceConnected
                         ? context.colors.primary

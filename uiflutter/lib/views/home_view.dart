@@ -181,7 +181,16 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                                   value: context.read<BluetoothCubit>(),
                                                   child: ExperimentView(experimentId: id),
                                                 )
-                                              )
+                                              ),
+                                              onStartExperiment: () => NavigatorLocal.goTo(
+                                                  BlocProvider.value(
+                                                    value: context.read<BluetoothCubit>(),
+                                                    child: ExperimentView(
+                                                      isOnlineExperiment: true,
+                                                      sensors: [SensorType.accelerometer4g, SensorType.airPressure],
+                                                    ),
+                                                  )
+                                              ),
                                             ),
                                             _buildMaterialsTab(),
                                             _buildDocsTab(),

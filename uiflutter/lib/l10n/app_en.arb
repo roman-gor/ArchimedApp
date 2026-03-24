@@ -71,5 +71,6 @@
   "theme": "Theme",
   "system_theme_active": "System theme is active",
   "use_system_theme": "Use system theme",
-  "again": "Again"
+  "again": "Again",
+  "stop": "Stop"
 }

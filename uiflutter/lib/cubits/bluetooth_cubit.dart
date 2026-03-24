@@ -26,7 +26,10 @@ class BluetoothCubit extends Cubit<BluetoothDeviceState?> {
   void _initStream() {
     _subscription = _eventChannel.receiveBroadcastStream().listen((event) {
       final jsonMap = jsonDecode(event as String);
-      final newState = BluetoothDeviceState.fromJson(jsonMap);
+      var newState = BluetoothDeviceState.fromJson(jsonMap);
+      if (state?.selectedSensor != null) {
+        newState = newState.copyWith(selectedSensor: state!.selectedSensor);
+      }
       emit(newState); 
     }, onError: (error) {
       _logger.e("EventChannel error: $error");

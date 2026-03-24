@@ -15,6 +15,8 @@ data class BluetoothDeviceState(
     val isScanning: Boolean = false,
     @SerialName("isExperimentLoading")
     val isExperimentLoading: Boolean = false,
+    @SerialName("isOnlineDataLoading")
+    val isOnlineDataLoading: Boolean = false,
     @SerialName("selectedDeviceId")
     val selectedDeviceId: String? = null,
     @SerialName("selectedDeviceType")
