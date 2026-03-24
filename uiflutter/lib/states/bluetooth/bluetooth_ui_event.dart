@@ -18,7 +18,6 @@ sealed class BluetoothUiEvent with _$BluetoothUiEvent {
 @Freezed(unionKey: 'type')
 sealed class DeviceCommand with _$DeviceCommand {
   @FreezedUnionValue("get_status") const factory DeviceCommand.getStatus() = _GetStatus;
-  @FreezedUnionValue("start_default_logging") const factory DeviceCommand.startDefaultLogging() = _StartDefaultLogging;
   @FreezedUnionValue("start_logging") const factory DeviceCommand.startLogging(
         @JsonKey(name: "sensors") List<SensorType> sensors,
         @JsonKey(name: "sample_rate") Rates sampleRate,

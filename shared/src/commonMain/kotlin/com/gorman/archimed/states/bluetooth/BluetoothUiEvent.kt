@@ -35,10 +35,6 @@ sealed interface BluetoothUiEvent {
         object GetStatus : DeviceCommand
 
         @Serializable
-        @SerialName("start_default_logging")
-        object StartDefaultLogging : DeviceCommand
-
-        @Serializable
         @SerialName("start_logging")
         data class StartLogging(
             @SerialName("sensors") val sensors: List<SensorType>,

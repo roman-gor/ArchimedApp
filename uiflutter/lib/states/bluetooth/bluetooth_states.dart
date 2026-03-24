@@ -49,23 +49,23 @@ enum SensorType {
     imagePath: "assets/images/ic_illumination.svg",
     color: Color(0xFFFFB800),
     minValue: 0.0,
-    maxValue: 1000.0,
+    maxValue: 180000.0,
     valueAmount: 1,
   ),
   @JsonValue('LIGHT_MEDIUM_SENSITIVE') lightMediumSensitive(
     unit: MeasureUnits.lux,
-    imagePath: "assets/image/ic_illumination.svg",
+    imagePath: "assets/images/ic_illumination.svg",
     color: Color(0xFFFFB800),
     minValue: 0.0,
-    maxValue: 20.0,
+    maxValue: 20000.0,
     valueAmount: 1,
   ),
   @JsonValue('LIGHT_LOW_SENSITIVE') lightLowSensitive(
     unit: MeasureUnits.klx,
-    imagePath: "assets/image/ic_illumination.svg",
+    imagePath: "assets/images/ic_illumination.svg",
     color: Color(0xFFFFB800),
     minValue: 0.0,
-    maxValue: 180.0,
+    maxValue: 1000.0,
     valueAmount: 1,
   ),
   @JsonValue('CONDUCTIVITY_HIGH_SENSITIVE') conductivityHighSensitive(
@@ -367,7 +367,11 @@ sealed class DisconnectReason with _$DisconnectReason {
 
 @freezed
 class ExperimentOnlineData with _$ExperimentOnlineData {
-  const factory ExperimentOnlineData() = _ExperimentOnlineData;
+  const factory ExperimentOnlineData({
+    @Default({}) Map<SensorType, List<double>> sensorsData,
+    @Default(0) int currentSample
+  }) = _ExperimentOnlineData;
+  
   factory ExperimentOnlineData.fromJson(Map<String, dynamic> json) => _$ExperimentOnlineDataFromJson(json);
 }
 
@@ -431,6 +435,7 @@ class BluetoothDeviceState with _$BluetoothDeviceState {
     @Default({}) Map<String, EnhancedBluetoothPeripheral> devices,
     @Default(false) bool isScanning,
     @Default(false) bool isExperimentLoading,
+    @Default(false) bool isOnlineDataLoading,
     String? selectedDeviceId,
     SensorType? selectedSensor,
     @Default(DeviceType.unknown) DeviceType selectedDeviceType,
