@@ -37,7 +37,7 @@ flutter:
   assets:
     - assets/images/bg_light.png
     - assets/images/bg_dark.png
-    - assets/images/main_image.svg
+    - assets/images/placeholder_history_image.svg
     - assets/images/ic_external.svg
     - assets/images/ic_ion.svg
     - assets/images/ic_barometer.svg

@@ -116,7 +116,7 @@ class ManagingBlockWidget extends StatelessWidget {
   Widget _placeholderWidget() {
     return Align(
       alignment: Alignment.center,
-      child: SvgPicture.asset('assets/images/main_image.svg'),
+      child: SvgPicture.asset('assets/images/placeholder_history_image.svg'),
     );
   }
 

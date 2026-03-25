@@ -284,6 +284,29 @@ enum SensorType {
   final double minValue;
   final double maxValue;
   final int valueAmount;
+
+  static const lightSensorGroup = [
+    SensorType.lightLowSensitive,
+    SensorType.lightMediumSensitive,
+    SensorType.lightHighSensitive
+  ];
+  static const voltageSensorGroup = [
+    SensorType.voltage2v,
+    SensorType.voltage5v,
+    SensorType.voltage10v,
+    SensorType.voltage15v,
+    SensorType.voltage30v
+  ];
+  static const accelerometerSensorGroup = [
+    SensorType.accelerometer2g,
+    SensorType.accelerometer4g,
+    SensorType.accelerometer8g
+  ];
+  static const conductivitySensorGroup = [
+    SensorType.conductivityLowSensitive,
+    SensorType.conductivityMediumSensitive,
+    SensorType.conductivityHighSensitive
+  ];
 }
 
 enum MeasureUnits {
@@ -315,7 +338,6 @@ enum DeviceType {
 }
 
 enum Rates {
-  @JsonValue('RATE_1_PER_MIN') rate1PerMin,
   @JsonValue('RATE_1_PER_SEC') rate1PerSec,
   @JsonValue('RATE_10_PER_SEC') rate10PerSec,
   @JsonValue('RATE_100_PER_SEC') rate100PerSec,

@@ -76,13 +76,64 @@ extension SamplesLocal on Samples {
       };
 }
 
+extension SamplesFromInt on int {
+  Samples get samplesType =>
+      switch(this) {
+        10 => Samples.samples10,
+        100 => Samples.samples100,
+        1000 => Samples.samples1000,
+        10000 => Samples.samples10000,
+        _ => Samples.samples10
+      };
+}
+
 extension RatesLocal on Rates {
   double get count =>
       switch(this) {
         Rates.rate1PerSec => 1,
         Rates.rate10PerSec => 10,
         Rates.rate100PerSec => 100,
-        Rates.rate20000PerSec => 20000,
-        Rates.rate1PerMin => 0.016
+        Rates.rate20000PerSec => 20000
       };
+}
+
+extension RateFromInt on int {
+  Rates get rateType => 
+      switch(this) {
+        1 => Rates.rate1PerSec,
+        10 => Rates.rate10PerSec,
+        100 => Rates.rate100PerSec,
+        20000 => Rates.rate20000PerSec,
+        _ => Rates.rate10PerSec
+      };
+}
+
+extension SensorTypeGroup on SensorType {
+  List<SensorType> get sensorsGroup {
+    if(SensorType.lightSensorGroup.contains(this)) {
+      return SensorType.lightSensorGroup;
+    } else if (SensorType.voltageSensorGroup.contains(this)) {
+      return SensorType.voltageSensorGroup;
+    } else if (SensorType.accelerometerSensorGroup.contains(this)) {
+      return SensorType.accelerometerSensorGroup;
+    } else if (SensorType.conductivitySensorGroup.contains(this)) {
+      return SensorType.conductivitySensorGroup;
+    }
+    return [];
+  }
+}
+
+extension SensorTypeFormat on SensorType {
+  SensorType get format {
+    if(SensorType.lightSensorGroup.contains(this)) {
+      return SensorType.lightLowSensitive;
+    } else if (SensorType.voltageSensorGroup.contains(this)) {
+      return SensorType.voltage2v;
+    } else if (SensorType.accelerometerSensorGroup.contains(this)) {
+      return SensorType.accelerometer2g;
+    } else if (SensorType.conductivitySensorGroup.contains(this)) {
+      return SensorType.conductivityLowSensitive;
+    }
+    return this;
+  }
 }

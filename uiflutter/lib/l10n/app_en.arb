@@ -74,5 +74,7 @@
   "again": "Again",
   "stop": "Stop",
   "delete_history_warning": "Experiments history will be deleted",
-  "confirm_delete": "Delete all"
+  "confirm_delete": "Delete all",
+  "recording_rates_per_sec": "Recording rates per sec",
+  "samples_amount_per_sec": "Samples amount per sec"
 }

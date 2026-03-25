@@ -73,8 +73,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       providers: [
         BlocProvider.value(value: _permissionsCubit),
         BlocProvider.value(value: _bluetoothCubit),
-        BlocProvider.value(value: _homeTabsCubit),
-        BlocProvider.value(value: _themeCubit)
+        BlocProvider.value(value: _homeTabsCubit)
       ],
       child: MultiBlocListener(
         listeners: [
