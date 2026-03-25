@@ -395,6 +395,7 @@ class StatusDeviceData with _$StatusDeviceData {
   const factory StatusDeviceData({
     @Default(DeviceType.unknown) DeviceType archimedesVersion,
     @Default(0) int experimentsInMemory,
+    @Default([]) List<SensorType> availableDeviceSensors,
     @Default([]) List<SensorType> lastUsedSensorsType,
     Rates? lastSamplesRates,
     Samples? lastSamplesCount,

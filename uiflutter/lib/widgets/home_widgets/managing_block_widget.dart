@@ -97,18 +97,20 @@ class ManagingBlockWidget extends StatelessWidget {
   }
   
   Widget _contentBuild(BuildContext context) {
-    final experimentsList = experimentsHistoryList ?? [];
     if (isExperimentLoading) {
       return Center(
         child: CircularProgressIndicator(
           color: context.colors.onSurface,
         ),
       );
-    } else if (isDeviceConnected && experimentsList.isNotEmpty) {
-      return _historyWidget(context);
-    } else {
+    } 
+    if (!isDeviceConnected) {
+      return _placeholderWidget();
+    } 
+    if (experimentsHistoryList == null || experimentsHistoryList!.isEmpty) {
       return _placeholderWidget();
     }
+    return _historyWidget(context);
   }
   
   Widget _placeholderWidget() {

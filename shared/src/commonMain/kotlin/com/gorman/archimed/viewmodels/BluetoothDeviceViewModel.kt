@@ -282,50 +282,54 @@ class BluetoothDeviceViewModel(
 
     private fun observeDeviceResponses(parsedResponse: DeviceResponse) {
         when (parsedResponse) {
-            is DeviceResponse.StatusDeviceData -> {
-                val detectedType = parsedResponse.archimedesVersion
-                statusDeviceData.value = parsedResponse
-                    .toUiState(availableSensorsList)
-                rawStatusResponse = parsedResponse
-                bluetoothRepository.setDeviceType(detectedType)
-                if (hasReceivedFirstOnlineData && isOnlineDataLoading.value) {
-                    hasReceivedFirstOnlineData = false
-                    isOnlineDataLoading.value = false
-                    sendCommand(BluetoothUiEvent.DeviceCommand.GetExperimentsList)
-                    sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
-                    logger.d("Experiment Online Data", "The end of responding data")
-                }
-                if (hasRequestExperimentsHistory && isExperimentLoading.value) {
-                    hasRequestExperimentsHistory = false
-                    isExperimentLoading.value = false
-                }
-            }
+            is DeviceResponse.StatusDeviceData -> statusResponding(parsedResponse)
             is DeviceResponse.GetSensorIdParams -> {
                 availableDeviceSensors.value = parsedResponse.sensorsIdsMap
                 rawStatusResponse?.let { rawStatus ->
                     statusDeviceData.value = rawStatus
-                        .toUiState(availableSensorsList)
+                        .toUiState(availableDeviceSensors.value)
                 }
                 logger.d("Sensors Ids", availableSensorsList.toString())
             }
             is DeviceResponse.GetExperimentsData -> {
                 getExperimentData(parsedResponse)
             }
-            is DeviceResponse.ExperimentOnlineData -> {
-                hasReceivedFirstOnlineData = true
-                val newUiState = parsedResponse.toUiState(availableSensorsList)
-
-                experimentOnlineData.update { currentState ->
-                    val mergedSensorsData = currentState.sensorsData.toMutableMap()
-                    newUiState.sensorsData.forEach { (sensor, newValues) ->
-                        val existingValues = mergedSensorsData[sensor] ?: emptyList()
-                        mergedSensorsData[sensor] = existingValues + newValues
-                    }
-                    currentState.copy(sensorsData = mergedSensorsData)
-                }
-            }
+            is DeviceResponse.ExperimentOnlineData -> experimentOnlineDataResponding(parsedResponse)
             is DeviceResponse.Unknown -> logger.e("ViewModel", "Response is in unknown type")
             else -> logger.d("ViewModel", "Handled other response type")
+        }
+    }
+
+    private fun experimentOnlineDataResponding(parsedResponse: DeviceResponse.ExperimentOnlineData) {
+        hasReceivedFirstOnlineData = true
+        val newUiState = parsedResponse.toUiState(availableSensorsList)
+
+        experimentOnlineData.update { currentState ->
+            val mergedSensorsData = currentState.sensorsData.toMutableMap()
+            newUiState.sensorsData.forEach { (sensor, newValues) ->
+                val existingValues = mergedSensorsData[sensor] ?: emptyList()
+                mergedSensorsData[sensor] = existingValues + newValues
+            }
+            currentState.copy(sensorsData = mergedSensorsData)
+        }
+    }
+
+    private fun statusResponding(parsedResponse: DeviceResponse.StatusDeviceData) {
+        val detectedType = parsedResponse.archimedesVersion
+        statusDeviceData.value = parsedResponse
+            .toUiState(availableDeviceSensors.value)
+        rawStatusResponse = parsedResponse
+        bluetoothRepository.setDeviceType(detectedType)
+        if (hasReceivedFirstOnlineData && isOnlineDataLoading.value) {
+            hasReceivedFirstOnlineData = false
+            isOnlineDataLoading.value = false
+            sendCommand(BluetoothUiEvent.DeviceCommand.GetExperimentsList)
+            sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
+            logger.d("Experiment Online Data", "The end of responding data")
+        }
+        if (hasRequestExperimentsHistory && isExperimentLoading.value) {
+            hasRequestExperimentsHistory = false
+            isExperimentLoading.value = false
         }
     }
 
@@ -398,10 +402,7 @@ class BluetoothDeviceViewModel(
                 hasReceivedFirstOnlineData = false
                 startLogging(command, availableSensorsList)
             }
-            BluetoothUiEvent.DeviceCommand.StopLogging -> {
-                isOnlineDataLoading.value = false
-                listOf(DeviceRequest.StopLogging)
-            }
+            BluetoothUiEvent.DeviceCommand.StopLogging -> listOf(DeviceRequest.StopLogging)
             BluetoothUiEvent.DeviceCommand.GetAllSensorsId -> listOf(DeviceRequest.GetAllSensorsId)
             BluetoothUiEvent.DeviceCommand.GetSensorsValues -> listOf(
                 setDateTimes(),

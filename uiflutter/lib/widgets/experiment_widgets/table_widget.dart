@@ -117,7 +117,7 @@ class TableWidget extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(context.dimens.paddingMedium),
               child: Text(
-                cellText,
+                "$cellText ${sensor.unit.getName(context)}",
                 style: TextStyle(color: context.colors.onSurface),
               ),
             ),
