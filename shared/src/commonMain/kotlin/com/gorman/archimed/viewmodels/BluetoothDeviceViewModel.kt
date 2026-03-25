@@ -65,6 +65,7 @@ class BluetoothDeviceViewModel(
     private val isExperimentLoading = MutableStateFlow(false)
     private val isOnlineDataLoading = MutableStateFlow(false)
     private var hasReceivedFirstOnlineData = false
+    private var hasRequestExperimentsHistory = false
 
     private data class DeviceResponsesDataState(
         val statusDeviceData: StatusDeviceData,
@@ -294,6 +295,10 @@ class BluetoothDeviceViewModel(
                     sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
                     logger.d("Experiment Online Data", "The end of responding data")
                 }
+                if (hasRequestExperimentsHistory && isExperimentLoading.value) {
+                    hasRequestExperimentsHistory = false
+                    isExperimentLoading.value = false
+                }
             }
             is DeviceResponse.GetSensorIdParams -> {
                 availableDeviceSensors.value = parsedResponse.sensorsIdsMap
@@ -404,6 +409,7 @@ class BluetoothDeviceViewModel(
             )
             BluetoothUiEvent.DeviceCommand.GetExperimentsList -> {
                 isExperimentLoading.value = true
+                hasRequestExperimentsHistory = true
                 listOf(
                     DeviceRequest.GetStatus,
                     DeviceRequest.GetAllExperimentsList

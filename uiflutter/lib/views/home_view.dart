@@ -187,10 +187,15 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                                     value: context.read<BluetoothCubit>(),
                                                     child: ExperimentView(
                                                       isOnlineExperiment: true,
-                                                      sensors: [SensorType.accelerometer4g, SensorType.airPressure],
+                                                      sensors: [SensorType.airPressure, SensorType.accelerometer4g],
                                                     ),
                                                   )
                                               ),
+                                              onClearMemory: () => _bluetoothCubit.sendCommand(
+                                                BluetoothUiEvent.onSendCommand(
+                                                  DeviceCommand.clearDeviceMemory()
+                                                )
+                                              )
                                             ),
                                             _buildMaterialsTab(),
                                             _buildDocsTab(),

@@ -86,7 +86,7 @@ class ExperimentViewState extends State<ExperimentView> {
               final activeSensors = _isOnlineData
                   ? experimentOnlineData.sensorsData.keys.toList()
                   : experimentData.activeSensors;
-
+              
               final actualSensor = bluetoothState?.selectedSensor ??
                   (activeSensors.isNotEmpty ? activeSensors.first : SensorType.unknown);
 
@@ -160,7 +160,7 @@ class ExperimentViewState extends State<ExperimentView> {
                                     context.read<BluetoothCubit>().sendCommand(
                                       BluetoothUiEvent.onSendCommand(
                                         DeviceCommand.startLogging(
-                                          experimentData.activeSensors,
+                                          activeSensors,
                                           experimentData.sampleRate ??
                                               Rates.rate10PerSec,
                                           experimentData.samplesCount ??

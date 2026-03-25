@@ -3,7 +3,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/extensions/device_type_name.dart';
 import 'package:uiflutter/utils/date_time_parse.dart';
+import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 
+import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
 
 class ManagingBlockWidget extends StatelessWidget {
@@ -14,7 +16,8 @@ class ManagingBlockWidget extends StatelessWidget {
     required this.deviceType,
     required this.experimentsHistoryList,
     required this.onExperimentClick,
-    required this.onStartExperiment
+    required this.onStartExperiment,
+    required this.onClearMemory
   });
 
   final bool isDeviceConnected;
@@ -23,6 +26,7 @@ class ManagingBlockWidget extends StatelessWidget {
   final List<ExperimentsData>? experimentsHistoryList;
   final void Function(int) onExperimentClick;
   final VoidCallback onStartExperiment;
+  final VoidCallback onClearMemory;
 
   @override
   Widget build(BuildContext context) {
@@ -39,47 +43,68 @@ class ManagingBlockWidget extends StatelessWidget {
               child: _contentBuild(context),
             ),
             SizedBox(height: context.dimens.paddingLarge,),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 90,
-                height: 42,
-                child: ElevatedButton(
-                  onPressed: () { if (isDeviceConnected) { onStartExperiment(); } },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDeviceConnected
-                        ? context.colors.primary
-                        : Colors.grey,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: context.dimens.paddingLarge,
+              children: [
+                SizedBox(
+                  width: 42,
+                  height: 42,
+                  child: IconButton(
+                    onPressed: () { if (isDeviceConnected) _showDeleteHistoryWarning(context); },
+                    icon: Icon(Icons.delete_outlined),
+                    iconSize: 30,
+                    color: context.colors.onSurface,
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      backgroundColor: context.colors.tertiary,
+                      shape: const CircleBorder(),
+                      elevation: 4,
                     ),
-                  ),
-                  child: Text(
-                    context.strings.start,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
-              ),
+                SizedBox(
+                  height: 42,
+                  child: ElevatedButton(
+                    onPressed: () { if (isDeviceConnected) onStartExperiment(); },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDeviceConnected
+                          ? context.colors.primary
+                          : Colors.grey,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                    ),
+                    child: Text(
+                      context.strings.start,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ]
             )
+            
           ],
         )
     );
   }
   
   Widget _contentBuild(BuildContext context) {
+    final experimentsList = experimentsHistoryList ?? [];
     if (isExperimentLoading) {
       return Center(
         child: CircularProgressIndicator(
           color: context.colors.onSurface,
         ),
       );
-    } else if (isDeviceConnected) {
+    } else if (isDeviceConnected && experimentsList.isNotEmpty) {
       return _historyWidget(context);
     } else {
       return _placeholderWidget();
@@ -262,6 +287,26 @@ class ManagingBlockWidget extends StatelessWidget {
               )
           ),
         )
+    );
+  }
+  
+  void _showDeleteHistoryWarning(BuildContext context) {
+    showDialog(
+      context: context, 
+      builder: (BuildContext dialogContext) {
+        return DefaultDialogWidget(
+          icon: Icons.delete,
+          bgColor: context.colors.primary,
+          text: context.strings.delete_history_warning,
+          dismissText: context.strings.back,
+          confirmText: context.strings.confirm_delete,
+          onDismiss: () => NavigatorLocal.goBack(),
+          onConfirm: () {
+            onClearMemory();
+            NavigatorLocal.goBack();
+          },
+        );
+      },
     );
   }
 }
