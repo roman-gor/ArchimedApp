@@ -75,7 +75,7 @@ class ExperimentViewState extends State<ExperimentView> {
               final experimentOnlineData = bluetoothState?.experimentOnlineData 
                   ?? ExperimentOnlineData();
               final isExperimentLoading =
-                  bluetoothState?.isExperimentLoading ?? true;
+                  bluetoothState?.isExperimentDataLoading ?? true;
               if (isExperimentLoading) {
                 return const Center(child: CircularProgressIndicator());
               }

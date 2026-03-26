@@ -43,6 +43,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     _themeCubit = ThemeCubit();
 
     WidgetsBinding.instance.addObserver(this);
+    _permissionsCubit.checkInitialPermissions();
   }
 
   @override
@@ -136,12 +137,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                               bluetoothState?.selectedDeviceType,
                               currentDevice: currentDevice,
                               onListClick: () {
-                                if (permissionsState
-                                is PermissionsPermanentlyDenied) {
+                                if (permissionsState is PermissionsPermanentlyDenied) {
                                   showBluetoothDeniedDialog(context);
-                                } else if (permissionsState
-                                is PermissionsDenied) {
+                                } else if (permissionsState is PermissionsDenied) {
                                   showPermissionExplanationDialog(context);
+                                } else if (permissionsState is PermissionsInitial) {
+                                  _permissionsCubit.checkInitialPermissions();
                                 } else {
                                   _bluetoothCubit.sendCommand(
                                     BluetoothUiEvent.onStartScan(),
@@ -176,7 +177,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                           children: [
                                             ManagingBlockWidget(
                                               isDeviceConnected: _bluetoothCubit.isDeviceConnected,
-                                              isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
+                                              isExperimentsHistoryLoading: bluetoothState?.isExperimentsHistoryLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
                                               experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
                                               onExperimentClick: (id) => NavigatorLocal.goTo(

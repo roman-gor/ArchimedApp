@@ -109,7 +109,8 @@ class BluetoothDeviceState with _$BluetoothDeviceState {
   const factory BluetoothDeviceState({
     @Default({}) Map<String, EnhancedBluetoothPeripheral> devices,
     @Default(false) bool isScanning,
-    @Default(false) bool isExperimentLoading,
+    @Default(false) bool isExperimentsHistoryLoading,
+    @Default(false) bool isExperimentDataLoading,
     @Default(false) bool isOnlineDataLoading,
     String? selectedDeviceId,
     SensorType? selectedSensor,

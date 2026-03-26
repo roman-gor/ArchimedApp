@@ -13,7 +13,7 @@ class ManagingBlockWidget extends StatelessWidget {
   const ManagingBlockWidget({
     super.key,
     required this.isDeviceConnected,
-    required this.isExperimentLoading,
+    required this.isExperimentsHistoryLoading,
     required this.deviceType,
     required this.experimentsHistoryList,
     required this.onExperimentClick,
@@ -22,7 +22,7 @@ class ManagingBlockWidget extends StatelessWidget {
   });
 
   final bool isDeviceConnected;
-  final bool isExperimentLoading;
+  final bool isExperimentsHistoryLoading;
   final DeviceType? deviceType;
   final List<ExperimentsData>? experimentsHistoryList;
   final void Function(int) onExperimentClick;
@@ -98,7 +98,7 @@ class ManagingBlockWidget extends StatelessWidget {
   }
   
   Widget _contentBuild(BuildContext context) {
-    if (isExperimentLoading) {
+    if (isExperimentsHistoryLoading) {
       return Center(
         child: CircularProgressIndicator(
           color: context.colors.onSurface,

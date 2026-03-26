@@ -13,8 +13,10 @@ data class BluetoothDeviceState(
     val devices: Map<String, EnhancedBluetoothPeripheral> = mapOf(),
     @SerialName("isScanning")
     val isScanning: Boolean = false,
-    @SerialName("isExperimentLoading")
-    val isExperimentLoading: Boolean = false,
+    @SerialName("isExperimentsHistoryLoading")
+    val isExperimentsHistoryLoading: Boolean = false,
+    @SerialName("isExperimentDataLoading")
+    val isExperimentDataLoading: Boolean = false,
     @SerialName("isOnlineDataLoading")
     val isOnlineDataLoading: Boolean = false,
     @SerialName("selectedDeviceId")

@@ -62,7 +62,8 @@ class BluetoothDeviceViewModel(
 
     private var downloadingExperimentHeader: DeviceResponse.GetExperimentsData? = null
     private val downloadingRawDataBuffer = mutableListOf<Short>()
-    private val isExperimentLoading = MutableStateFlow(false)
+    private val isExperimentsHistoryLoading = MutableStateFlow(false)
+    private val isExperimentDataLoading = MutableStateFlow(false)
     private val isOnlineDataLoading = MutableStateFlow(false)
     private var hasReceivedFirstOnlineData = false
     private var hasRequestExperimentsHistory = false
@@ -77,8 +78,12 @@ class BluetoothDeviceViewModel(
     private data class DeviceParametersState(
         val deviceId: String?,
         val connectionState: DeviceConnectionState,
-        val deviceType: DeviceType = DeviceType.UNKNOWN,
-        val isExperimentLoading: Boolean,
+        val deviceType: DeviceType = DeviceType.UNKNOWN
+    )
+    
+    private data class RespondingFlags(
+        val isExperimentsHistoryLoading: Boolean,
+        val isExperimentDataLoading: Boolean,
         val isOnlineDataLoading: Boolean
     )
 
@@ -94,18 +99,25 @@ class BluetoothDeviceViewModel(
     private val deviceParametersState = combine(
         selectedDeviceId,
         connectionState,
-        deviceType,
-        isExperimentLoading,
+        deviceType
+    ) { id, connection, type ->
+        DeviceParametersState(id, connection, type)
+    }
+    
+    private val respondingFlags = combine(
+        isExperimentsHistoryLoading,
+        isExperimentDataLoading,
         isOnlineDataLoading
-    ) { id, connection, type, isExpLoading, isOnlineLoading ->
-        DeviceParametersState(id, connection, type, isExpLoading, isOnlineLoading)
+    ) { history, single, online ->
+        RespondingFlags(history, single, online)
     }
 
     val deviceState: StateFlow<BluetoothDeviceState> = combine(
         scannedDevices,
         deviceParametersState,
-        deviceResponsesDataState
-    ) { devices, deviceParams, responseData ->
+        deviceResponsesDataState,
+        respondingFlags
+    ) { devices, deviceParams, responseData, respondingFlags ->
 
         val deviceFlows = devices.values.associate { peripheral ->
             val isTargetDevice = peripheral.uuid == deviceParams.deviceId
@@ -125,8 +137,9 @@ class BluetoothDeviceViewModel(
         BluetoothDeviceState(
             devices = deviceFlows,
             isScanning = true,
-            isExperimentLoading = deviceParams.isExperimentLoading,
-            isOnlineDataLoading = deviceParams.isOnlineDataLoading,
+            isExperimentsHistoryLoading = respondingFlags.isExperimentsHistoryLoading,
+            isExperimentDataLoading = respondingFlags.isExperimentDataLoading,
+            isOnlineDataLoading = respondingFlags.isOnlineDataLoading,
             selectedDeviceId = deviceParams.deviceId,
             selectedDeviceType = deviceParams.deviceType,
             statusDeviceData = responseData.statusDeviceData,
@@ -327,9 +340,9 @@ class BluetoothDeviceViewModel(
             sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
             logger.d("Experiment Online Data", "The end of responding data")
         }
-        if (hasRequestExperimentsHistory && isExperimentLoading.value) {
+        if (hasRequestExperimentsHistory && isExperimentsHistoryLoading.value) {
             hasRequestExperimentsHistory = false
-            isExperimentLoading.value = false
+            isExperimentsHistoryLoading.value = false
         }
     }
 
@@ -341,7 +354,7 @@ class BluetoothDeviceViewModel(
                 if (isDuplicate) currentList else currentList + newItem
             }
             logger.d("History", "$parsedResponse")
-            isExperimentLoading.value = false
+            isExperimentsHistoryLoading.value = false
             return
         }
 
@@ -375,7 +388,7 @@ class BluetoothDeviceViewModel(
             logger.d("Data", "$finalExperimentData")
 
             downloadingExperimentHeader = null
-            isExperimentLoading.value = false
+            isExperimentDataLoading.value = false
             downloadingRawDataBuffer.clear()
         } else {
             sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
@@ -409,7 +422,7 @@ class BluetoothDeviceViewModel(
                 DeviceRequest.GetAllSensorsValues
             )
             BluetoothUiEvent.DeviceCommand.GetExperimentsList -> {
-                isExperimentLoading.value = true
+                isExperimentsHistoryLoading.value = true
                 hasRequestExperimentsHistory = true
                 listOf(
                     DeviceRequest.GetStatus,
@@ -417,7 +430,7 @@ class BluetoothDeviceViewModel(
                 )
             }
             is BluetoothUiEvent.DeviceCommand.GetExperimentData -> {
-                isExperimentLoading.value = true
+                isExperimentDataLoading.value = true
                 listOf(
                     DeviceRequest.GetStatus,
                     DeviceRequest.GetExperimentData(command.experimentNumber.toByte()),
