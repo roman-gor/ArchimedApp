@@ -18,6 +18,7 @@ import 'package:uiflutter/widgets/home_widgets/theme_tab_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import '../states/bluetooth/bluetooth_ui_event.dart';
+import '../states/bluetooth/sensor_types.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatefulWidget {

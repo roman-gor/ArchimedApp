@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:uiflutter/extensions/sensor_type_name.dart';
+import 'package:uiflutter/extensions/sensor_type_extensions.dart';
 
 import '../../extensions/build_context_local.dart';
-import '../../states/bluetooth/bluetooth_states.dart';
+import '../../extensions/measures_unit_extensions.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class TableWidget extends StatelessWidget {
   const TableWidget({super.key, required this.sensorsData});

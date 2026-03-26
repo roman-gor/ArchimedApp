@@ -7,6 +7,7 @@ import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 
 import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class ManagingBlockWidget extends StatelessWidget {
   const ManagingBlockWidget({

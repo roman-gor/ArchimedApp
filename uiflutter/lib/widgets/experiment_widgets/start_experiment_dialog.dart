@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uiflutter/cubits/experiment_settings_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/extensions/sensor_type_name.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import 'package:uiflutter/extensions/sensor_type_extensions.dart';
 import 'package:uiflutter/widgets/experiment_widgets/capsule_select_widget.dart';
 
+import '../../extensions/rates_extensions.dart';
+import '../../extensions/samples_extensions.dart';
+import '../../states/bluetooth/sensor_types.dart';
 import '../home_widgets/colored_button_widget.dart';
 import '../home_widgets/uncolored_button_widget.dart';
 import 'dropdown_sensor_widget.dart';
@@ -167,7 +169,7 @@ class StartExperimentDialog extends StatelessWidget {
             (selected) => selected.format == sensor.format,
         orElse: () => sensor,
       );
-      
+
       widgetsList.add(
         DropdownSensorWidget(
           isSelected: isGroupSelected,

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+
+import '../states/bluetooth/sensor_types.dart';
 
 class ExperimentSettingsCubit extends Cubit<ExperimentSettings> {
   ExperimentSettingsCubit() : super(ExperimentSettings());

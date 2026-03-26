@@ -8,6 +8,7 @@ import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import 'package:uiflutter/utils/method_channel_commands.dart';
 
 import '../states/bluetooth/bluetooth_ui_event.dart';
+import '../states/bluetooth/sensor_types.dart';
 
 class BluetoothCubit extends Cubit<BluetoothDeviceState?> {
 

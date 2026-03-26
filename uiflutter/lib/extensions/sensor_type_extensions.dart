@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+
+import '../states/bluetooth/sensor_types.dart';
 
 extension SensorTypeLocal on SensorType {
   String getName(BuildContext context) {
@@ -40,72 +41,6 @@ extension SensorTypeLocal on SensorType {
       case SensorType.unknown: return context.strings.unknown;
     }
   }
-}
-
-extension MeasureUnitsLocal on MeasureUnits {
-  String getName(BuildContext context) {
-    switch (this) {
-      case MeasureUnits.ntu: return context.strings.unit_ntu;
-      case MeasureUnits.beatsPerMin: return context.strings.unit_beats_per_min;
-      case MeasureUnits.amps: return context.strings.unit_milliamps;
-      case MeasureUnits.celsius: return context.strings.unit_celsius;
-      case MeasureUnits.volts: return context.strings.unit_volts;
-      case MeasureUnits.milliVolts: return context.strings.unit_millivolts;
-      case MeasureUnits.lux: return context.strings.unit_lux;
-      case MeasureUnits.klx: return context.strings.unit_klx;
-      case MeasureUnits.microSiemens: return context.strings.unit_microsiemens;
-      case MeasureUnits.milliSiemens: return context.strings.unit_millisiemens;
-      case MeasureUnits.bits: return context.strings.unit_bits;
-      case MeasureUnits.gForce: return context.strings.unit_g_force;
-      case MeasureUnits.milliTesla: return context.strings.unit_millitesla;
-      case MeasureUnits.kiloPascal: return context.strings.unit_kilopascal;
-      case MeasureUnits.mmHg: return context.strings.unit_mm_hg;
-      case MeasureUnits.percent: return context.strings.unit_percent;
-      case MeasureUnits.nothing: return context.strings.unit_nothing;
-    }
-  }
-}
-
-extension SamplesLocal on Samples {
-  int get count =>
-      switch(this) {
-        Samples.samples10 => 10,
-        Samples.samples100 => 100,
-        Samples.samples1000 => 1000,
-        Samples.samples10000 => 10000,
-      };
-}
-
-extension SamplesFromInt on int {
-  Samples get samplesType =>
-      switch(this) {
-        10 => Samples.samples10,
-        100 => Samples.samples100,
-        1000 => Samples.samples1000,
-        10000 => Samples.samples10000,
-        _ => Samples.samples10
-      };
-}
-
-extension RatesLocal on Rates {
-  double get count =>
-      switch(this) {
-        Rates.rate1PerSec => 1,
-        Rates.rate10PerSec => 10,
-        Rates.rate100PerSec => 100,
-        Rates.rate20000PerSec => 20000
-      };
-}
-
-extension RateFromInt on int {
-  Rates get rateType => 
-      switch(this) {
-        1 => Rates.rate1PerSec,
-        10 => Rates.rate10PerSec,
-        100 => Rates.rate100PerSec,
-        20000 => Rates.rate20000PerSec,
-        _ => Rates.rate10PerSec
-      };
 }
 
 extension SensorTypeGroup on SensorType {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 
 import '../../extensions/build_context_local.dart';
-import '../../extensions/sensor_type_name.dart';
+import '../../extensions/measures_unit_extensions.dart';
+import '../../extensions/sensor_type_extensions.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class DropdownSensorWidget extends StatelessWidget {
   const DropdownSensorWidget({

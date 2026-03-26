@@ -7,6 +7,7 @@ import 'package:uiflutter/widgets/experiment_widgets/table_widget.dart';
 
 import '../cubits/bluetooth_cubit.dart';
 import '../states/bluetooth/bluetooth_states.dart';
+import '../states/bluetooth/sensor_types.dart';
 import '../widgets/experiment_widgets/sensors_block_widget.dart';
 
 class ExperimentView extends StatefulWidget {
