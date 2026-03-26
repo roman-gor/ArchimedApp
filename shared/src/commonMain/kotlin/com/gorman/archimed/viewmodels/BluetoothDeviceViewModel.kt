@@ -80,7 +80,7 @@ class BluetoothDeviceViewModel(
         val connectionState: DeviceConnectionState,
         val deviceType: DeviceType = DeviceType.UNKNOWN
     )
-    
+
     private data class RespondingFlags(
         val isExperimentsHistoryLoading: Boolean,
         val isExperimentDataLoading: Boolean,
@@ -103,7 +103,7 @@ class BluetoothDeviceViewModel(
     ) { id, connection, type ->
         DeviceParametersState(id, connection, type)
     }
-    
+
     private val respondingFlags = combine(
         isExperimentsHistoryLoading,
         isExperimentDataLoading,

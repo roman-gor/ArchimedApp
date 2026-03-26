@@ -43,7 +43,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     _themeCubit = ThemeCubit();
 
     WidgetsBinding.instance.addObserver(this);
-    _permissionsCubit.checkInitialPermissions();
   }
 
   @override

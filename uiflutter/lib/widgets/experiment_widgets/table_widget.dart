@@ -37,7 +37,7 @@ class TableWidget extends StatelessWidget {
         IntrinsicColumnWidth(),
       );
     }
-    columnWidths[0] = FixedColumnWidth(40);
+    columnWidths[0] = FixedColumnWidth(60);
     return columnWidths;
   }
 
@@ -90,7 +90,7 @@ class TableWidget extends StatelessWidget {
         Center(
           child: Padding(
             padding: EdgeInsets.all(context.dimens.paddingMedium),
-            child: Text('${i + 1}'),
+            child: Text('${i + 1}', overflow: TextOverflow.ellipsis, maxLines: 1),
           ),
         ),
       ];

@@ -63,6 +63,7 @@ flutter:
     - assets/images/ic_ambient_temp_dark.svg
     - assets/images/ic_air_pressure.svg
     - assets/images/ic_gps.svg
+    - assets/images/ic_shimmer.svg
   generate: true
   module:
     androidX: true
