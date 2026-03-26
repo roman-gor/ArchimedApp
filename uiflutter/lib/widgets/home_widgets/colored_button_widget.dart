@@ -10,7 +10,7 @@ class ColoredButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 120),
+      constraints: BoxConstraints(maxWidth: 150),
       child: SizedBox(
         height: 40,
         child: ElevatedButton(
@@ -30,6 +30,8 @@ class ColoredButtonWidget extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
       ),

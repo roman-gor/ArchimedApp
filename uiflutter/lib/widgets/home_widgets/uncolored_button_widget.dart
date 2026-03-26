@@ -11,7 +11,7 @@ class UncoloredButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 120),
+      constraints: BoxConstraints(maxWidth: 150),
       child: SizedBox(
         height: 40,
         child: ElevatedButton(
