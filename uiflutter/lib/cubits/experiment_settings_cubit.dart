@@ -1,19 +1,23 @@
 import 'package:bloc/bloc.dart';
+import 'package:uiflutter/extensions/sensor_type_extensions.dart';
 
 import '../states/bluetooth/sensor_types.dart';
 
 class ExperimentSettingsCubit extends Cubit<ExperimentSettings> {
   ExperimentSettingsCubit() : super(ExperimentSettings());
   
-  void setSensors(SensorType sensorType) {
-    final updatedSensors = List<SensorType>.from(state.sensors);
+  void setSensors(SensorType newSensor) {
+    final currentSensors = List<SensorType>.from(state.sensors);
+    
+    final isExactlySelected = currentSensors.contains(newSensor);
+    
+    currentSensors.removeWhere((sensor) => sensor.format == newSensor.format);
 
-    if (!updatedSensors.contains(sensorType)) {
-      updatedSensors.add(sensorType);
-    } else {
-      updatedSensors.remove(sensorType);
+    if (!isExactlySelected) {
+      currentSensors.add(newSensor);
     }
-    emit(state.copyWith(sensors: updatedSensors));
+    
+    emit(state.copyWith(sensors: currentSensors));
   }
   
   void setSamples(Samples samples) {

@@ -154,13 +154,13 @@ class StartExperimentDialog extends StatelessWidget {
     required void Function(SensorType) onSensorClick,
   }) {
     List<DropdownSensorWidget> widgetsList = [];
-    
+
     final uniqueSensors = availableSensors
         .where((sensor) => sensor != SensorType.unknown)
         .map((sensor) => sensor.format)
         .toSet()
         .toList();
-    
+
     for (var sensor in uniqueSensors) {
       final isGroupSelected = selectedSensors.any(
             (selected) => selected.format == sensor.format,
