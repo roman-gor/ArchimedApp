@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../extensions/build_context_local.dart';
-import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class ChartWidget extends StatefulWidget {
   const ChartWidget({

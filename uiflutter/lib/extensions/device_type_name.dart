@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 
-import '../states/bluetooth/bluetooth_states.dart';
+import '../states/bluetooth/sensor_types.dart';
 
 extension DeviceTypeName on DeviceType {
   String getName(BuildContext context) {

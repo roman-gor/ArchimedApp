@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 data class StatusDeviceData(
     val archimedesVersion: DeviceType = DeviceType.UNKNOWN,
     val experimentsInMemory: Byte = 0,
+    val availableDeviceSensors: List<SensorType> = emptyList(),
     val lastUsedSensorsType: List<SensorType> = emptyList(),
     val lastSamplesRates: Rates? = null,
     val lastSamplesCount: Samples? = null,

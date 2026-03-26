@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+
+import '../states/bluetooth/sensor_types.dart';
 
 extension SensorTypeLocal on SensorType {
   String getName(BuildContext context) {
@@ -36,53 +37,38 @@ extension SensorTypeLocal on SensorType {
       case SensorType.humidity: return context.strings.humidity;
       case SensorType.phSensor: return context.strings.ph_sensor;
       case SensorType.turbidity: return context.strings.turbidity;
-      case SensorType.colorimetric: return context.strings.turbidity;
+      case SensorType.colorimetric: return context.strings.colorimetric;
       case SensorType.unknown: return context.strings.unknown;
     }
   }
 }
 
-extension MeasureUnitsLocal on MeasureUnits {
-  String getName(BuildContext context) {
-    switch (this) {
-      case MeasureUnits.ntu: return context.strings.unit_ntu;
-      case MeasureUnits.beatsPerMin: return context.strings.unit_beats_per_min;
-      case MeasureUnits.amps: return context.strings.unit_milliamps;
-      case MeasureUnits.celsius: return context.strings.unit_celsius;
-      case MeasureUnits.volts: return context.strings.unit_volts;
-      case MeasureUnits.milliVolts: return context.strings.unit_millivolts;
-      case MeasureUnits.lux: return context.strings.unit_lux;
-      case MeasureUnits.klx: return context.strings.unit_klx;
-      case MeasureUnits.microSiemens: return context.strings.unit_microsiemens;
-      case MeasureUnits.milliSiemens: return context.strings.unit_millisiemens;
-      case MeasureUnits.bits: return context.strings.unit_bits;
-      case MeasureUnits.gForce: return context.strings.unit_g_force;
-      case MeasureUnits.milliTesla: return context.strings.unit_millitesla;
-      case MeasureUnits.kiloPascal: return context.strings.unit_kilopascal;
-      case MeasureUnits.mmHg: return context.strings.unit_mm_hg;
-      case MeasureUnits.percent: return context.strings.unit_percent;
-      case MeasureUnits.nothing: return context.strings.unit_nothing;
+extension SensorTypeGroup on SensorType {
+  List<SensorType> get sensorsGroup {
+    if(SensorType.lightSensorGroup.contains(this)) {
+      return SensorType.lightSensorGroup;
+    } else if (SensorType.voltageSensorGroup.contains(this)) {
+      return SensorType.voltageSensorGroup;
+    } else if (SensorType.accelerometerSensorGroup.contains(this)) {
+      return SensorType.accelerometerSensorGroup;
+    } else if (SensorType.conductivitySensorGroup.contains(this)) {
+      return SensorType.conductivitySensorGroup;
     }
+    return [];
   }
 }
 
-extension SamplesLocal on Samples {
-  int get count =>
-      switch(this) {
-        Samples.samples10 => 10,
-        Samples.samples100 => 100,
-        Samples.samples1000 => 1000,
-        Samples.samples10000 => 10000,
-      };
-}
-
-extension RatesLocal on Rates {
-  double get count =>
-      switch(this) {
-        Rates.rate1PerSec => 1,
-        Rates.rate10PerSec => 10,
-        Rates.rate100PerSec => 100,
-        Rates.rate20000PerSec => 20000,
-        Rates.rate1PerMin => 0.016
-      };
+extension SensorTypeFormat on SensorType {
+  SensorType get format {
+    if(SensorType.lightSensorGroup.contains(this)) {
+      return SensorType.lightLowSensitive;
+    } else if (SensorType.voltageSensorGroup.contains(this)) {
+      return SensorType.voltage2v;
+    } else if (SensorType.accelerometerSensorGroup.contains(this)) {
+      return SensorType.accelerometer2g;
+    } else if (SensorType.conductivitySensorGroup.contains(this)) {
+      return SensorType.conductivityLowSensitive;
+    }
+    return this;
+  }
 }

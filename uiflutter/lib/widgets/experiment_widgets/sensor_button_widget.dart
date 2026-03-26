@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/extensions/sensor_type_name.dart';
+import 'package:uiflutter/extensions/sensor_type_extensions.dart';
 
-import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class SensorButtonWidget extends StatelessWidget {
   const SensorButtonWidget({

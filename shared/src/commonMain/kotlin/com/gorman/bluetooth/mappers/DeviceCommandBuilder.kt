@@ -7,11 +7,6 @@ import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.createSensorsMask
 import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.parsers.setDateTimes
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.Instant
 
 object DeviceCommandBuilder {
     fun startLogging(

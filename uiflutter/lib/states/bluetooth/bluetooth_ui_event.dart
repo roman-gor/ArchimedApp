@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import 'package:uiflutter/states/bluetooth/sensor_types.dart';
 part 'bluetooth_ui_event.freezed.dart';
 part 'bluetooth_ui_event.g.dart';
 

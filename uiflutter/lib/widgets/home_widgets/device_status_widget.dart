@@ -3,6 +3,7 @@ import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 
 import '../../extensions/device_type_name.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class DeviceStatusWidget extends StatelessWidget {
   const DeviceStatusWidget({
@@ -56,6 +57,8 @@ class DeviceStatusWidget extends StatelessWidget {
                                 color: context.colors.onSurface,
                                 fontSize: 16,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(width: 4),
                             Icon(

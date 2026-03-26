@@ -39,9 +39,12 @@ class ArchimedApplication extends StatelessWidget {
                 secondary: Colors.white,
                 tertiary: Color(0xFFF3F9FF),
                 onTertiary: Color(0xFF0b74da),
+                primaryContainer: Color(0xFF99CCFF),
+                onPrimary: Color(0xFF0b74da),
                 surfaceContainer: Color(0xFF81D4FA),
                 secondaryContainer: Color(0xFF222222),
-                onSecondaryContainer: Color(0xFF9A9A9A)
+                onSecondaryContainer: Color(0xFF9A9A9A),
+                tertiaryContainer: Color(0xFFF3F9FF)
               ),
               extensions: const [
                 ThemeDimensions(
@@ -63,9 +66,12 @@ class ArchimedApplication extends StatelessWidget {
                 secondary: Color(0xFF10274E),
                 tertiary: Color(0xFF0B0D32),
                 onTertiary: Colors.white,
+                primaryContainer: Color(0xFF34628F),
+                onPrimary: Color(0xFF34628F),
                 surfaceContainer: Color(0xFF1A237E),
                 secondaryContainer: Color(0xFFFFFFFF),
-                onSecondaryContainer: Color(0xFFFFFCFC)
+                onSecondaryContainer: Color(0xFFFFFCFC),
+                tertiaryContainer: Color(0xFF0B0D32)
               ),
               extensions: const [
                 ThemeDimensions(

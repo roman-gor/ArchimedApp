@@ -72,5 +72,9 @@
   "system_theme_active": "Системная тема активна",
   "use_system_theme": "Использовать системную тему",
   "again": "Повторить",
-  "stop": "Остановить"
+  "stop": "Остановить",
+  "delete_history_warning": "История экспериментов будет очищена",
+  "confirm_delete": "Удалить",
+  "recording_rates_per_sec": "Частота записи в 1 сек",
+  "samples_amount_per_sec": "Количество записей в 1 сек"
 }

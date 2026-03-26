@@ -37,7 +37,7 @@ flutter:
   assets:
     - assets/images/bg_light.png
     - assets/images/bg_dark.png
-    - assets/images/main_image.svg
+    - assets/images/placeholder_history_image.svg
     - assets/images/ic_external.svg
     - assets/images/ic_ion.svg
     - assets/images/ic_barometer.svg
@@ -63,6 +63,7 @@ flutter:
     - assets/images/ic_ambient_temp_dark.svg
     - assets/images/ic_air_pressure.svg
     - assets/images/ic_gps.svg
+    - assets/images/ic_shimmer.svg
   generate: true
   module:
     androidX: true

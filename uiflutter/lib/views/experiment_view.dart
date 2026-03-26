@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_ui_event.dart';
 import 'package:uiflutter/widgets/experiment_widgets/chart_widget.dart';
@@ -7,6 +8,7 @@ import 'package:uiflutter/widgets/experiment_widgets/table_widget.dart';
 
 import '../cubits/bluetooth_cubit.dart';
 import '../states/bluetooth/bluetooth_states.dart';
+import '../states/bluetooth/sensor_types.dart';
 import '../widgets/experiment_widgets/sensors_block_widget.dart';
 
 class ExperimentView extends StatefulWidget {
@@ -69,16 +71,23 @@ class ExperimentViewState extends State<ExperimentView> {
           top: false,
           child: BlocBuilder<BluetoothCubit, BluetoothDeviceState?>(
             builder: (context, bluetoothState) {
-              final isOnlineLoading = bluetoothState?.isOnlineDataLoading ?? false;
-              final experimentData = bluetoothState?.experimentData ?? ExperimentsData();
-              final experimentOnlineData = bluetoothState?.experimentOnlineData 
-                  ?? ExperimentOnlineData();
+              final isOnlineLoading =
+                  bluetoothState?.isOnlineDataLoading ?? false;
+
+              final experimentData =
+                  bluetoothState?.experimentData ?? ExperimentsData();
+              final experimentOnlineData =
+                  bluetoothState?.experimentOnlineData ??
+                  ExperimentOnlineData();
+              final statusDeviceData =
+                  bluetoothState?.statusDeviceData ?? StatusDeviceData();
+
               final isExperimentLoading =
-                  bluetoothState?.isExperimentLoading ?? true;
+                  bluetoothState?.isExperimentDataLoading ?? true;
               if (isExperimentLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-              
+
               final sensorsData = _isOnlineData
                   ? experimentOnlineData.sensorsData
                   : experimentData.sensorsData;
@@ -87,8 +96,19 @@ class ExperimentViewState extends State<ExperimentView> {
                   ? experimentOnlineData.sensorsData.keys.toList()
                   : experimentData.activeSensors;
 
-              final actualSensor = bluetoothState?.selectedSensor ??
-                  (activeSensors.isNotEmpty ? activeSensors.first : SensorType.unknown);
+              final actualSensor =
+                  bluetoothState?.selectedSensor ??
+                  (activeSensors.isNotEmpty
+                      ? activeSensors.first
+                      : SensorType.unknown);
+
+              final lastSamplesRates = _isOnlineData
+                  ? statusDeviceData.lastSamplesRates
+                  : experimentData.sampleRate;
+
+              final lastSamplesCount = _isOnlineData
+                  ? statusDeviceData.lastSamplesCount
+                  : experimentData.samplesCount;
 
               return Padding(
                 padding: EdgeInsets.only(
@@ -160,10 +180,10 @@ class ExperimentViewState extends State<ExperimentView> {
                                     context.read<BluetoothCubit>().sendCommand(
                                       BluetoothUiEvent.onSendCommand(
                                         DeviceCommand.startLogging(
-                                          experimentData.activeSensors,
-                                          experimentData.sampleRate ??
+                                          activeSensors,
+                                          lastSamplesRates ??
                                               Rates.rate10PerSec,
-                                          experimentData.samplesCount ??
+                                          lastSamplesCount ??
                                               Samples.samples100,
                                           false,
                                         ),
@@ -190,7 +210,9 @@ class ExperimentViewState extends State<ExperimentView> {
                             ],
                           ),
                           Expanded(
-                            child: _isTableViewSelected
+                            child: sensorsData.isEmpty
+                                ? _shimmerWidget(context)
+                                : _isTableViewSelected
                                 ? TableWidget(sensorsData: sensorsData)
                                 : ChartWidget(
                                     sensorsData: sensorsData,
@@ -201,38 +223,7 @@ class ExperimentViewState extends State<ExperimentView> {
                       ),
                     ),
                     SizedBox(width: context.dimens.paddingLarge),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.max,
-                      spacing: context.dimens.paddingLarge,
-                      children: [
-                        _manageButtonWidget(
-                          context: context,
-                          icon: Icons.house_outlined,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        _manageButtonWidget(
-                          context: context,
-                          icon: Icons.color_lens_outlined,
-                          onPressed: () {},
-                        ),
-                        _manageButtonWidget(
-                          context: context,
-                          icon: _isTableViewSelected
-                              ? Icons.table_chart_outlined
-                              : Icons.stacked_line_chart_outlined,
-                          onPressed: () => setState(
-                            () => _isTableViewSelected = !_isTableViewSelected,
-                          ),
-                        ),
-                        _manageButtonWidget(
-                          context: context,
-                          icon: Icons.settings_outlined,
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
+                    _buildToolsBlock(context),
                   ],
                 ),
               );
@@ -240,6 +231,40 @@ class ExperimentViewState extends State<ExperimentView> {
           ),
         ),
       ),
+    );
+  }
+
+  Column _buildToolsBlock(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      spacing: context.dimens.paddingLarge,
+      children: [
+        _manageButtonWidget(
+          context: context,
+          icon: Icons.house_outlined,
+          onPressed: () => Navigator.pop(context),
+        ),
+        _manageButtonWidget(
+          context: context,
+          icon: Icons.color_lens_outlined,
+          onPressed: () {},
+        ),
+        _manageButtonWidget(
+          context: context,
+          icon: _isTableViewSelected
+              ? Icons.table_chart_outlined
+              : Icons.stacked_line_chart_outlined,
+          onPressed: () =>
+              setState(() => _isTableViewSelected = !_isTableViewSelected),
+        ),
+        _manageButtonWidget(
+          context: context,
+          icon: Icons.settings_outlined,
+          onPressed: () {},
+        ),
+      ],
     );
   }
 
@@ -263,6 +288,13 @@ class ExperimentViewState extends State<ExperimentView> {
           elevation: 4,
         ),
       ),
+    );
+  }
+
+  Widget _shimmerWidget(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: SvgPicture.asset("assets/images/ic_shimmer.svg"),
     );
   }
 }

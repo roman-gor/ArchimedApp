@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uiflutter/cubits/bluetooth_cubit.dart';
+import 'package:uiflutter/cubits/experiment_settings_cubit.dart';
 import 'package:uiflutter/cubits/home_tabs_cubit.dart';
 import 'package:uiflutter/cubits/permissions_cubit.dart';
 import 'package:uiflutter/cubits/theme_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/navigation/navigator_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 import 'package:uiflutter/views/experiment_view.dart';
+import 'package:uiflutter/widgets/experiment_widgets/start_experiment_dialog.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
@@ -16,6 +18,7 @@ import 'package:uiflutter/widgets/home_widgets/theme_tab_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import '../states/bluetooth/bluetooth_ui_event.dart';
+import '../states/bluetooth/sensor_types.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatefulWidget {
@@ -71,7 +74,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       providers: [
         BlocProvider.value(value: _permissionsCubit),
         BlocProvider.value(value: _bluetoothCubit),
-        BlocProvider.value(value: _homeTabsCubit),
+        BlocProvider.value(value: _homeTabsCubit)
       ],
       child: MultiBlocListener(
         listeners: [
@@ -133,12 +136,12 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                               bluetoothState?.selectedDeviceType,
                               currentDevice: currentDevice,
                               onListClick: () {
-                                if (permissionsState
-                                is PermissionsPermanentlyDenied) {
+                                if (permissionsState is PermissionsPermanentlyDenied) {
                                   showBluetoothDeniedDialog(context);
-                                } else if (permissionsState
-                                is PermissionsDenied) {
+                                } else if (permissionsState is PermissionsDenied) {
                                   showPermissionExplanationDialog(context);
+                                } else if (permissionsState is PermissionsInitial) {
+                                  _permissionsCubit.checkInitialPermissions();
                                 } else {
                                   _bluetoothCubit.sendCommand(
                                     BluetoothUiEvent.onStartScan(),
@@ -173,7 +176,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                           children: [
                                             ManagingBlockWidget(
                                               isDeviceConnected: _bluetoothCubit.isDeviceConnected,
-                                              isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
+                                              isExperimentsHistoryLoading: bluetoothState?.isExperimentsHistoryLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
                                               experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
                                               onExperimentClick: (id) => NavigatorLocal.goTo(
@@ -182,15 +185,30 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                                   child: ExperimentView(experimentId: id),
                                                 )
                                               ),
-                                              onStartExperiment: () => NavigatorLocal.goTo(
-                                                  BlocProvider.value(
-                                                    value: context.read<BluetoothCubit>(),
-                                                    child: ExperimentView(
-                                                      isOnlineExperiment: true,
-                                                      sensors: [SensorType.accelerometer4g, SensorType.airPressure],
-                                                    ),
-                                                  )
+                                              onStartExperiment: () => _showStartExperimentDialog(
+                                                context: context,
+                                                availableSensors: bluetoothState?.statusDeviceData.availableDeviceSensors ?? [], 
+                                                onDismiss: () => NavigatorLocal.goBack(), 
+                                                onStart: (settings) {
+                                                  NavigatorLocal.goBack();
+                                                  NavigatorLocal.goTo(
+                                                      BlocProvider.value(
+                                                        value: context.read<BluetoothCubit>(),
+                                                        child: ExperimentView(
+                                                          isOnlineExperiment: true,
+                                                          sensors: settings.sensors,
+                                                          sampleRate: settings.sampleRate,
+                                                          samplesCount: settings.samplesCount,
+                                                        ),
+                                                      )
+                                                  );
+                                                },
                                               ),
+                                              onClearMemory: () => _bluetoothCubit.sendCommand(
+                                                BluetoothUiEvent.onSendCommand(
+                                                  DeviceCommand.clearDeviceMemory()
+                                                )
+                                              )
                                             ),
                                             _buildMaterialsTab(),
                                             _buildDocsTab(),
@@ -307,5 +325,23 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     ).then((value) {
       _bluetoothCubit.sendCommand(BluetoothUiEvent.onStopScan());
     });
+  }
+  
+  void _showStartExperimentDialog({
+    required BuildContext context,
+    required List<SensorType> availableSensors,
+    required VoidCallback onDismiss,
+    required void Function(ExperimentSettings) onStart
+  }) {
+    showDialog(
+      context: context, 
+      builder: (BuildContext dialogContext) {
+        return StartExperimentDialog(
+            availableSensors: availableSensors, 
+            onDismiss: onDismiss, 
+            onStart: onStart
+        );
+      },
+    );
   }
 }

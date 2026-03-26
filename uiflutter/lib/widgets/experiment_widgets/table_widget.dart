@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:uiflutter/extensions/sensor_type_name.dart';
+import 'package:uiflutter/extensions/sensor_type_extensions.dart';
 
 import '../../extensions/build_context_local.dart';
-import '../../states/bluetooth/bluetooth_states.dart';
+import '../../extensions/measures_unit_extensions.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class TableWidget extends StatelessWidget {
   const TableWidget({super.key, required this.sensorsData});
@@ -36,7 +37,7 @@ class TableWidget extends StatelessWidget {
         IntrinsicColumnWidth(),
       );
     }
-    columnWidths[0] = FixedColumnWidth(40);
+    columnWidths[0] = FixedColumnWidth(60);
     return columnWidths;
   }
 
@@ -89,7 +90,7 @@ class TableWidget extends StatelessWidget {
         Center(
           child: Padding(
             padding: EdgeInsets.all(context.dimens.paddingMedium),
-            child: Text('${i + 1}'),
+            child: Text('${i + 1}', overflow: TextOverflow.ellipsis, maxLines: 1),
           ),
         ),
       ];
@@ -117,7 +118,7 @@ class TableWidget extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(context.dimens.paddingMedium),
               child: Text(
-                cellText,
+                "$cellText ${sensor.unit.getName(context)}",
                 style: TextStyle(color: context.colors.onSurface),
               ),
             ),

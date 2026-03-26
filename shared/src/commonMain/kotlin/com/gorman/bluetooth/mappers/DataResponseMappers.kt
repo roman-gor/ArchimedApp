@@ -11,11 +11,12 @@ import com.gorman.bluetooth.constants.toChartData
 import com.gorman.bluetooth.constants.toSensorsList
 import com.gorman.bluetooth.models.DeviceResponse
 
-fun DeviceResponse.StatusDeviceData.toUiState(availableSensors: List<Byte>): StatusDeviceData =
+fun DeviceResponse.StatusDeviceData.toUiState(availableSensors: Map<SensorType, Byte>): StatusDeviceData =
     StatusDeviceData(
         archimedesVersion = archimedesVersion,
+        availableDeviceSensors = availableSensors.keys.toList(),
         experimentsInMemory = experimentsInMemory,
-        lastUsedSensorsType = lastUsedSensors.toSensorsList(availableSensors),
+        lastUsedSensorsType = lastUsedSensors.toSensorsList(availableSensors.values.toList()),
         lastSamplesRates = Rates.entries.firstOrNull { it.byte == lastSamplesRate },
         lastSamplesCount = Samples.entries.firstOrNull { it.byte == lastSamplesCount },
         dateTime = dateTime,
