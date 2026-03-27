@@ -25,7 +25,6 @@ class SensorButtonWidget extends StatelessWidget {
           : BoxConstraints(),
       child: SizedBox(
         height: context.dimens.sizeMedium,
-        width: 120,
         child: Container(
           decoration: BoxDecoration(
             color: context.colors.tertiary,
@@ -67,6 +66,7 @@ class SensorButtonWidget extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    SizedBox(width: 2)
                   ],
                 ),
               ),

@@ -35,7 +35,7 @@ class DevicesSelectDialog extends StatelessWidget {
             children: [
               Text(
                 context.strings.available_devices,
-                style: context.textStyle.titleMedium?.copyWith(
+                style: context.textStyle.bodyLarge?.copyWith(
                     color: context.colors.onSurface
                 )
               ),

@@ -54,7 +54,7 @@ class DeviceStatusWidget extends StatelessWidget {
                             Text(
                               selectedDeviceType?.getName(context) ?? 
                                   DeviceType.unknown.getName(context),
-                              style: context.textStyle.bodyLarge?.copyWith(
+                              style: context.textStyle.titleMedium?.copyWith(
                                 color: context.colors.onSurface,
                               ),
                               maxLines: 1,
@@ -109,7 +109,7 @@ class DeviceStatusWidget extends StatelessWidget {
         SizedBox(width: 4),
         Text(
           title,
-          style: context.textStyle.bodyLarge?.copyWith(
+          style: context.textStyle.titleMedium?.copyWith(
             color: context.colors.onSurface,
           ),
         ),
@@ -131,7 +131,7 @@ class DeviceStatusWidget extends StatelessWidget {
         ),
         Text(
           context.strings.not_connected,
-          style: context.textStyle.bodyLarge?.copyWith(
+          style: context.textStyle.titleMedium?.copyWith(
             color: context.colors.onSurface,
           ),
         ),
