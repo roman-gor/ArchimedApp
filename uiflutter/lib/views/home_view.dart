@@ -120,117 +120,129 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                       bluetoothState?.devices[bluetoothState.selectedDeviceId];
 
                   return BlocBuilder<PermissionsCubit, PermissionsState>(
-                    builder: (context, permissionsState) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          left: context.dimens.paddingLarge,
-                          right: context.dimens.paddingLarge,
-                          bottom: context.dimens.paddingLarge,
-                          top: context.dimens.paddingExtraLarge,
+                    builder: (context, permissionsState) => 
+                        _buildHomeViewContent(
+                            context, 
+                            bluetoothState, 
+                            currentDevice, 
+                            permissionsState
                         ),
-                        child: Column(
-                          spacing: context.dimens.paddingMedium,
-                          children: [
-                            DeviceStatusWidget(
-                              selectedDeviceType:
-                              bluetoothState?.selectedDeviceType,
-                              currentDevice: currentDevice,
-                              onListClick: () {
-                                if (permissionsState is PermissionsPermanentlyDenied) {
-                                  showBluetoothDeniedDialog(context);
-                                } else if (permissionsState is PermissionsDenied) {
-                                  showPermissionExplanationDialog(context);
-                                } else if (permissionsState is PermissionsInitial) {
-                                  _permissionsCubit.checkInitialPermissions();
-                                } else {
-                                  _bluetoothCubit.sendCommand(
-                                    BluetoothUiEvent.onStartScan(),
-                                  );
-                                  showDevicesSelectedDialog(
-                                    context,
-                                    onDeviceClick: (String deviceId) {
-                                      _bluetoothCubit.sendCommand(
-                                        BluetoothUiEvent.onConnect(deviceId),
-                                      );
-                                    },
-                                    currentState: bluetoothState,
-                                  );
-                                }
-                              },
-                            ),
-                            Expanded(
-                              child: BlocBuilder<HomeTabsCubit, HomeTabs>(
-                                builder: (context, currentTab) {
-                                  return Row(
-                                    spacing: context.dimens.paddingMedium,
-                                    children: [
-                                      ToolsBlock(
-                                        selectedTab: currentTab,
-                                        onTabClick: (tab) {
-                                          _homeTabsCubit.switchTab(tab);
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: IndexedStack(
-                                          index: currentTab.index,
-                                          children: [
-                                            ManagingBlockWidget(
-                                              isDeviceConnected: _bluetoothCubit.isDeviceConnected,
-                                              isExperimentsHistoryLoading: bluetoothState?.isExperimentsHistoryLoading ?? true,
-                                              deviceType: bluetoothState?.selectedDeviceType,
-                                              experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
-                                              onExperimentClick: (id) => NavigatorLocal.goTo(
-                                                BlocProvider.value(
-                                                  value: context.read<BluetoothCubit>(),
-                                                  child: ExperimentView(experimentId: id),
-                                                )
-                                              ),
-                                              onStartExperiment: () => _showStartExperimentDialog(
-                                                context: context,
-                                                availableSensors: bluetoothState?.statusDeviceData.availableDeviceSensors ?? [], 
-                                                onDismiss: () => NavigatorLocal.goBack(), 
-                                                onStart: (settings) {
-                                                  NavigatorLocal.goBack();
-                                                  NavigatorLocal.goTo(
-                                                      BlocProvider.value(
-                                                        value: context.read<BluetoothCubit>(),
-                                                        child: ExperimentView(
-                                                          isOnlineExperiment: true,
-                                                          sensors: settings.sensors,
-                                                          sampleRate: settings.sampleRate,
-                                                          samplesCount: settings.samplesCount,
-                                                        ),
-                                                      )
-                                                  );
-                                                },
-                                              ),
-                                              onClearMemory: () => _bluetoothCubit.sendCommand(
-                                                BluetoothUiEvent.onSendCommand(
-                                                  DeviceCommand.clearDeviceMemory()
-                                                )
-                                              )
-                                            ),
-                                            _buildMaterialsTab(),
-                                            _buildDocsTab(),
-                                            ThemeTabWidget(),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
                   );
                 },
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Padding _buildHomeViewContent(
+      BuildContext context, 
+      BluetoothDeviceState? bluetoothState, 
+      EnhancedBluetoothPeripheral? currentDevice, 
+      PermissionsState permissionsState) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: context.dimens.paddingLarge,
+        right: context.dimens.paddingLarge,
+        bottom: context.dimens.paddingLarge,
+        top: context.dimens.paddingExtraLarge,
+      ),
+      child: Column(
+        spacing: context.dimens.paddingMedium,
+        children: [
+          DeviceStatusWidget(
+            selectedDeviceType:
+            bluetoothState?.selectedDeviceType,
+            currentDevice: currentDevice,
+            onListClick: () {
+              if (permissionsState is PermissionsPermanentlyDenied) {
+                showBluetoothDeniedDialog(context);
+              } else if (permissionsState is PermissionsDenied) {
+                showPermissionExplanationDialog(context);
+              } else if (permissionsState is PermissionsInitial) {
+                _permissionsCubit.checkInitialPermissions();
+              } else {
+                _bluetoothCubit.sendCommand(
+                  BluetoothUiEvent.onStartScan(),
+                );
+                showDevicesSelectedDialog(
+                  context,
+                  onDeviceClick: (String deviceId) {
+                    _bluetoothCubit.sendCommand(
+                      BluetoothUiEvent.onConnect(deviceId),
+                    );
+                  },
+                  currentState: bluetoothState,
+                );
+              }
+            },
+          ),
+          Expanded(
+            child: BlocBuilder<HomeTabsCubit, HomeTabs>(
+              builder: (context, currentTab) {
+                return Row(
+                  spacing: context.dimens.paddingMedium,
+                  children: [
+                    ToolsBlock(
+                      selectedTab: currentTab,
+                      onTabClick: (tab) {
+                        _homeTabsCubit.switchTab(tab);
+                      },
+                    ),
+                    Expanded(
+                      child: IndexedStack(
+                        index: currentTab.index,
+                        children: [
+                          ManagingBlockWidget(
+                            isDeviceConnected: _bluetoothCubit.isDeviceConnected,
+                            isExperimentsHistoryLoading: bluetoothState?.isExperimentsHistoryLoading ?? true,
+                            deviceType: bluetoothState?.selectedDeviceType,
+                            experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
+                            onExperimentClick: (id) => NavigatorLocal.goTo(
+                              BlocProvider.value(
+                                value: context.read<BluetoothCubit>(),
+                                child: ExperimentView(experimentId: id),
+                              )
+                            ),
+                            onStartExperiment: () => _showStartExperimentDialog(
+                              context: context,
+                              availableSensors: bluetoothState?.statusDeviceData.availableDeviceSensors ?? [], 
+                              onDismiss: () => NavigatorLocal.goBack(), 
+                              onStart: (settings) {
+                                NavigatorLocal.goBack();
+                                NavigatorLocal.goTo(
+                                    BlocProvider.value(
+                                      value: context.read<BluetoothCubit>(),
+                                      child: ExperimentView(
+                                        isOnlineExperiment: true,
+                                        sensors: settings.sensors,
+                                        sampleRate: settings.sampleRate,
+                                        samplesCount: settings.samplesCount,
+                                      ),
+                                    )
+                                );
+                              },
+                            ),
+                            onClearMemory: () => _bluetoothCubit.sendCommand(
+                              BluetoothUiEvent.onSendCommand(
+                                DeviceCommand.clearDeviceMemory()
+                              )
+                            )
+                          ),
+                          _buildMaterialsTab(),
+                          _buildDocsTab(),
+                          ThemeTabWidget(),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

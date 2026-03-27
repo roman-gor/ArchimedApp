@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:uiflutter/cubits/experiment_ui_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_ui_event.dart';
 import 'package:uiflutter/widgets/experiment_widgets/chart_widget.dart';
 import 'package:uiflutter/widgets/experiment_widgets/table_widget.dart';
 
 import '../cubits/bluetooth_cubit.dart';
-import '../states/bluetooth/bluetooth_states.dart';
 import '../states/bluetooth/sensor_types.dart';
 import '../widgets/experiment_widgets/sensors_block_widget.dart';
 
@@ -34,11 +34,21 @@ class ExperimentView extends StatefulWidget {
 class ExperimentViewState extends State<ExperimentView> {
   bool _isTableViewSelected = false;
   late bool _isOnlineData;
+  late ExperimentUiCubit _experimentUiCubit;
 
   @override
   void initState() {
     final bluetoothCubit = context.read<BluetoothCubit>();
     _isOnlineData = widget.isOnlineExperiment;
+    _experimentUiCubit = ExperimentUiCubit(
+      bluetoothCubit: bluetoothCubit, 
+      isOnlineData: _isOnlineData,
+    );
+    initStateData(bluetoothCubit);
+    super.initState();
+  }
+
+  void initStateData(BluetoothCubit bluetoothCubit) {
     if (_isOnlineData) {
       bluetoothCubit.sendCommand(
         BluetoothUiEvent.onSendCommand(
@@ -57,7 +67,12 @@ class ExperimentViewState extends State<ExperimentView> {
         ),
       );
     }
-    super.initState();
+  }
+  
+  @override
+  void dispose() {
+    _experimentUiCubit.close();
+    super.dispose();
   }
 
   @override
@@ -69,167 +84,134 @@ class ExperimentViewState extends State<ExperimentView> {
         body: SafeArea(
           bottom: false,
           top: false,
-          child: BlocBuilder<BluetoothCubit, BluetoothDeviceState?>(
-            builder: (context, bluetoothState) {
-              final isOnlineLoading =
-                  bluetoothState?.isOnlineDataLoading ?? false;
+          child: BlocProvider(
+            create: (context) => _experimentUiCubit,
+            child: BlocBuilder<ExperimentUiCubit, ExperimentUiState>(
+              builder: (context, state) => _buildExperimentViewContent(context, state),
+            ),
+          )
+        ),
+      ),
+    );
+  }
 
-              final experimentData =
-                  bluetoothState?.experimentData ?? ExperimentsData();
-              final experimentOnlineData =
-                  bluetoothState?.experimentOnlineData ??
-                  ExperimentOnlineData();
-              final statusDeviceData =
-                  bluetoothState?.statusDeviceData ?? StatusDeviceData();
-
-              final isExperimentLoading =
-                  bluetoothState?.isExperimentDataLoading ?? true;
-              if (isExperimentLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final sensorsData = _isOnlineData
-                  ? experimentOnlineData.sensorsData
-                  : experimentData.sensorsData;
-
-              final activeSensors = _isOnlineData
-                  ? experimentOnlineData.sensorsData.keys.toList()
-                  : experimentData.activeSensors;
-
-              final actualSensor =
-                  bluetoothState?.selectedSensor ??
-                  (activeSensors.isNotEmpty
-                      ? activeSensors.first
-                      : SensorType.unknown);
-
-              final lastSamplesRates = _isOnlineData
-                  ? statusDeviceData.lastSamplesRates
-                  : experimentData.sampleRate;
-
-              final lastSamplesCount = _isOnlineData
-                  ? statusDeviceData.lastSamplesCount
-                  : experimentData.samplesCount;
-
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: context.dimens.paddingExtraLarge,
-                  right: context.dimens.paddingExtraLarge,
-                  bottom: context.dimens.paddingExtraLarge,
-                  top: 40,
-                ),
-                child: Row(
-                  spacing: context.dimens.paddingLarge,
+  Widget _buildExperimentViewContent(BuildContext context, ExperimentUiState state) {
+    if (state.isExperimentDataLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Padding(
+      padding: EdgeInsets.only(
+        left: context.dimens.paddingExtraLarge,
+        right: context.dimens.paddingExtraLarge,
+        bottom: context.dimens.paddingExtraLarge,
+        top: 40,
+      ),
+      child: Row(
+        spacing: context.dimens.paddingLarge,
+        children: [
+          Expanded(
+            child: Column(
+              spacing: context.dimens.paddingLarge,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Column(
-                        spacing: context.dimens.paddingLarge,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: SensorsBlockWidget(
-                                  sensors: activeSensors,
-                                  selectedSensor:
-                                      bluetoothState?.selectedSensor ??
-                                      SensorType.unknown,
-                                  onSensorClick: (sensor) {
-                                    context.read<BluetoothCubit>().selectSensor(
-                                      sensor,
-                                    );
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: context.dimens.paddingExtraLarge),
-                              if (isOnlineLoading) ...[
-                                ElevatedButton(
-                                  onPressed: () => context
-                                      .read<BluetoothCubit>()
-                                      .sendCommand(
-                                        BluetoothUiEvent.onSendCommand(
-                                          DeviceCommand.stopLogging(),
-                                        ),
-                                      ),
-                                  style: ElevatedButton.styleFrom(
-                                    side: BorderSide(
-                                      color: Colors.red.withValues(
-                                        alpha: context.opacities.medium,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.red.withValues(
-                                      alpha: context.opacities.low,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(36),
-                                    ),
-                                    minimumSize: const Size(120, 44),
-                                  ),
-                                  child: Text(
-                                    context.strings.stop,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ] else ...[
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _isOnlineData = true;
-                                    context.read<BluetoothCubit>().sendCommand(
-                                      BluetoothUiEvent.onSendCommand(
-                                        DeviceCommand.startLogging(
-                                          activeSensors,
-                                          lastSamplesRates ??
-                                              Rates.rate10PerSec,
-                                          lastSamplesCount ??
-                                              Samples.samples100,
-                                          false,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: context.colors.primary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(36),
-                                    ),
-                                    minimumSize: const Size(120, 44),
-                                  ),
-                                  child: Text(
-                                    context.strings.again,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          Expanded(
-                            child: sensorsData.isEmpty
-                                ? _shimmerWidget(context)
-                                : _isTableViewSelected
-                                ? TableWidget(sensorsData: sensorsData)
-                                : ChartWidget(
-                                    sensorsData: sensorsData,
-                                    currentSensor: actualSensor,
-                                  ),
-                          ),
-                        ],
+                      child: SensorsBlockWidget(
+                        sensors: state.activeSensors,
+                        selectedSensor:
+                        state.actualSensor,
+                        onSensorClick: (sensor) {
+                          context.read<BluetoothCubit>().selectSensor(
+                            sensor,
+                          );
+                        },
                       ),
                     ),
-                    SizedBox(width: context.dimens.paddingLarge),
-                    _buildToolsBlock(context),
+                    SizedBox(width: context.dimens.paddingExtraLarge),
+                    if (state.isOnlineLoading) ...[
+                      ElevatedButton(
+                        onPressed: () => context
+                            .read<BluetoothCubit>()
+                            .sendCommand(
+                          BluetoothUiEvent.onSendCommand(
+                            DeviceCommand.stopLogging(),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          side: BorderSide(
+                            color: Colors.red.withValues(
+                              alpha: context.opacities.medium,
+                            ),
+                          ),
+                          backgroundColor: Colors.red.withValues(
+                            alpha: context.opacities.low,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(36),
+                          ),
+                          minimumSize: const Size(120, 44),
+                        ),
+                        child: Text(
+                          context.strings.stop,
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() => _isOnlineData = true);
+                          _experimentUiCubit.setOnlineMode(true);
+                          context.read<BluetoothCubit>().sendCommand(
+                            BluetoothUiEvent.onSendCommand(
+                              DeviceCommand.startLogging(
+                                state.activeSensors,
+                                state.sampleRate ?? Rates.rate10PerSec,
+                                state.samplesCount ?? Samples.samples100,
+                                false,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.colors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(36),
+                          ),
+                          minimumSize: const Size(120, 44),
+                        ),
+                        child: Text(
+                          context.strings.again,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              );
-            },
+                Expanded(
+                  child: state.sensorsData.isEmpty
+                      ? _shimmerWidget(context)
+                      : _isTableViewSelected
+                      ? TableWidget(sensorsData: state.sensorsData)
+                      : ChartWidget(
+                    sensorsData: state.sensorsData,
+                    currentSensor: state.actualSensor,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+          SizedBox(width: context.dimens.paddingLarge),
+          _buildToolsBlock(context),
+        ],
       ),
     );
   }

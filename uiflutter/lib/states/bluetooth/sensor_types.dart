@@ -234,6 +234,14 @@ enum SensorType {
     maxValue: 100.0,
     valueAmount: 1,
   ),
+  @JsonValue('GPS') gps(
+    unit: MeasureUnits.nothing,
+    imagePath: "assets/images/ic_gps.svg",
+    color: Color(0xFF2E1F84),
+    minValue: 0.0,
+    maxValue: 65535.0,
+    valueAmount: 1,
+  ),
   @JsonValue('PH_SENSOR') phSensor(
     unit: MeasureUnits.microSiemens,
     imagePath: "assets/images/ic_ph.svg",

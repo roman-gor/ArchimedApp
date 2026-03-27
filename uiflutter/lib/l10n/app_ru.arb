@@ -50,6 +50,7 @@
   "ph_sensor": "pH",
   "turbidity": "Турбидиметр",
   "colorimetric": "Колориметр",
+  "gps": "GPS",
   "unknown_sensor": "Неизвестный датчик",
   "unit_milliamps": "мА",
   "unit_beats_per_min": "уд/мин",
