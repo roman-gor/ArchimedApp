@@ -44,7 +44,9 @@ class CapsuleSelectWidget extends StatelessWidget{
                 segments: elementsList.map((element) => ButtonSegment<int>(
                   value: element,
                   label: Text(
-                    element.toString(), style: const TextStyle(fontSize: 14)),
+                    element.toString(), 
+                    style: context.textStyle.bodyMedium,
+                  ),
                 )).toList(),
                 selected: { selectedValue },
                 onSelectionChanged: (elements) => onElementClick(elements.first),

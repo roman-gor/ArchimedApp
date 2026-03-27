@@ -12,7 +12,7 @@ class ColoredButtonWidget extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 150),
       child: SizedBox(
-        height: 40,
+        height: context.dimens.sizeMedium,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
@@ -24,10 +24,8 @@ class ColoredButtonWidget extends StatelessWidget {
           ),
           child: Text(
             text,
-            style: const TextStyle(
+            style: context.textStyle.bodyLarge?.copyWith(
               color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,

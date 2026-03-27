@@ -14,11 +14,9 @@ class LoadingConnectionWidget extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
+          style: context.textStyle.bodyMedium?.copyWith(
             color: context.colors.onSurface.withValues(alpha: context.opacities.high),
-          ),
+          )
         ),
         SizedBox(
           height: 20,

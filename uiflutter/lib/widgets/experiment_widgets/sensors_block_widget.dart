@@ -19,7 +19,7 @@ class SensorsBlockWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: context.dimens.sizeMedium + 4,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: context.dimens.paddingMedium),

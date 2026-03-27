@@ -43,8 +43,8 @@ class StartExperimentDialog extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: context.dimens.paddingLarge,
-                vertical: context.dimens.paddingLarge,
+                horizontal: context.dimens.paddingExtraLarge,
+                vertical: context.dimens.paddingExtraLarge,
               ),
               child: Column(
                 spacing: context.dimens.paddingLarge,
@@ -78,48 +78,90 @@ class StartExperimentDialog extends StatelessWidget {
                                   )
                               ),
                             ),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    context.strings.recording_rates_per_sec,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w400,
-                                        color: context.colors.onSurface
+                            if (context.isMobile) ...[
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      context.strings.recording_rates_per_sec,
+                                      style: context.textStyle.bodyLarge?.copyWith(
+                                        color: context.colors.onSurface,
+                                      )
                                     ),
-                                  ),
-                                  CapsuleSelectWidget(
-                                    onElementClick: (element) =>
-                                        context
-                                            .read<ExperimentSettingsCubit>()
-                                            .setRate(element.rateType),
-                                    selectedValue: selectedRates.count.toInt(),
-                                    elementsList: Rates.values.map((rate) => rate.count.toInt()).toList(),
-                                  ),
-                                ]
-                            ),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    context.strings.samples_amount_per_sec,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w400,
-                                        color: context.colors.onSurface
+                                    CapsuleSelectWidget(
+                                      onElementClick: (element) =>
+                                          context
+                                              .read<ExperimentSettingsCubit>()
+                                              .setRate(element.rateType),
+                                      selectedValue: selectedRates.count.toInt(),
+                                      elementsList: Rates.values.map((rate) => rate.count.toInt()).toList(),
                                     ),
-                                  ),
-                                  CapsuleSelectWidget(
-                                    onElementClick: (element) =>
-                                        context
-                                            .read<ExperimentSettingsCubit>()
-                                            .setSamples(element.samplesType),
-                                    selectedValue: selectedSamples.count.toInt(),
-                                    elementsList: Samples.values.map((samples) => samples.count.toInt()).toList(),
-                                  ),
-                                ]
-                            ),
+                                  ]
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      context.strings.samples_amount_per_sec,
+                                      style: context.textStyle.bodyLarge?.copyWith(
+                                        color: context.colors.onSurface,
+                                      ),
+                                    ),
+                                    CapsuleSelectWidget(
+                                      onElementClick: (element) =>
+                                          context
+                                              .read<ExperimentSettingsCubit>()
+                                              .setSamples(element.samplesType),
+                                      selectedValue: selectedSamples.count.toInt(),
+                                      elementsList: Samples.values.map((samples) => samples.count.toInt()).toList(),
+                                    ),
+                                  ]
+                              ),
+                            ] else ...[
+                              Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      context.strings.recording_rates_per_sec,
+                                      style: context.textStyle.bodyLarge?.copyWith(
+                                        color: context.colors.onSurface,
+                                      ),
+                                    ),
+                                    SizedBox(height: context.dimens.paddingMedium,),
+                                    CapsuleSelectWidget(
+                                      onElementClick: (element) =>
+                                          context
+                                              .read<ExperimentSettingsCubit>()
+                                              .setRate(element.rateType),
+                                      selectedValue: selectedRates.count.toInt(),
+                                      elementsList: Rates.values.map((rate) => rate.count.toInt()).toList(),
+                                    ),
+                                  ]
+                              ),
+                              SizedBox(height: context.dimens.paddingMedium,),
+                              Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      context.strings.samples_amount_per_sec,
+                                      style: context.textStyle.bodyLarge?.copyWith(
+                                        color: context.colors.onSurface,
+                                      ),
+                                    ),
+                                    SizedBox(height: context.dimens.paddingMedium,),
+                                    CapsuleSelectWidget(
+                                      onElementClick: (element) =>
+                                          context
+                                              .read<ExperimentSettingsCubit>()
+                                              .setSamples(element.samplesType),
+                                      selectedValue: selectedSamples.count.toInt(),
+                                      elementsList: Samples.values.map((samples) => samples.count.toInt()).toList(),
+                                    ),
+                                  ]
+                              ),
+                            ]
                           ],
                         ),
                       )

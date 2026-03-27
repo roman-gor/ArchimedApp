@@ -35,9 +35,11 @@ class DevicesSelectDialog extends StatelessWidget {
             children: [
               Text(
                 context.strings.available_devices,
-                style: TextStyle(fontSize: 16, color: context.colors.onSurface),
+                style: context.textStyle.titleMedium?.copyWith(
+                    color: context.colors.onSurface
+                )
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dimens.paddingLarge),
               Expanded(
                 child: ListView.builder(
                   itemCount: devicesList.length,
@@ -55,13 +57,9 @@ class DevicesSelectDialog extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.all(context.dimens.paddingMedium),
-                child: SizedBox(
-                  width: 120,
-                  height: 40,
-                  child: UncoloredButtonWidget(
-                    text: context.strings.close,
-                    onPressed: onCloseDialog,
-                  ),
+                child: UncoloredButtonWidget(
+                  text: context.strings.close,
+                  onPressed: onCloseDialog,
                 ),
               ),
             ],
@@ -98,10 +96,8 @@ class DevicesSelectDialog extends StatelessWidget {
                   device.peripheral.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: context.colors.onSurface,
+                  style: context.textStyle.bodyLarge?.copyWith(
+                    color: context.colors.onSurface
                   ),
                 ),
               ),
@@ -130,7 +126,7 @@ class DevicesSelectDialog extends StatelessWidget {
               color: context.colors.onSurface.withValues(alpha: context.opacities.high),
             ),
           ),
-          const Icon(Icons.check_circle, color: Colors.green, size: 28),
+          Icon(Icons.check_circle, color: Colors.green, size: 28),
         ],
       ),
       connecting: () =>

@@ -51,9 +51,9 @@ class TableWidget extends StatelessWidget {
       Center(
         child: Padding(
           padding: EdgeInsets.all(context.dimens.paddingMedium),
-          child: Text('№', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text('№', style: context.textStyle.titleSmall),
         ),
-      ),
+      )
     ];
     for (var sensor in activeSensors) {
       headerCells.add(
@@ -62,7 +62,7 @@ class TableWidget extends StatelessWidget {
             padding: EdgeInsets.all(context.dimens.paddingMedium),
             child: Text(
               sensor.getName(context),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: context.textStyle.titleSmall,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -90,7 +90,11 @@ class TableWidget extends StatelessWidget {
         Center(
           child: Padding(
             padding: EdgeInsets.all(context.dimens.paddingMedium),
-            child: Text('${i + 1}', overflow: TextOverflow.ellipsis, maxLines: 1),
+            child: Text(
+              '${i + 1}', 
+              overflow: TextOverflow.ellipsis, 
+              maxLines: 1,
+              style: context.textStyle.titleSmall,),
           ),
         ),
       ];
@@ -100,26 +104,15 @@ class TableWidget extends StatelessWidget {
         final valuesCount = sensor.valueAmount;
         String cellText = '-';
 
-        if (i * valuesCount < rawData.length) {
-          if (valuesCount == 1) {
-            cellText = rawData[i].toStringAsFixed(2);
-          } else {
-            List<String> axes = [];
-            for (int j = 0; j < valuesCount; j++) {
-              if (i * valuesCount + j < rawData.length) {
-                axes.add(rawData[i * valuesCount + j].toStringAsFixed(2));
-              }
-            }
-            cellText = axes.join(' | ');
-          }
-        }
+        cellText = defineCellText(i, valuesCount, rawData, cellText);
+        
         rowCells.add(
           Center(
             child: Padding(
               padding: EdgeInsets.all(context.dimens.paddingMedium),
               child: Text(
                 "$cellText ${sensor.unit.getName(context)}",
-                style: TextStyle(color: context.colors.onSurface),
+                style: context.textStyle.titleSmall,
               ),
             ),
           ),
@@ -128,5 +121,22 @@ class TableWidget extends StatelessWidget {
       tableRows.add(TableRow(children: rowCells));
     }
     return tableRows;
+  }
+
+  String defineCellText(int i, int valuesCount, List<double> rawData, String cellText) {
+    if (i * valuesCount < rawData.length) {
+      if (valuesCount == 1) {
+        cellText = rawData[i].toStringAsFixed(2);
+      } else {
+        List<String> axes = [];
+        for (int j = 0; j < valuesCount; j++) {
+          if (i * valuesCount + j < rawData.length) {
+            axes.add(rawData[i * valuesCount + j].toStringAsFixed(2));
+          }
+        }
+        cellText = axes.join(' | ');
+      }
+    }
+    return cellText;
   }
 }

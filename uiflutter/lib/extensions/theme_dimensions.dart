@@ -7,7 +7,11 @@ class ThemeDimensions extends ThemeExtension<ThemeDimensions> {
     required this.paddingMedium,
     required this.paddingLarge,
     required this.paddingExtraLarge,
-    required this.borderRadius
+    required this.borderRadius,
+    required this.sizeExtraSmall,
+    required this.sizeSmall,
+    required this.sizeMedium,
+    required this.sizeLarge
   });
 
   final double paddingSmall;
@@ -15,6 +19,10 @@ class ThemeDimensions extends ThemeExtension<ThemeDimensions> {
   final double paddingLarge;
   final double paddingExtraLarge;
   final double borderRadius;
+  final double sizeExtraSmall;
+  final double sizeSmall;
+  final double sizeMedium;
+  final double sizeLarge;
 
   @override
   ThemeExtension<ThemeDimensions> copyWith({
@@ -22,14 +30,22 @@ class ThemeDimensions extends ThemeExtension<ThemeDimensions> {
     double? paddingMedium,
     double? paddingLarge,
     double? paddingExtraLarge,
-    double? borderRadius
+    double? borderRadius,
+    double? sizeExtraSmall,
+    double? sizeSmall,
+    double? sizeMedium,
+    double? sizeLarge
   }) {
     return ThemeDimensions(
       paddingSmall: paddingSmall ?? this.paddingSmall,
       paddingMedium: paddingMedium ?? this.paddingMedium,
       paddingLarge: paddingLarge ?? this.paddingLarge,
       paddingExtraLarge: paddingExtraLarge ?? this.paddingExtraLarge,
-      borderRadius: borderRadius ?? this.borderRadius
+      borderRadius: borderRadius ?? this.borderRadius,
+      sizeExtraSmall: sizeExtraSmall ?? this.sizeExtraSmall,
+      sizeSmall: sizeSmall ?? this.sizeSmall,
+      sizeMedium: sizeMedium ?? this.sizeMedium,
+      sizeLarge: sizeLarge ?? this.sizeLarge,
     );
   }
 
@@ -44,7 +60,11 @@ class ThemeDimensions extends ThemeExtension<ThemeDimensions> {
       paddingMedium: lerpDouble(paddingMedium, other.paddingMedium, t) ?? paddingMedium,
       paddingLarge: lerpDouble(paddingLarge, other.paddingLarge, t) ?? paddingLarge,
       paddingExtraLarge: lerpDouble(paddingExtraLarge, other.paddingExtraLarge, t) ?? paddingExtraLarge,
-      borderRadius: lerpDouble(borderRadius, other.borderRadius, t) ?? borderRadius
+      borderRadius: lerpDouble(borderRadius, other.borderRadius, t) ?? borderRadius,
+      sizeExtraSmall: lerpDouble(sizeExtraSmall, other.sizeExtraSmall, t) ?? sizeExtraSmall,
+      sizeSmall: lerpDouble(sizeSmall, other.sizeSmall, t) ?? sizeSmall,
+      sizeMedium: lerpDouble(sizeMedium, other.sizeMedium, t) ?? sizeMedium,
+      sizeLarge: lerpDouble(sizeLarge, other.sizeLarge, t) ?? sizeLarge,
     );
   }
 }

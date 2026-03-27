@@ -40,24 +40,23 @@ class DefaultDialogWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(context.dimens.paddingLarge),
                   decoration: BoxDecoration(
                     color: bgColor.withValues(alpha: context.opacities.low),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
-                    size: 28,
+                    size: context.dimens.sizeSmall,
                     color: bgColor,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: context.dimens.paddingLarge),
                 Expanded(
                   child: Text(
                     text,
-                    style: TextStyle(
+                    style: context.textStyle.titleMedium?.copyWith(
                       color: context.colors.onSurface,
-                      fontSize: 16,
                       height: 1.3,
                     ),
                     maxLines: 3,
@@ -69,7 +68,7 @@ class DefaultDialogWidget extends StatelessWidget {
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 16,
+              spacing: context.dimens.paddingLarge,
               children: [
                 UncoloredButtonWidget(
                   text: dismissText,

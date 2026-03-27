@@ -54,7 +54,7 @@ class ToolsBlock extends StatelessWidget {
         child: Icon(
           tab.icon,
           color: context.colors.primary,
-          size: 30,
+          size: context.dimens.sizeSmall,
         ),
       ),
     );
