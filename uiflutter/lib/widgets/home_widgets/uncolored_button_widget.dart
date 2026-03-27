@@ -13,7 +13,7 @@ class UncoloredButtonWidget extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: 150),
       child: SizedBox(
-        height: 40,
+        height: context.dimens.sizeMedium,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
@@ -29,10 +29,8 @@ class UncoloredButtonWidget extends StatelessWidget {
           ),
           child: Text(
             text,
-            style: TextStyle(
+            style: context.textStyle.bodyLarge?.copyWith(
               color: context.colors.onTertiary,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

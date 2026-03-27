@@ -50,12 +50,12 @@ class ManagingBlockWidget extends StatelessWidget {
               spacing: context.dimens.paddingLarge,
               children: [
                 SizedBox(
-                  width: 42,
-                  height: 42,
+                  width: context.dimens.sizeMedium,
+                  height: context.dimens.sizeMedium,
                   child: IconButton(
                     onPressed: () { if (isDeviceConnected) _showDeleteHistoryWarning(context); },
                     icon: Icon(Icons.delete_outlined),
-                    iconSize: 30,
+                    iconSize: context.dimens.sizeSmall,
                     color: context.colors.onSurface,
                     padding: EdgeInsets.zero,
                     style: IconButton.styleFrom(
@@ -66,7 +66,7 @@ class ManagingBlockWidget extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: 42,
+                  height: context.dimens.sizeMedium,
                   child: ElevatedButton(
                     onPressed: () { if (isDeviceConnected) onStartExperiment(); },
                     style: ElevatedButton.styleFrom(
@@ -80,10 +80,8 @@ class ManagingBlockWidget extends StatelessWidget {
                     ),
                     child: Text(
                       context.strings.start,
-                      style: const TextStyle(
+                      style: context.textStyle.bodyLarge?.copyWith(
                         color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -106,18 +104,25 @@ class ManagingBlockWidget extends StatelessWidget {
       );
     } 
     if (!isDeviceConnected) {
-      return _placeholderWidget();
+      return _placeholderWidget(context);
     } 
     if (experimentsHistoryList == null || experimentsHistoryList!.isEmpty) {
-      return _placeholderWidget();
+      return _placeholderWidget(context);
     }
     return _historyWidget(context);
   }
   
-  Widget _placeholderWidget() {
+  Widget _placeholderWidget(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: SvgPicture.asset('assets/images/placeholder_history_image.svg'),
+      child: Padding(
+        padding: EdgeInsets.all(context.dimens.paddingLarge),
+        child: SvgPicture.asset(
+          'assets/images/placeholder_history_image.svg',
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      )
     );
   }
 
@@ -162,11 +167,11 @@ class ManagingBlockWidget extends StatelessWidget {
         Localizations.localeOf(context).languageCode
     );
 
-    final double iconWidth = 44.0;
+    final double iconWidth = context.dimens.sizeMedium;
     final double spacing = context.dimens.paddingMedium;
 
     return SizedBox(
-        height: 44,
+        height: context.dimens.sizeMedium,
         child: InkWell(
             onTap: () { onExperimentClick(experiment.experimentNumber); },
             child: Row(
@@ -176,20 +181,18 @@ class ManagingBlockWidget extends StatelessWidget {
                 SizedBox(width: 4,),
                 Text(
                   deviceType?.getName(context) ?? "Device",
-                  style: TextStyle(
-                      fontSize: 16,
+                  style: context.textStyle.bodyLarge?.copyWith(
                       color: context.colors.onSurface
-                  ),
+                  )
                 ),
                 SizedBox(width: context.dimens.paddingLarge,),
                 Text(
                   dateString,
-                  style: TextStyle(
-                      fontSize: 14,
+                  style: context.textStyle.bodyMedium?.copyWith(
                       color: context.colors.onSurface.withValues(
                           alpha: context.opacities.medium
                       )
-                  ),
+                  )
                 ),
                 SizedBox(width: context.dimens.paddingLarge,),
                 Expanded(
@@ -248,8 +251,8 @@ class ManagingBlockWidget extends StatelessWidget {
     required String path
   }) {
     return SizedBox(
-      height: 44,
-      width: 44,
+      height: context.dimens.sizeMedium,
+      width: context.dimens.sizeMedium,
       child: Align(
         alignment: Alignment.center,
         child: Container(
@@ -266,8 +269,8 @@ class ManagingBlockWidget extends StatelessWidget {
 
   Widget _sensorIconPlaceholderWidget(BuildContext context, String size) {
     return SizedBox(
-        height: 40,
-        width: 40,
+        height: context.dimens.sizeMedium,
+        width: context.dimens.sizeMedium,
         child: Align(
           alignment: Alignment.center,
           child: Container(
@@ -282,9 +285,8 @@ class ManagingBlockWidget extends StatelessWidget {
               child: Center(
                 child: Text(
                   "+$size",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: context.colors.onSurface
+                  style: context.textStyle.bodyMedium?.copyWith(
+                    color: context.colors.onSurface
                   ),
                 ),
               )

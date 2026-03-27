@@ -104,7 +104,7 @@ class ExperimentViewState extends State<ExperimentView> {
         left: context.dimens.paddingExtraLarge,
         right: context.dimens.paddingExtraLarge,
         bottom: context.dimens.paddingExtraLarge,
-        top: 40,
+        top: context.dimens.sizeMedium,
       ),
       child: Row(
         spacing: context.dimens.paddingLarge,
@@ -150,14 +150,12 @@ class ExperimentViewState extends State<ExperimentView> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(36),
                           ),
-                          minimumSize: const Size(120, 44),
+                          minimumSize: Size(120, context.dimens.sizeMedium),
                         ),
                         child: Text(
                           context.strings.stop,
-                          style: TextStyle(
+                          style: context.textStyle.bodyLarge?.copyWith(
                             color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -182,15 +180,13 @@ class ExperimentViewState extends State<ExperimentView> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(36),
                           ),
-                          minimumSize: const Size(120, 44),
+                          minimumSize: Size(120, context.dimens.sizeMedium),
                         ),
                         child: Text(
                           context.strings.again,
-                          style: TextStyle(
+                          style: context.textStyle.bodyLarge?.copyWith(
                             color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          )
                         ),
                       ),
                     ],
@@ -256,12 +252,12 @@ class ExperimentViewState extends State<ExperimentView> {
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      width: 50,
-      height: 50,
+      width: context.dimens.sizeMedium + 10,
+      height: context.dimens.sizeMedium + 10,
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(icon),
-        iconSize: 30,
+        iconSize: context.dimens.sizeSmall,
         color: context.colors.onSurface,
         padding: EdgeInsets.zero,
         style: IconButton.styleFrom(

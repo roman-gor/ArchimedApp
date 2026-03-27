@@ -250,7 +250,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   Widget _buildMaterialsTab() {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(context.dimens.borderRadius),
         color: context.colors.surface,
       ),
       child: const Center(child: Text("Materials Tab Content")),
@@ -262,7 +262,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       builder: (context, themeMode) {
         return Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(context.dimens.borderRadius),
             color: context.colors.surface,
           ),
           child: const Center(child: Text("Docs Content")),

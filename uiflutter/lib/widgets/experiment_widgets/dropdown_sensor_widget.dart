@@ -29,7 +29,7 @@ class DropdownSensorWidget extends StatelessWidget {
         : context.colors.tertiary;
 
     return SizedBox(
-      height: 40,
+      height: context.dimens.sizeMedium,
       child: Container(
         decoration: BoxDecoration(
           color: backgroundColor,
@@ -68,18 +68,18 @@ class DropdownSensorWidget extends StatelessWidget {
           SvgPicture.asset(
             sensor.imagePath,
             fit: BoxFit.contain,
-            width: 24,
-            height: 24,
+            width: context.dimens.sizeExtraSmall,
+            height: context.dimens.sizeExtraSmall,
           ),
           SizedBox(width: context.dimens.paddingMedium),
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 60),
+            constraints: context.isMobile 
+                ? BoxConstraints(maxWidth: 60) 
+                : BoxConstraints(),
             child: Text(
               sensor.getName(context),
-              style: TextStyle(
+              style: context.textStyle.bodySmall?.copyWith(
                 color: context.colors.onSurface,
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -98,7 +98,7 @@ class DropdownSensorWidget extends StatelessWidget {
   Widget _buildCompactDropdown(
       BuildContext context, SensorType sensor, Color backgroundColor) {
     return Container(
-      height: 30,
+      height: context.dimens.sizeSmall,
       padding: EdgeInsets.symmetric(horizontal: context.dimens.paddingMedium),
       decoration: BoxDecoration(
         border: Border.all(
@@ -119,10 +119,8 @@ class DropdownSensorWidget extends StatelessWidget {
           ),
           dropdownColor: backgroundColor,
           borderRadius: BorderRadius.circular(16),
-          style: TextStyle(
+          style: context.textStyle.labelSmall?.copyWith(
             color: context.colors.onSurface,
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
           ),
           alignment: Alignment.center,
           items: sensor.sensorsGroup.map((sensor) {

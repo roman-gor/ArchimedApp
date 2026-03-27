@@ -20,7 +20,7 @@ class DeviceStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: context.dimens.sizeLarge,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -37,34 +37,34 @@ class DeviceStatusWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Row(
                   spacing: context.dimens.paddingMedium,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 1),
                     if (currentDevice != null) ...[
                       currentDevice!.connectedState.maybeWhen(
                         connected: () => Row(
-                          spacing: 8,
+                          spacing: context.dimens.paddingMedium,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.check_circle,
                               color: Colors.green,
-                              size: 24,
+                              size: context.dimens.sizeExtraSmall,
                             ),
                             Text(
                               selectedDeviceType?.getName(context) ?? 
                                   DeviceType.unknown.getName(context),
-                              style: TextStyle(
+                              style: context.textStyle.titleMedium?.copyWith(
                                 color: context.colors.onSurface,
-                                fontSize: 16,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: context.dimens.paddingSmall),
                             Icon(
                               Icons.format_list_bulleted_rounded,
                               color: context.colors.onSurface,
-                              size: 24,
+                              size: context.dimens.sizeExtraSmall,
                             ),
                           ],
                         ),
@@ -94,6 +94,8 @@ class DeviceStatusWidget extends StatelessWidget {
 
   Row _loadingConnectionWidget(BuildContext context, String title) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       spacing: context.dimens.paddingMedium,
       children: [
         SizedBox(
@@ -107,28 +109,33 @@ class DeviceStatusWidget extends StatelessWidget {
         SizedBox(width: 4),
         Text(
           title,
-          style: TextStyle(color: context.colors.onSurface, fontSize: 16),
+          style: context.textStyle.titleMedium?.copyWith(
+            color: context.colors.onSurface,
+          ),
         ),
+        const SizedBox(width: 1,)
       ],
     );
   }
 
   Row _disconnectedDevice(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       spacing: context.dimens.paddingMedium,
       children: [
         Icon(
           Icons.bluetooth_disabled,
           color: context.colors.onTertiary,
-          size: 24,
+          size: context.dimens.sizeExtraSmall,
         ),
         Text(
           context.strings.not_connected,
-          style: TextStyle(
-            color: context.colors.onSurfaceVariant,
-            fontSize: 16,
+          style: context.textStyle.titleMedium?.copyWith(
+            color: context.colors.onSurface,
           ),
         ),
+        const SizedBox(width: 1,)
       ],
     );
   }
