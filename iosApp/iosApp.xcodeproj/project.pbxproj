@@ -30,8 +30,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		10BABFB40FCDD399CEAC8FE3 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Configuration;
 			sourceTree = "<group>";
 		};
@@ -175,9 +173,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -189,7 +191,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "[CP-User] Embed Flutter Build uiflutter Script";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset -u\nsource \"${SRCROOT}/../uiflutter/.ios/Flutter/flutter_export_environment.sh\"\nexport VERBOSE_SCRIPT_LOGGING=1 && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/xcode_backend.sh embed_and_thin";
@@ -221,9 +227,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -257,7 +267,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
 			name = "[CP-User] Run Flutter Build uiflutter Script";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset -u\nsource \"${SRCROOT}/../uiflutter/.ios/Flutter/flutter_export_environment.sh\"\nexport VERBOSE_SCRIPT_LOGGING=1 && \"$FLUTTER_ROOT\"/packages/flutter_tools/bin/xcode_backend.sh build";
@@ -288,15 +302,21 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = INTlab;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "App need this for connection to multisensors devices";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "App need this for connection to multisensors devices";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -443,15 +463,21 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = INTlab;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "App need this for connection to multisensors devices";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "App need this for connection to multisensors devices";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

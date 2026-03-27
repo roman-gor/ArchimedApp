@@ -39,6 +39,7 @@ extension SensorTypeLocal on SensorType {
       case SensorType.turbidity: return context.strings.turbidity;
       case SensorType.colorimetric: return context.strings.colorimetric;
       case SensorType.unknown: return context.strings.unknown;
+      case SensorType.gps: return context.strings.gps;
     }
   }
 }

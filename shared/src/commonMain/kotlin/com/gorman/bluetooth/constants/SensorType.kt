@@ -46,6 +46,7 @@ enum class SensorType(
     BODY_TEMPERATURE(70, 0.01, MeasureUnit.CELSIUS, 1, 25.0, 45.0),
     RESPIRATORY_RATE(71, 0.1, MeasureUnit.MM_HG, 2, 0.0, 10000.0),
     HUMIDITY(6, 0.1, MeasureUnit.PERCENT, 1, 0.0, 100.0),
+    GPS(7, 1.0, MeasureUnit.NOTHING, 2, -200.0, 200.0),
     PH_SENSOR(2, 0.01, MeasureUnit.MICROSIEMENS, 1, 0.0, 14.0),
     TURBIDITY(14, 1.0, MeasureUnit.NTU, 1, 0.0, 200.0),
     COLORIMETRIC(31, 0.1, MeasureUnit.PERCENT, 3, 0.0, 620.0),
