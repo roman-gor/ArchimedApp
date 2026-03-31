@@ -14,9 +14,9 @@ class ManagingBlockWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(context.dimens.paddingLarge),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: BorderRadius.circular(context.dimens.borderRadius),
           color: context.colors.surface,
         ),
         child: Stack(

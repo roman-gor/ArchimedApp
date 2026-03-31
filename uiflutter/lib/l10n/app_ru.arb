@@ -57,5 +57,8 @@
   "unit_kilopascal": "кПа",
   "unit_mm_hg": "мм рт. ст.",
   "unit_percent": "%",
-  "unit_nothing": ""
+  "unit_nothing": "",
+  "theme": "Тема",
+  "system_theme_active": "Системная тема активна",
+  "use_system_theme": "Использовать системную тему"
 }

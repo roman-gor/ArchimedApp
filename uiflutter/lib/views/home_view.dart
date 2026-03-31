@@ -2,51 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uiflutter/data/bluetooth_cubit.dart';
+import 'package:uiflutter/data/home_tabs_cubit.dart';
 import 'package:uiflutter/data/permissions_cubit.dart';
+import 'package:uiflutter/data/theme_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_status_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/theme_tab_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import '../states/bluetooth/bluetooth_ui_event.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
-class HomeView extends StatefulWidget {
+class HomeView extends StatelessWidget {
   const HomeView({super.key});
-  @override
-  State<StatefulWidget> createState() => HomeViewState();
-}
-
-class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
-  late final PermissionsCubit _permissionsCubit;
-  late final BluetoothCubit _bluetoothCubit;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _permissionsCubit = PermissionsCubit();
-    _bluetoothCubit = BluetoothCubit();
-
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _permissionsCubit.close();
-    _bluetoothCubit.close();
-    WidgetsBinding.instance.removeObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _permissionsCubit.checkInitialPermissions();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +29,9 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: _permissionsCubit),
-        BlocProvider.value(value: _bluetoothCubit),
+        BlocProvider<PermissionsCubit>(create: (_) => PermissionsCubit()),
+        BlocProvider<BluetoothCubit>(create: (_) => BluetoothCubit()),
+        BlocProvider<HomeTabsCubit>(create: (_) => HomeTabsCubit()),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -118,14 +90,14 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   return BlocBuilder<PermissionsCubit, PermissionsState>(
                     builder: (context, permissionsState) {
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          bottom: 16,
-                          top: 22,
+                        padding: EdgeInsets.only(
+                          left: context.dimens.paddingLarge,
+                          right: context.dimens.paddingLarge,
+                          bottom: context.dimens.paddingLarge,
+                          top: context.dimens.paddingExtraLarge,
                         ),
                         child: Column(
-                          spacing: 8,
+                          spacing: context.dimens.paddingMedium,
                           children: [
                             DeviceStatusWidget(
                               selectedDeviceType:
@@ -139,13 +111,13 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                     is PermissionsDenied) {
                                   showPermissionExplanationDialog(context);
                                 } else {
-                                  _bluetoothCubit.sendCommand(
+                                  context.read<BluetoothCubit>().sendCommand(
                                     BluetoothUiEvent.onStartScan(),
                                   );
                                   showDevicesSelectedDialog(
                                     context,
                                     onDeviceClick: (String deviceId) {
-                                      _bluetoothCubit.sendCommand(
+                                      context.read<BluetoothCubit>().sendCommand(
                                         BluetoothUiEvent.onConnect(deviceId),
                                       );
                                     },
@@ -155,16 +127,34 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                               },
                             ),
                             Expanded(
-                              child: Row(
-                                spacing: 8,
-                                children: [
-                                  ToolsBlock(),
-                                  Expanded(
-                                    child: ManagingBlockWidget(
-                                      isDeviceConnected: isDeviceSelected,
-                                    ),
-                                  ),
-                                ],
+                              child: BlocBuilder<HomeTabsCubit, HomeTabs>(
+                                builder: (context, currentTab) {
+                                  return Row(
+                                    spacing: context.dimens.paddingMedium,
+                                    children: [
+                                      ToolsBlock(
+                                        selectedTab: currentTab,
+                                        onTabClick: (tab) {
+                                          context.read<HomeTabsCubit>().switchTab(tab);
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: IndexedStack(
+                                          index: currentTab.index,
+                                          children: [
+                                            ManagingBlockWidget(
+                                              isDeviceConnected:
+                                                  isDeviceSelected,
+                                            ),
+                                            _buildMaterialsTab(context),
+                                            _buildDocsTab(context),
+                                            ThemeTabWidget(),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -181,6 +171,26 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildMaterialsTab(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+        color: context.colors.surface,
+      ),
+      child: const Center(child: Text("Materials Tab Content")),
+    );
+  }
+
+  Widget _buildDocsTab(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+        color: context.colors.surface,
+      ),
+      child: const Center(child: Text("Docs Content")),
+    );
+  }
+
   void showPermissionExplanationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -192,7 +202,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           dismissText: context.strings.back,
           confirmText: context.strings.allow,
           onConfirm: () {
-            _permissionsCubit.requestPermissions();
+            context.read<PermissionsCubit>().requestPermissions();
             Navigator.of(context).pop();
           },
           onDismiss: () => Navigator.of(context).pop(),
@@ -212,7 +222,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           dismissText: context.strings.back,
           confirmText: context.strings.allow,
           onConfirm: () {
-            _permissionsCubit.requestPermissions();
+            context.read<PermissionsCubit>().requestPermissions();
             Navigator.of(context).pop();
           },
           onDismiss: () => Navigator.of(context).pop(),
@@ -230,7 +240,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       context: context,
       builder: (BuildContext dialogContext) {
         return BlocBuilder<BluetoothCubit, BluetoothDeviceState?>(
-          bloc: _bluetoothCubit,
+          bloc: context.read<BluetoothCubit>(),
           builder: (context, state) {
             if (state == null) {
               return const Center(child: CircularProgressIndicator());
@@ -246,7 +256,7 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         );
       },
     ).then((value) {
-      _bluetoothCubit.sendCommand(BluetoothUiEvent.onStopScan());
+      context.read<BluetoothCubit>().sendCommand(BluetoothUiEvent.onStopScan());
     });
   }
 }

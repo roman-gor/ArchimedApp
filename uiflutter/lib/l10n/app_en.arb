@@ -57,5 +57,8 @@
   "unit_kilopascal": "kPa",
   "unit_mm_hg": "mmHg",
   "unit_percent": "%",
-  "unit_nothing": ""
+  "unit_nothing": "",
+  "theme": "Theme",
+  "system_theme_active": "System theme is active",
+  "use_system_theme": "Use system theme"
 }

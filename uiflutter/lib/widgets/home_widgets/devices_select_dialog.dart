@@ -31,7 +31,7 @@ class DevicesSelectDialog extends StatelessWidget {
         width: 400,
         height: MediaQuery.of(context).size.height * 0.8,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(context.dimens.paddingLarge),
           child: Column(
             children: [
               Text(
@@ -55,7 +55,7 @@ class DevicesSelectDialog extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(context.dimens.paddingMedium),
                 child: SizedBox(
                   width: 120,
                   height: 40,

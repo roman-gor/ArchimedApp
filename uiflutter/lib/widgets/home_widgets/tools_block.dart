@@ -1,43 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:uiflutter/data/home_tabs_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/widgets/home_widgets/icon_transparent_button_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/tap_button_widget.dart';
 
 class ToolsBlock extends StatelessWidget {
-  const ToolsBlock({super.key});
+  const ToolsBlock({
+    super.key,
+    required this.selectedTab,
+    required this.onTabClick
+  });
+
+  final HomeTabs selectedTab;
+  final ValueChanged<HomeTabs> onTabClick;
 
   @override
   Widget build(BuildContext context) {
+    final topTabs = HomeTabs.values.where((tab) => tab != HomeTabs.settings);
+
     return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsets.all(context.dimens.paddingMedium),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: BorderRadius.circular(context.dimens.borderRadius),
           color: context.colors.surface,
         ),
         child: Column(
-          spacing: 0,
           children: [
-            IconTransparentButtonWidget(
-                color: context.colors.onSurface,
-                icon: Icons.format_list_bulleted_rounded,
-                onPressed: () {}),
-            IconTransparentButtonWidget(
-                color: context.colors.primary,
-                icon: Icons.local_drink_rounded,
-                onPressed: () {}),
-            IconTransparentButtonWidget(
-                color: context.colors.primary,
-                icon: Icons.book_rounded,
-                onPressed: () {}),
-            IconTransparentButtonWidget(
-                color: context.colors.primary,
-                icon: Icons.list_alt_outlined,
-                onPressed: () {}),
-            Expanded(child: SizedBox()),
-            IconTransparentButtonWidget(
-                color: context.colors.primary,
-                icon: Icons.settings_rounded,
-                onPressed: () {})
+            ...topTabs.map((tab) => Padding(
+              padding: EdgeInsets.only(bottom: context.dimens.paddingMedium),
+              child: TabButtonWidget(
+                tab: tab,
+                isSelected: selectedTab == tab, 
+                onTabClick: (tab) => onTabClick(tab),
+              ),
+            )),
+            const Expanded(child: SizedBox()),
+            TabButtonWidget(
+              tab: HomeTabs.settings,
+              isSelected: selectedTab == HomeTabs.settings,
+              onTabClick: (tab) => onTabClick(tab),
+            ),
           ],
         )
     );

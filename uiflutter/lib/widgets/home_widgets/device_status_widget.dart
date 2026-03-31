@@ -29,7 +29,7 @@ class DeviceStatusWidget extends StatelessWidget {
         children: [
           Container(
             alignment: Alignment.center,
-            padding: EdgeInsets.all(8),
+            padding: EdgeInsets.all(context.dimens.paddingMedium),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(36.0),
               color: context.colors.surface,
@@ -39,7 +39,7 @@ class DeviceStatusWidget extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: Row(
-                  spacing: 8,
+                  spacing: context.dimens.paddingMedium,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 1),
