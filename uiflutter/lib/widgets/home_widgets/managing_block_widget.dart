@@ -3,24 +3,31 @@ import 'package:flutter_svg/svg.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/extensions/device_type_name.dart';
 import 'package:uiflutter/utils/date_time_parse.dart';
+import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
 
+import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class ManagingBlockWidget extends StatelessWidget {
   const ManagingBlockWidget({
     super.key,
     required this.isDeviceConnected,
-    required this.isExperimentLoading,
+    required this.isExperimentsHistoryLoading,
     required this.deviceType,
     required this.experimentsHistoryList,
-    required this.onExperimentClick
+    required this.onExperimentClick,
+    required this.onStartExperiment,
+    required this.onClearMemory
   });
 
   final bool isDeviceConnected;
-  final bool isExperimentLoading;
+  final bool isExperimentsHistoryLoading;
   final DeviceType? deviceType;
   final List<ExperimentsData>? experimentsHistoryList;
   final void Function(int) onExperimentClick;
+  final VoidCallback onStartExperiment;
+  final VoidCallback onClearMemory;
 
   @override
   Widget build(BuildContext context) {
@@ -37,57 +44,85 @@ class ManagingBlockWidget extends StatelessWidget {
               child: _contentBuild(context),
             ),
             SizedBox(height: context.dimens.paddingLarge,),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 90,
-                height: 42,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDeviceConnected
-                        ? context.colors.primary
-                        : Colors.grey,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: context.dimens.paddingLarge,
+              children: [
+                SizedBox(
+                  width: context.dimens.sizeMedium,
+                  height: context.dimens.sizeMedium,
+                  child: IconButton(
+                    onPressed: () { if (isDeviceConnected) _showDeleteHistoryWarning(context); },
+                    icon: Icon(Icons.delete_outlined),
+                    iconSize: context.dimens.sizeSmall,
+                    color: context.colors.onSurface,
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      backgroundColor: context.colors.tertiary,
+                      shape: const CircleBorder(),
+                      elevation: 4,
                     ),
-                  ),
-                  child: Text(
-                    context.strings.start,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
-              ),
+                SizedBox(
+                  height: context.dimens.sizeMedium,
+                  child: ElevatedButton(
+                    onPressed: () { if (isDeviceConnected) onStartExperiment(); },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDeviceConnected
+                          ? context.colors.primary
+                          : Colors.grey,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                    ),
+                    child: Text(
+                      context.strings.start,
+                      style: context.textStyle.bodyLarge?.copyWith(
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ]
             )
+            
           ],
         )
     );
   }
   
   Widget _contentBuild(BuildContext context) {
-    if (isExperimentLoading) {
+    if (isExperimentsHistoryLoading) {
       return Center(
         child: CircularProgressIndicator(
           color: context.colors.onSurface,
         ),
       );
-    } else if (isDeviceConnected) {
-      return _historyWidget(context);
-    } else {
-      return _placeholderWidget();
+    } 
+    if (!isDeviceConnected) {
+      return _placeholderWidget(context);
+    } 
+    if (experimentsHistoryList == null || experimentsHistoryList!.isEmpty) {
+      return _placeholderWidget(context);
     }
+    return _historyWidget(context);
   }
   
-  Widget _placeholderWidget() {
+  Widget _placeholderWidget(BuildContext context) {
     return Align(
       alignment: Alignment.center,
-      child: SvgPicture.asset('assets/images/main_image.svg'),
+      child: Padding(
+        padding: EdgeInsets.all(context.dimens.paddingLarge),
+        child: SvgPicture.asset(
+          'assets/images/placeholder_history_image.svg',
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      )
     );
   }
 
@@ -132,11 +167,11 @@ class ManagingBlockWidget extends StatelessWidget {
         Localizations.localeOf(context).languageCode
     );
 
-    final double iconWidth = 44.0;
+    final double iconWidth = context.dimens.sizeMedium;
     final double spacing = context.dimens.paddingMedium;
 
     return SizedBox(
-        height: 44,
+        height: context.dimens.sizeMedium,
         child: InkWell(
             onTap: () { onExperimentClick(experiment.experimentNumber); },
             child: Row(
@@ -146,20 +181,18 @@ class ManagingBlockWidget extends StatelessWidget {
                 SizedBox(width: 4,),
                 Text(
                   deviceType?.getName(context.strings) ?? "Device",
-                  style: TextStyle(
-                      fontSize: 16,
+                  style: context.textStyle.bodyLarge?.copyWith(
                       color: context.colors.onSurface
-                  ),
+                  )
                 ),
                 SizedBox(width: context.dimens.paddingLarge,),
                 Text(
                   dateString,
-                  style: TextStyle(
-                      fontSize: 14,
+                  style: context.textStyle.bodyMedium?.copyWith(
                       color: context.colors.onSurface.withValues(
                           alpha: context.opacities.medium
                       )
-                  ),
+                  )
                 ),
                 SizedBox(width: context.dimens.paddingLarge,),
                 Expanded(
@@ -218,8 +251,8 @@ class ManagingBlockWidget extends StatelessWidget {
     required String path
   }) {
     return SizedBox(
-      height: 44,
-      width: 44,
+      height: context.dimens.sizeMedium,
+      width: context.dimens.sizeMedium,
       child: Align(
         alignment: Alignment.center,
         child: Container(
@@ -236,8 +269,8 @@ class ManagingBlockWidget extends StatelessWidget {
 
   Widget _sensorIconPlaceholderWidget(BuildContext context, String size) {
     return SizedBox(
-        height: 40,
-        width: 40,
+        height: context.dimens.sizeMedium,
+        width: context.dimens.sizeMedium,
         child: Align(
           alignment: Alignment.center,
           child: Container(
@@ -252,14 +285,33 @@ class ManagingBlockWidget extends StatelessWidget {
               child: Center(
                 child: Text(
                   "+$size",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: context.colors.onSurface
+                  style: context.textStyle.bodyMedium?.copyWith(
+                    color: context.colors.onSurface
                   ),
                 ),
               )
           ),
         )
+    );
+  }
+  
+  void _showDeleteHistoryWarning(BuildContext context) {
+    showDialog(
+      context: context, 
+      builder: (BuildContext dialogContext) {
+        return DefaultDialogWidget(
+          icon: Icons.delete,
+          bgColor: context.colors.primary,
+          text: context.strings.delete_history_warning,
+          dismissText: context.strings.back,
+          confirmText: context.strings.confirm_delete,
+          onDismiss: () => NavigatorLocal.goBack(),
+          onConfirm: () {
+            onClearMemory();
+            NavigatorLocal.goBack();
+          },
+        );
+      },
     );
   }
 }

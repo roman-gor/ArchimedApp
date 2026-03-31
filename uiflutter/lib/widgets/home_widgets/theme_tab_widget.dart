@@ -19,7 +19,7 @@ class ThemeTabWidget extends StatelessWidget {
             (themeMode == ThemeMode.system && isSystemDark);
 
         return Container(
-          padding: EdgeInsets.all(context.dimens.paddingLarge),
+          padding: EdgeInsets.all(context.dimens.paddingExtraLarge),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(context.dimens.borderRadius),
             color: context.colors.surface,
@@ -64,6 +64,7 @@ class ThemeTabWidget extends StatelessWidget {
                         value ? ThemeMode.dark : ThemeMode.light,
                       );
                     },
+                    thumbColor: WidgetStateProperty.all(context.colors.onSurface),
                     thumbIcon: WidgetStateProperty.resolveWith<Icon?>((
                         Set<WidgetState> states,
                         ) {

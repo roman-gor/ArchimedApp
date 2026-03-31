@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import 'package:uiflutter/states/bluetooth/sensor_types.dart';
 part 'bluetooth_ui_event.freezed.dart';
 part 'bluetooth_ui_event.g.dart';
 
@@ -18,7 +18,6 @@ sealed class BluetoothUiEvent with _$BluetoothUiEvent {
 @Freezed(unionKey: 'type')
 sealed class DeviceCommand with _$DeviceCommand {
   @FreezedUnionValue("get_status") const factory DeviceCommand.getStatus() = _GetStatus;
-  @FreezedUnionValue("start_default_logging") const factory DeviceCommand.startDefaultLogging() = _StartDefaultLogging;
   @FreezedUnionValue("start_logging") const factory DeviceCommand.startLogging(
         @JsonKey(name: "sensors") List<SensorType> sensors,
         @JsonKey(name: "sample_rate") Rates sampleRate,

@@ -10,30 +10,32 @@ class UncoloredButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      width: 120,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: context.colors.tertiary,
-          side: BorderSide(
-            color: context.colors.primary.withValues(alpha: context.opacities.low),
-            width: 1.0,
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 150),
+      child: SizedBox(
+        height: context.dimens.sizeMedium,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: context.colors.tertiary,
+            side: BorderSide(
+              color: context.colors.primary.withValues(alpha: context.opacities.low),
+              width: 1.0,
+            ),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25.0),
+            ),
           ),
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25.0),
+          child: Text(
+            text,
+            style: context.textStyle.bodyLarge?.copyWith(
+              color: context.colors.onTertiary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: context.colors.onTertiary,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
         ),
       ),
     );

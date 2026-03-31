@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import 'package:uiflutter/widgets/experiment_widgets/sensor_button_widget.dart';
+
+import '../../states/bluetooth/sensor_types.dart';
 
 class SensorsBlockWidget extends StatelessWidget {
   const SensorsBlockWidget({
@@ -18,7 +19,7 @@ class SensorsBlockWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: context.dimens.sizeMedium + 4,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: context.dimens.paddingMedium),

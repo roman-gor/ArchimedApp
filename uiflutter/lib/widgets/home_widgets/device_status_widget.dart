@@ -5,6 +5,7 @@ import 'package:uiflutter/widgets/home_widgets/disconnected_device_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/loading_connection_widget.dart';
 
 import '../../extensions/device_type_name.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class DeviceStatusWidget extends StatelessWidget {
   const DeviceStatusWidget({
@@ -23,7 +24,7 @@ class DeviceStatusWidget extends StatelessWidget {
     final device = currentDevice;
     
     return SizedBox(
-      height: 44,
+      height: context.dimens.sizeLarge,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -40,32 +41,34 @@ class DeviceStatusWidget extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Row(
                   spacing: context.dimens.paddingMedium,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 1),
                     if (device != null) ...[
                       device.connectedState.maybeWhen(
                         connected: () => Row(
-                          spacing: 8,
+                          spacing: context.dimens.paddingMedium,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.check_circle,
                               color: Colors.green,
-                              size: 24,
+                              size: context.dimens.sizeExtraSmall,
                             ),
                             Text(
                               selectedDeviceType?.getName(context.strings) ?? 
                                   DeviceType.unknown.getName(context.strings),
-                              style: TextStyle(
+                              style: context.textStyle.titleMedium?.copyWith(
                                 color: context.colors.onSurface,
-                                fontSize: 16,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: context.dimens.paddingSmall),
                             Icon(
                               Icons.format_list_bulleted_rounded,
                               color: context.colors.onSurface,
-                              size: 24,
+                              size: context.dimens.sizeExtraSmall,
                             ),
                           ],
                         ),

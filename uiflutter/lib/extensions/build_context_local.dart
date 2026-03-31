@@ -7,6 +7,8 @@ extension BuildContextLocal on BuildContext {
   AppLocalizations get strings => AppLocalizations.of(this)!;
   ThemeData get themes => Theme.of(this);
   ColorScheme get colors => ColorScheme.of(this);
+  bool get isMobile => MediaQuery.of(this).size.shortestSide < 600;
+  TextTheme get textStyle => Theme.of(this).textTheme;
   ThemeDimensions get dimens => Theme.of(this).extension<ThemeDimensions>()!;
   ThemeOpacities get opacities => Theme.of(this).extension<ThemeOpacities>()!;
 }

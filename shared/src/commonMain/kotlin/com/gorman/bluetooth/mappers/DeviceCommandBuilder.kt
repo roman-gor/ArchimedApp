@@ -7,18 +7,19 @@ import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.createSensorsMask
 import com.gorman.bluetooth.models.DeviceRequest
 import com.gorman.bluetooth.parsers.setDateTimes
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
-import kotlin.time.Instant
 
 object DeviceCommandBuilder {
     fun startLogging(
         command: BluetoothUiEvent.DeviceCommand.StartLogging,
         availableDeviceSensors: List<Byte>
     ): List<DeviceRequest> {
-        val sensorsArray = command.sensors.createSensorsMask(availableDeviceSensors)
+        val sensorsArray = if (command.sensors.isEmpty()) {
+            SensorType.entries
+                .filter { it.id in availableDeviceSensors }
+                .createSensorsMask(availableDeviceSensors)
+        } else {
+            command.sensors.createSensorsMask(availableDeviceSensors)
+        }
 
         val shouldCalibrate = when (command.shouldCalibrate) {
             true -> 0x01
@@ -37,24 +38,4 @@ object DeviceCommandBuilder {
             DeviceRequest.StartLogging
         )
     }
-
-    fun startDefaultLogging(
-        availableDeviceSensors: List<Byte>
-    ): List<DeviceRequest> {
-        val sensorsArray = SensorType.entries
-            .filter { it.id in availableDeviceSensors }
-            .createSensorsMask(availableDeviceSensors)
-
-        return listOf(
-            setDateTimes(),
-            DeviceRequest.SetupLoggingParameters(
-                sensors = sensorsArray,
-                rate = Rates.RATE_10_PER_SEC.byte,
-                samples = Samples.SAMPLES_10.byte,
-                sensorsCalibrate = 0x00.toByte()
-            ),
-            DeviceRequest.StartLogging
-        )
-    }
-    
 }

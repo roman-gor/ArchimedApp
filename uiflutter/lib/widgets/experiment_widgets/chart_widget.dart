@@ -2,16 +2,16 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../extensions/build_context_local.dart';
-import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class ChartWidget extends StatefulWidget {
   const ChartWidget({
     super.key,
-    required this.experimentData,
+    required this.sensorsData,
     required this.currentSensor,
   });
 
-  final ExperimentsData experimentData;
+  final Map<SensorType, List<double>> sensorsData;
   final SensorType currentSensor;
 
   @override
@@ -27,7 +27,7 @@ class ChartWidgetState extends State<ChartWidget> {
   @override
   Widget build(BuildContext context) {
     final rawData =
-        widget.experimentData.sensorsData[widget.currentSensor] ?? [];
+        widget.sensorsData[widget.currentSensor] ?? [];
     final parsedLines = parseSensorData(
       rawData,
       widget.currentSensor.valueAmount,
@@ -51,21 +51,14 @@ class ChartWidgetState extends State<ChartWidget> {
         .ceilToDouble();
     double verticalInterval = ((maxY - minY) / 5).clamp(0.1, double.infinity);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      padding: EdgeInsets.all(context.dimens.paddingLarge),
-      child: LineChart(
+    return LineChart(
         LineChartData(
           clipData: const FlClipData.all(),
           minX: currentMinX,
           maxX: currentMaxX,
           minY: minY,
           maxY: maxY,
-          backgroundColor: context.colors.surface,
+          backgroundColor: Colors.transparent,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: true,
@@ -165,8 +158,7 @@ class ChartWidgetState extends State<ChartWidget> {
             absoluteMaxX,
           ),
         ),
-      ),
-    );
+      );
   }
 
   LineTouchData buildLineTouchData(

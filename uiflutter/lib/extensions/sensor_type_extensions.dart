@@ -1,5 +1,5 @@
 import 'package:uiflutter/l10n/app_localizations.dart';
-import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import '../states/bluetooth/sensor_types.dart';
 
 extension SensorTypeLocal on SensorType {
   String getName(AppLocalizations locale) {
@@ -37,51 +37,37 @@ extension SensorTypeLocal on SensorType {
       SensorType.turbidity => locale.turbidity,
       SensorType.colorimetric => locale.turbidity,
       SensorType.unknown => locale.unknown,
+      SensorType.gps => locale.gps,
     };
   }
 }
 
-extension MeasureUnitsLocal on MeasureUnits {
-  String getName(AppLocalizations locale) {
-    return switch (this) {
-      MeasureUnits.ntu => locale.unit_ntu,
-      MeasureUnits.beatsPerMin => locale.unit_beats_per_min,
-      MeasureUnits.amps => locale.unit_milliamps,
-      MeasureUnits.celsius => locale.unit_celsius,
-      MeasureUnits.volts => locale.unit_volts,
-      MeasureUnits.milliVolts => locale.unit_millivolts,
-      MeasureUnits.lux => locale.unit_lux,
-      MeasureUnits.klx => locale.unit_klx,
-      MeasureUnits.microSiemens => locale.unit_microsiemens,
-      MeasureUnits.milliSiemens => locale.unit_millisiemens,
-      MeasureUnits.bits => locale.unit_bits,
-      MeasureUnits.gForce => locale.unit_g_force,
-      MeasureUnits.milliTesla => locale.unit_millitesla,
-      MeasureUnits.kiloPascal => locale.unit_kilopascal,
-      MeasureUnits.mmHg => locale.unit_mm_hg,
-      MeasureUnits.percent => locale.unit_percent,
-      MeasureUnits.nothing => locale.unit_nothing,
-    };
+extension SensorTypeGroup on SensorType {
+  List<SensorType> get sensorsGroup {
+    if(SensorType.lightSensorGroup.contains(this)) {
+      return SensorType.lightSensorGroup;
+    } else if (SensorType.voltageSensorGroup.contains(this)) {
+      return SensorType.voltageSensorGroup;
+    } else if (SensorType.accelerometerSensorGroup.contains(this)) {
+      return SensorType.accelerometerSensorGroup;
+    } else if (SensorType.conductivitySensorGroup.contains(this)) {
+      return SensorType.conductivitySensorGroup;
+    }
+    return [];
   }
 }
 
-extension SamplesLocal on Samples {
-  int get count =>
-      switch(this) {
-        Samples.samples10 => 10,
-        Samples.samples100 => 100,
-        Samples.samples1000 => 1000,
-        Samples.samples10000 => 10000,
-      };
-}
-
-extension RatesLocal on Rates {
-  double get count =>
-      switch(this) {
-        Rates.rate1PerSec => 1,
-        Rates.rate10PerSec => 10,
-        Rates.rate100PerSec => 100,
-        Rates.rate20000PerSec => 20000,
-        Rates.rate1PerMin => 0.016
-      };
+extension SensorTypeFormat on SensorType {
+  SensorType get format {
+    if(SensorType.lightSensorGroup.contains(this)) {
+      return SensorType.lightLowSensitive;
+    } else if (SensorType.voltageSensorGroup.contains(this)) {
+      return SensorType.voltage2v;
+    } else if (SensorType.accelerometerSensorGroup.contains(this)) {
+      return SensorType.accelerometer2g;
+    } else if (SensorType.conductivitySensorGroup.contains(this)) {
+      return SensorType.conductivityLowSensitive;
+    }
+    return this;
+  }
 }

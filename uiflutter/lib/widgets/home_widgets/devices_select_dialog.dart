@@ -5,6 +5,7 @@ import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
 import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class DevicesSelectDialog extends StatelessWidget {
   const DevicesSelectDialog({
@@ -37,9 +38,11 @@ class DevicesSelectDialog extends StatelessWidget {
             children: [
               Text(
                 context.strings.available_devices,
-                style: TextStyle(fontSize: 16, color: context.colors.onSurface),
+                style: context.textStyle.bodyLarge?.copyWith(
+                    color: context.colors.onSurface
+                )
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.dimens.paddingLarge),
               Expanded(
                 child: ListView.builder(
                   itemCount: devicesList.length,
@@ -57,13 +60,9 @@ class DevicesSelectDialog extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.all(context.dimens.paddingMedium),
-                child: SizedBox(
-                  width: 120,
-                  height: 40,
-                  child: UncoloredButtonWidget(
-                    text: context.strings.close,
-                    onPressed: () => NavigatorLocal.goBack()
-                  ),
+                child: UncoloredButtonWidget(
+                  text: context.strings.close,
+                  onPressed: () => NavigatorLocal.goBack(),
                 ),
               )
             ],
@@ -71,5 +70,5 @@ class DevicesSelectDialog extends StatelessWidget {
         ),
       ),
     );
-  }    
+  }
 }

@@ -8,22 +8,23 @@ class DisconnectedDeviceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: 8,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: context.dimens.paddingMedium,
       children: [
         Icon(
           Icons.bluetooth_disabled,
           color: context.colors.onTertiary,
-          size: 24,
+          size: context.dimens.sizeExtraSmall,
         ),
         Text(
           context.strings.not_connected,
-          style: TextStyle(
-            color: context.colors.onSurfaceVariant,
-            fontSize: 16,
+          style: context.textStyle.titleMedium?.copyWith(
+            color: context.colors.onSurface,
           ),
         ),
+        const SizedBox(width: 1,)
       ],
     );
   }
-  
 }

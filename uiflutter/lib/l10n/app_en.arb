@@ -40,6 +40,7 @@
   "ph_sensor": "pH",
   "turbidity": "Turbidimeter",
   "colorimetric": "Colorimetric",
+  "gps": "GPS",
   "unknown_sensor": "Unknown sensor",
   "unit_milliamps": "mA",
   "unit_beats_per_min": "beats/min",
@@ -61,5 +62,10 @@
   "theme": "Theme",
   "system_theme_active": "System theme is active",
   "use_system_theme": "Use system theme",
-  "again": "Again"
+  "again": "Again",
+  "stop": "Stop",
+  "delete_history_warning": "Experiments history will be deleted",
+  "confirm_delete": "Delete all",
+  "recording_rates_per_sec": "Recording rates per sec",
+  "samples_amount_per_sec": "Samples amount per sec"
 }

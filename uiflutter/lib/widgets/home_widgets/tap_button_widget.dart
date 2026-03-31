@@ -20,7 +20,7 @@ class TabButtonWidget extends StatelessWidget {
     final decorationColor = isSelected
         ? context.colors.primary.withValues(alpha: context.opacities.low)
         : Colors.transparent;
-    
+
     return InkWell(
       onTap: () => onTabClick(tab),
       child: Container(
@@ -32,7 +32,7 @@ class TabButtonWidget extends StatelessWidget {
         child: Icon(
           tab.icon,
           color: context.colors.primary,
-          size: 30,
+          size: context.dimens.sizeSmall,
         ),
       ),
     );
