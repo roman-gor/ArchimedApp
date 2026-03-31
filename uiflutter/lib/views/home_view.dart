@@ -18,7 +18,6 @@ import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 import '../states/bluetooth/bluetooth_ui_event.dart';
 import '../states/bluetooth/sensor_types.dart';
-import '../states/bluetooth/sensor_types.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
 class HomeView extends StatelessWidget {
@@ -138,7 +137,7 @@ class HomeView extends StatelessWidget {
                                           children: [
                                             ManagingBlockWidget(
                                               isDeviceConnected: context.read<BluetoothCubit>().isDeviceConnected,
-                                              isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
+                                              isExperimentsHistoryLoading: bluetoothState?.isExperimentsHistoryLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
                                               experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
                                               onExperimentClick: (id) => NavigatorLocal.goTo(

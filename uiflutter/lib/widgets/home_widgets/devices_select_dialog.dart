@@ -5,6 +5,7 @@ import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
 import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class DevicesSelectDialog extends StatelessWidget {
   const DevicesSelectDialog({
