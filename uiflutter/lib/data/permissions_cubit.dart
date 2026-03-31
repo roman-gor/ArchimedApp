@@ -2,11 +2,27 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 
-class PermissionsCubit extends Cubit<PermissionsState> {
-  PermissionsCubit() : super(PermissionsInitial());
+class PermissionsCubit extends Cubit<PermissionsState> with WidgetsBindingObserver {
+  PermissionsCubit() : super(PermissionsInitial()) {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkInitialPermissions();
+    }
+  }
+
+  @override
+  Future<void> close() {
+    WidgetsBinding.instance.removeObserver(this);
+    return super.close();
+  }
 
   Future<void> requestPermissions() async {
     List<Permission> permissions = await _getPlatformPermissions();
