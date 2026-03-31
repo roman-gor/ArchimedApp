@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import 'package:uiflutter/widgets/home_widgets/disconnected_device_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/loading_connection_widget.dart';
 
 import '../../extensions/device_type_name.dart';
 import '../../states/bluetooth/sensor_types.dart';
@@ -19,6 +21,8 @@ class DeviceStatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final device = currentDevice;
+    
     return SizedBox(
       height: context.dimens.sizeLarge,
       child: Row(
@@ -41,8 +45,8 @@ class DeviceStatusWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 1),
-                    if (currentDevice != null) ...[
-                      currentDevice!.connectedState.maybeWhen(
+                    if (device != null) ...[
+                      device.connectedState.maybeWhen(
                         connected: () => Row(
                           spacing: context.dimens.paddingMedium,
                           children: [
@@ -68,18 +72,16 @@ class DeviceStatusWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        connecting: () => _loadingConnectionWidget(
-                          context,
-                          context.strings.connecting,
+                        connecting: () => LoadingConnectionWidget(
+                          title: context.strings.connecting,
                         ),
-                        disconnecting: () => _loadingConnectionWidget(
-                          context,
-                          context.strings.disconnecting,
+                        disconnecting: () => LoadingConnectionWidget(
+                          title: context.strings.disconnecting,
                         ),
-                        orElse: () => _disconnectedDevice(context),
+                        orElse: () => DisconnectedDeviceWidget(),
                       ),
                     ] else ...[
-                      _disconnectedDevice(context),
+                      DisconnectedDeviceWidget(),
                     ],
                     const SizedBox(width: 1),
                   ],

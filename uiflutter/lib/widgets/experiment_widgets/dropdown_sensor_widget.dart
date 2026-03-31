@@ -77,7 +77,7 @@ class DropdownSensorWidget extends StatelessWidget {
                 ? BoxConstraints(maxWidth: 60) 
                 : BoxConstraints(),
             child: Text(
-              sensor.getName(context),
+              sensor.getName(context.strings),
               style: context.textStyle.bodySmall?.copyWith(
                 color: context.colors.onSurface,
               ),
@@ -126,7 +126,7 @@ class DropdownSensorWidget extends StatelessWidget {
           items: sensor.sensorsGroup.map((sensor) {
             return DropdownMenuItem<SensorType>(
               value: sensor,
-              child: Text("${sensor.maxValue} ${sensor.unit.getName(context)}"),
+              child: Text("${sensor.maxValue} ${sensor.unit.getName(context.strings)}"),
             );
           }).toList(),
           onChanged: (newValue) {

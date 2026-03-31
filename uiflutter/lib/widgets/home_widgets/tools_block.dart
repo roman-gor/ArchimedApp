@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/cubits/home_tabs_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/widgets/home_widgets/tap_button_widget.dart';
 
 class ToolsBlock extends StatelessWidget {
   const ToolsBlock({
@@ -27,10 +28,18 @@ class ToolsBlock extends StatelessWidget {
           children: [
             ...topTabs.map((tab) => Padding(
               padding: EdgeInsets.only(bottom: context.dimens.paddingMedium),
-              child: _tabButtonWidget(context, tab),
+              child: TabButtonWidget(
+                tab: tab,
+                isSelected: selectedTab == tab, 
+                onTabClick: (tab) => onTabClick(tab),
+              ),
             )),
             const Expanded(child: SizedBox()),
-            _tabButtonWidget(context, HomeTabs.settings),
+            TabButtonWidget(
+              tab: HomeTabs.settings,
+              isSelected: selectedTab == HomeTabs.settings,
+              onTabClick: (tab) => onTabClick(tab),
+            ),
           ],
         )
     );

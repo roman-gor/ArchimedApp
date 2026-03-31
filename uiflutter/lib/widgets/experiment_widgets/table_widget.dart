@@ -61,7 +61,7 @@ class TableWidget extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(context.dimens.paddingMedium),
             child: Text(
-              sensor.getName(context),
+              sensor.getName(context.strings),
               style: context.textStyle.titleSmall,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
