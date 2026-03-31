@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../extensions/build_context_local.dart';
-import '../../extensions/measures_unit_extensions.dart';
 import '../../extensions/sensor_type_extensions.dart';
 import '../../states/bluetooth/sensor_types.dart';
+import 'dropdown_widget.dart';
 
 class DropdownSensorWidget extends StatelessWidget {
   const DropdownSensorWidget({
@@ -87,52 +87,14 @@ class DropdownSensorWidget extends StatelessWidget {
           ),
           SizedBox(width: context.dimens.paddingMedium),
           if (needDropdown) ...[
-            _buildCompactDropdown(context, sensor, backgroundColor)
+            DropdownWidget(
+              sensor: sensor, 
+              backgroundColor: backgroundColor,
+              onSensorClick: (newValue) => onSensorClick(newValue),
+            )
           ],
           SizedBox(width: context.dimens.paddingSmall),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCompactDropdown(
-      BuildContext context, SensorType sensor, Color backgroundColor) {
-    return Container(
-      height: context.dimens.sizeSmall,
-      padding: EdgeInsets.symmetric(horizontal: context.dimens.paddingMedium),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: context.colors.onSurface.withValues(alpha: context.opacities.medium),
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(36),
-      ),
-      alignment: Alignment.center,
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<SensorType>(
-          value: sensor,
-          isDense: true,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: context.colors.onSurface,
-            size: 16,
-          ),
-          dropdownColor: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
-          style: context.textStyle.labelSmall?.copyWith(
-            color: context.colors.onSurface,
-          ),
-          alignment: Alignment.center,
-          items: sensor.sensorsGroup.map((sensor) {
-            return DropdownMenuItem<SensorType>(
-              value: sensor,
-              child: Text("${sensor.maxValue} ${sensor.unit.getName(context.strings)}"),
-            );
-          }).toList(),
-          onChanged: (newValue) {
-            if (newValue != null) onSensorClick(newValue);
-          },
-        ),
       ),
     );
   }
