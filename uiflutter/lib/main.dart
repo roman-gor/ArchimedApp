@@ -43,14 +43,14 @@ class ArchimedApplication extends StatelessWidget {
 final lightTheme = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
-      primary: Color(0xFF0b74da),
-      surface: Colors.white,
-      onSurface: Colors.black,
-      secondary: Colors.white,
-      tertiary: Color(0xFFF3F9FF),
-      onTertiary: Color(0xFF0b74da),
-      surfaceContainer: Color(0xFF81D4FA),
-      secondaryContainer: Color(0xFF222222)
+    primary: Color(0xFF0b74da),
+    surface: Colors.white,
+    onSurface: Colors.black,
+    secondary: Colors.white,
+    tertiary: Color(0xFFF3F9FF),
+    onTertiary: Color(0xFF0b74da),
+    surfaceContainer: Color(0xFF81D4FA),
+    secondaryContainer: Color(0xFF222222),
   ),
   extensions: const [
     ThemeDimensions(
@@ -67,14 +67,14 @@ final lightTheme = ThemeData(
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
-      primary: Color(0xFF0b74da),
-      surface: Color(0xFF0B0D32),
-      onSurface: Colors.white,
-      secondary: Color(0xFF10274E),
-      tertiary: Color(0xFF0B0D32),
-      onTertiary: Colors.white,
-      surfaceContainer: Color(0xFF1A237E),
-      secondaryContainer: Color(0xFFFFFFFF)
+    primary: Color(0xFF0b74da),
+    surface: Color(0xFF0B0D32),
+    onSurface: Colors.white,
+    secondary: Color(0xFF10274E),
+    tertiary: Color(0xFF0B0D32),
+    onTertiary: Colors.white,
+    surfaceContainer: Color(0xFF1A237E),
+    secondaryContainer: Color(0xFFFFFFFF),
   ),
   extensions: const [
     ThemeDimensions(
