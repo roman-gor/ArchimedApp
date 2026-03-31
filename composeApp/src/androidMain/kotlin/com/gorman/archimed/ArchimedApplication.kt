@@ -3,11 +3,15 @@ package com.gorman.archimed
 import android.app.Application
 import android.util.Log
 import com.gorman.archimed.di.initKoin
+import com.gorman.archimed.states.bluetooth.BluetoothUiEvent
 import com.gorman.archimed.viewmodels.BluetoothDeviceViewModel
+import com.gorman.bluetooth.constants.MethodChannelCommands
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -68,5 +72,29 @@ class ArchimedApplication : Application() {
                     job?.cancel()
                 }
             })
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.gorman.archimed/methods")
+            .setMethodCallHandler { call, result ->
+                observeMethodChannelCommands(call, viewModel, result)
+            }
+    }
+
+    private fun observeMethodChannelCommands(
+        call: MethodCall,
+        viewModel: BluetoothDeviceViewModel,
+        result: MethodChannel.Result
+    ) {
+        when (call.method) {
+            MethodChannelCommands.ON_UI_EVENT.value -> {
+                runCatching { 
+                    val commandJson = call.argument<String>("command")
+                    val bluetoothUiEvent = commandJson?.let { Json.decodeFromString<BluetoothUiEvent>(commandJson) }
+                    Log.d("Bluetooth Ui Event", bluetoothUiEvent.toString())
+                    viewModel.onUiEvent(bluetoothUiEvent)
+                }
+                    .onSuccess { result.success(null) }
+                    .onFailure { e -> result.error("Error start scan", "${e.message}", null) }
+            }
+        }
     }
 }

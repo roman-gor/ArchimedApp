@@ -9,9 +9,9 @@ class DevicesSelectDialog extends StatelessWidget {
   const DevicesSelectDialog({
     super.key,
     required this.availableDevices,
-    required this.selectedDeviceId,
+    required this.onDeviceClick, 
+    required this.selectedDeviceId, 
     required this.selectedDeviceType,
-    required this.onDeviceClick,
   });
 
   final Map<String, EnhancedBluetoothPeripheral> availableDevices;
@@ -21,7 +21,6 @@ class DevicesSelectDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final devicesList = availableDevices.entries.toList();
 
     return Dialog(
@@ -37,10 +36,7 @@ class DevicesSelectDialog extends StatelessWidget {
             children: [
               Text(
                 context.strings.available_devices,
-                style: TextStyle(
-                  fontSize: 20,
-                  color: context.colors.onSurface,
-                ),
+                style: TextStyle(fontSize: 16, color: context.colors.onSurface),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -61,12 +57,12 @@ class DevicesSelectDialog extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(8),
                 child: SizedBox(
-                    width: 120,
-                    height: 40,
-                    child: UncoloredButtonWidget(
-                        text: context.strings.close,
-                        onPressed: () => Navigator.of(context).pop()
-                    )
+                  width: 120,
+                  height: 40,
+                  child: UncoloredButtonWidget(
+                    text: context.strings.close,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
               )
             ],

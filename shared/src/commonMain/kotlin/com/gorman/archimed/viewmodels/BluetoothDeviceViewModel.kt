@@ -22,16 +22,17 @@ import com.gorman.bluetooth.states.DeviceConnectionState
 import com.gorman.bluetooth.states.EnhancedBluetoothPeripheral
 import com.gorman.bluetooth.states.PeripheralDeviceState
 import com.gorman.logger.Logger
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,6 +50,8 @@ class BluetoothDeviceViewModel(
     private val deviceType = bluetoothRepository.deviceType
     private var connectionJob: Job? = null
     private var observationJob: Job? = null
+    private var scanJob: Job? = null
+    private val scanScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val statusDeviceData = MutableStateFlow(StatusDeviceData())
     private val experimentOnlineData = MutableStateFlow(ExperimentOnlineData())
     private val experimentsHistoryData = MutableStateFlow(emptyList<ExperimentsData>())
@@ -122,32 +125,42 @@ class BluetoothDeviceViewModel(
             experimentsHistoryData = responseData.experimentsHistoryData,
             experimentData = responseData.experimentsData
         )
-    }.onStart {
-        scan()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = BluetoothDeviceState()
     )
 
-    fun onUiEvent(uiEvent: BluetoothUiEvent) {
+    fun onUiEvent(uiEvent: BluetoothUiEvent?) {
         when (uiEvent) {
             is BluetoothUiEvent.OnConnect -> connect(uiEvent.uuid)
             is BluetoothUiEvent.OnDisconnect -> disconnect(uiEvent.uuid)
-            BluetoothUiEvent.OnScan -> scan()
+            BluetoothUiEvent.OnScan -> startScan()
+            BluetoothUiEvent.OnStopScan -> stopScan()
             is BluetoothUiEvent.OnSendCommand -> sendCommand(uiEvent.command)
+            else -> Unit
         }
     }
 
-    private fun scan() {
+    private fun startScan() {
         logger.d("SCAN STARTED", "Started")
-        viewModelScope.launch {
-            bluetoothRepository.scan().collect { peripheralDeviceState ->
-                scannedDevices.update { currentDevices ->
-                    currentDevices + (peripheralDeviceState.uuid to peripheralDeviceState)
+        scanJob?.cancel()
+
+        scanJob = scanScope.launch {
+            runCatching {
+                bluetoothRepository.scan().collect { peripheralDeviceState ->
+                    scannedDevices.update { currentDevices ->
+                        currentDevices + (peripheralDeviceState.uuid to peripheralDeviceState)
+                    }
                 }
             }
         }
+    }
+
+    private fun stopScan() {
+        logger.d("SCAN STOPPED", "Started")
+        scanJob?.cancel()
+        scanJob = null
     }
 
     private fun connect(uuid: String?) {
@@ -164,6 +177,14 @@ class BluetoothDeviceViewModel(
             if (currentSelected != null && currentSelected != uuid) {
                 logger.d("DISCONNECTING OLD", "Disconnecting $currentSelected before connecting to new")
                 bluetoothRepository.disconnect(currentSelected)
+            } else if (currentSelected == uuid) {
+                logger.d("DISCONNECTING", "Disconnecting $currentSelected")
+                bluetoothRepository.disconnect(currentSelected)
+
+                selectedDeviceId.value = null
+                connectionJob?.cancel()
+
+                return@launch
             }
 
             selectedDeviceId.value = uuid
@@ -174,6 +195,7 @@ class BluetoothDeviceViewModel(
             }.onFailure { e ->
                 logger.d("CONNECTING", "Connection failed: ${e.message}")
                 connectionState.value = DeviceConnectionState.Disconnected()
+                selectedDeviceId.value = null
             }
         }
     }

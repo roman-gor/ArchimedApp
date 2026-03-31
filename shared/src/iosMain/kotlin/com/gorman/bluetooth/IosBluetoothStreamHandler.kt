@@ -34,4 +34,8 @@ object IosBluetoothStreamHandler : KoinComponent {
         job?.cancel()
         job = null
     }
+
+    fun startScanning() { viewModel.startScan() }
+
+    fun stopScanning() { viewModel.stopScan() }
 }
