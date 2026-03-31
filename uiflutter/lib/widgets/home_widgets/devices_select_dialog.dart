@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/widgets/home_widgets/loading_connection_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/device_item_view_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
@@ -10,7 +9,9 @@ class DevicesSelectDialog extends StatelessWidget {
   const DevicesSelectDialog({
     super.key,
     required this.availableDevices,
-    required this.onDeviceClick,
+    required this.onDeviceClick, 
+    required this.selectedDeviceId, 
+    required this.selectedDeviceType,
   });
 
   final Map<String, EnhancedBluetoothPeripheral> availableDevices;
@@ -60,7 +61,7 @@ class DevicesSelectDialog extends StatelessWidget {
                   height: 40,
                   child: UncoloredButtonWidget(
                     text: context.strings.close,
-                    onPressed: onCloseDialog,
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
               )
