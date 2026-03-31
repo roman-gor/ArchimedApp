@@ -1,16 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:uiflutter/extensions/build_context_local.dart';
-
+import '../l10n/app_localizations.dart';
 import '../states/bluetooth/bluetooth_states.dart';
 
 extension DeviceTypeName on DeviceType {
-  String getName(BuildContext context) {
-    switch(this) {
-      case DeviceType.ecology: return context.strings.ecology;
-      case DeviceType.physics: return context.strings.physics;
-      case DeviceType.biology: return context.strings.biology;
-      case DeviceType.physiology: return context.strings.physiology;
-      case DeviceType.unknown: return context.strings.unknown;
-    }
+  String getName(AppLocalizations locale) {
+    return switch(this) {
+      DeviceType.ecology => locale.ecology,
+      DeviceType.physics => locale.physics,
+      DeviceType.biology => locale.biology,
+      DeviceType.physiology => locale.physiology,
+      DeviceType.unknown => locale.unknown,
+    };
   }
 }
