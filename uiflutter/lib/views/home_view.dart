@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uiflutter/cubits/bluetooth_cubit.dart';
 import 'package:uiflutter/cubits/home_tabs_cubit.dart';
 import 'package:uiflutter/cubits/permissions_cubit.dart';
-import 'package:uiflutter/cubits/theme_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/navigation/navigator_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
@@ -15,7 +14,6 @@ import 'package:uiflutter/widgets/home_widgets/managing_block_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/theme_tab_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/tools_block.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
-import '../navigation/navigator_local.dart';
 import '../states/bluetooth/bluetooth_ui_event.dart';
 import '../widgets/home_widgets/devices_select_dialog.dart';
 
@@ -236,11 +234,12 @@ class HomeView extends StatelessWidget {
     required void Function(String) onDeviceClick,
     required BluetoothDeviceState? currentState,
   }) {
+    final bluetoothCubit = context.read<BluetoothCubit>();
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return BlocBuilder<BluetoothCubit, BluetoothDeviceState?>(
-          bloc: context.read<BluetoothCubit>(),
+          bloc: bluetoothCubit,
           builder: (context, state) {
             if (state == null) {
               return const Center(child: CircularProgressIndicator());
@@ -249,7 +248,6 @@ class HomeView extends StatelessWidget {
             return DevicesSelectDialog(
               availableDevices: state.devices,
               onDeviceClick: onDeviceClick,
-              onCloseDialog: () => NavigatorLocal.goBack(),
               selectedDeviceId: state.selectedDeviceId, 
               selectedDeviceType: state.selectedDeviceType,
             );
@@ -257,7 +255,7 @@ class HomeView extends StatelessWidget {
         );
       },
     ).then((value) {
-      context.read<BluetoothCubit>().sendCommand(BluetoothUiEvent.onStopScan());
+      bluetoothCubit.sendCommand(BluetoothUiEvent.onStopScan());
     });
   }
 }

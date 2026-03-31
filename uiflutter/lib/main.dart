@@ -6,7 +6,6 @@ import 'package:uiflutter/views/home_view.dart';
 import 'cubits/theme_cubit.dart';
 import 'l10n/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
 import 'navigation/navigator_local.dart';
 
 void main() async {
@@ -29,6 +28,7 @@ class ArchimedApplication extends StatelessWidget {
           return MaterialApp(
             title: 'INTLab',
             debugShowCheckedModeBanner: false,
+            navigatorKey: NavigatorLocal.navigatorKey,
             theme: lightTheme,
             darkTheme: darkTheme,
             themeMode: themeMode,
