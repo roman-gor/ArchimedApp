@@ -1,23 +1,24 @@
 import SwiftUI
 import Flutter
 import FlutterPluginRegistrant
+import Shared
 
 @Observable
 class FlutterDependencies {
- let flutterEngine = FlutterEngine(name: "flutter_ui_engine")
- init() {
-   flutterEngine.run()
-   GeneratedPluginRegistrant.register(with: self.flutterEngine);
- }
+    let flutterEngine: FlutterEngine
+    
+    init(engine: FlutterEngine) {
+        self.flutterEngine = engine
+    }
 }
 
 @main
 struct iOSApp: App {
-    @State var flutterDependencies = FlutterDependencies()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(flutterDependencies)
+                .environment(FlutterDependencies(engine: appDelegate.flutterEngine))
         }
     }
 }

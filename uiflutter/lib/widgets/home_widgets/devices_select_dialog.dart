@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/widgets/home_widgets/device_item_view_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
-import '../../l10n/app_localizations.dart';
+import '../../states/bluetooth/bluetooth_states.dart';
 
 class DevicesSelectDialog extends StatelessWidget {
-  const DevicesSelectDialog({super.key});
+  const DevicesSelectDialog({
+    super.key,
+    required this.availableDevices,
+    required this.selectedDeviceId,
+    required this.selectedDeviceType,
+    required this.onDeviceClick,
+  });
+
+  final Map<String, EnhancedBluetoothPeripheral> availableDevices;
+  final String? selectedDeviceId;
+  final DeviceType? selectedDeviceType;
+  final void Function(String) onDeviceClick;
 
   @override
   Widget build(BuildContext context) {
+
+    final devicesList = availableDevices.entries.toList();
+
     return Dialog(
       backgroundColor: context.colors.secondary,
       elevation: 8,
@@ -30,14 +45,15 @@ class DevicesSelectDialog extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
-                  itemCount: 1000,
+                  itemCount: devicesList.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text('Устройство $index'),
-                      onTap: () {
-                        print('Выбрано устройство $index');
-                        Navigator.of(context).pop();
-                      },
+                    final deviceEntry = devicesList[index];
+                    return DeviceItemViewWidget(
+                        selectedDeviceId: selectedDeviceId,
+                        device: deviceEntry.value,
+                        onItemClick: () {
+                          onDeviceClick(deviceEntry.key);
+                        }
                     );
                   },
                 ),
@@ -49,7 +65,7 @@ class DevicesSelectDialog extends StatelessWidget {
                     height: 40,
                     child: UncoloredButtonWidget(
                         text: context.strings.close,
-                        onPressed: () {}
+                        onPressed: () => Navigator.of(context).pop()
                     )
                 ),
               )
@@ -58,5 +74,5 @@ class DevicesSelectDialog extends StatelessWidget {
         ),
       ),
     );
-  }
+  }    
 }

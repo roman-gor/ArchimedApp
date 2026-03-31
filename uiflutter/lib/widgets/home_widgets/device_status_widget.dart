@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/l10n/app_localizations.dart';
+import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
 
 class DeviceStatusWidget extends StatelessWidget {
   const DeviceStatusWidget({
     super.key,
-    required this.isDeviceSelected,
-    required this.onListClick
+    required this.onListClick,
+    required this.selectedDeviceId,
+    required this.selectedDeviceType,
   });
 
-  final bool isDeviceSelected;
   final VoidCallback? onListClick;
+  final String? selectedDeviceId;
+  final DeviceType? selectedDeviceType;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class DeviceStatusWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(width: 1),
-                      if (isDeviceSelected) ...[
+                      if (selectedDeviceId != null) ...[
                         const Icon(
                           Icons.check_circle,
                           color: Colors.green,
