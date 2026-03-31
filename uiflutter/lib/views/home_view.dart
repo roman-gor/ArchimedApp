@@ -108,7 +108,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                                         spacing: 8,
                                         children: [
                                           DeviceStatusWidget(
-                                            isDeviceSelected: isDeviceSelected,
                                             onListClick: () {
                                               if (permissionsState is PermissionsPermanentlyDenied) {
                                                 showBluetoothDeniedDialog(context);
@@ -212,7 +211,6 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   selectedDeviceType: state.selectedDeviceType,
                   selectedDeviceId: state.selectedDeviceId,
                   onDeviceClick: onDeviceClick,
-                  onCloseDialog: () => Navigator.of(dialogContext).pop(),
                 );
               }
           );
