@@ -239,7 +239,8 @@ class HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             return DevicesSelectDialog(
               availableDevices: state.devices,
               onDeviceClick: onDeviceClick,
-              onCloseDialog: () => Navigator.of(dialogContext).pop(),
+              selectedDeviceId: state.selectedDeviceId, 
+              selectedDeviceType: state.selectedDeviceType,
             );
           },
         );
