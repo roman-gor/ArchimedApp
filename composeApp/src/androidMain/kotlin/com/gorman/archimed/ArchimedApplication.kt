@@ -86,7 +86,7 @@ class ArchimedApplication : Application() {
     ) {
         when (call.method) {
             MethodChannelCommands.ON_UI_EVENT.value -> {
-                runCatching { 
+                runCatching {
                     val commandJson = call.argument<String>("command")
                     val bluetoothUiEvent = commandJson?.let { Json.decodeFromString<BluetoothUiEvent>(commandJson) }
                     Log.d("Bluetooth Ui Event", bluetoothUiEvent.toString())
