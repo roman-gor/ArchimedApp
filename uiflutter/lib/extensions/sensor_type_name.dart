@@ -64,3 +64,24 @@ extension MeasureUnitsLocal on MeasureUnits {
     };
   }
 }
+
+extension SamplesLocal on Samples {
+  int get count =>
+      switch(this) {
+        Samples.samples10 => 10,
+        Samples.samples100 => 100,
+        Samples.samples1000 => 1000,
+        Samples.samples10000 => 10000,
+      };
+}
+
+extension RatesLocal on Rates {
+  double get count =>
+      switch(this) {
+        Rates.rate1PerSec => 1,
+        Rates.rate10PerSec => 10,
+        Rates.rate100PerSec => 100,
+        Rates.rate20000PerSec => 20000,
+        Rates.rate1PerMin => 0.016
+      };
+}

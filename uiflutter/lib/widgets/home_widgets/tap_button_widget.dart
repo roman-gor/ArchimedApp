@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/home_tabs_cubit.dart';
+import '../../cubits/home_tabs_cubit.dart';
 import '../../extensions/build_context_local.dart';
 
 class TabButtonWidget extends StatelessWidget {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:uiflutter/data/bluetooth_cubit.dart';
-import 'package:uiflutter/data/home_tabs_cubit.dart';
-import 'package:uiflutter/data/permissions_cubit.dart';
-import 'package:uiflutter/data/theme_cubit.dart';
+import 'package:uiflutter/cubits/bluetooth_cubit.dart';
+import 'package:uiflutter/cubits/home_tabs_cubit.dart';
+import 'package:uiflutter/cubits/permissions_cubit.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
+import 'package:uiflutter/navigation/navigator_local.dart';
 import 'package:uiflutter/states/permissions_state.dart';
 import 'package:uiflutter/views/experiment_view.dart';
 import 'package:uiflutter/widgets/home_widgets/default_dialog_widget.dart';
@@ -136,15 +136,13 @@ class HomeView extends StatelessWidget {
                                               isDeviceConnected: context.read<BluetoothCubit>().isDeviceConnected,
                                               isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
-                                              experimentsHistoryList: bluetoothState?.experimentsHistoryData,
-                                              onExperimentClick: (id) {
-                                                Navigator.push(
-                                                  context, 
-                                                  MaterialPageRoute(
-                                                    builder: (context) => ExperimentView(experimentId: id)
-                                                  )
-                                                );
-                                              },
+                                              experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
+                                              onExperimentClick: (id) => NavigatorLocal.goTo(
+                                                BlocProvider.value(
+                                                  value: context.read<BluetoothCubit>(),
+                                                  child: ExperimentView(experimentId: id),
+                                                )
+                                              )
                                             ),
                                             _buildMaterialsTab(context),
                                             _buildDocsTab(context),
@@ -203,9 +201,9 @@ class HomeView extends StatelessWidget {
           confirmText: context.strings.allow,
           onConfirm: () {
             context.read<PermissionsCubit>().requestPermissions();
-            Navigator.of(context).pop();
+            NavigatorLocal.goBack();
           },
-          onDismiss: () => Navigator.of(context).pop(),
+          onDismiss: () => NavigatorLocal.goBack()
         );
       },
     );
@@ -223,9 +221,9 @@ class HomeView extends StatelessWidget {
           confirmText: context.strings.allow,
           onConfirm: () {
             context.read<PermissionsCubit>().requestPermissions();
-            Navigator.of(context).pop();
+            NavigatorLocal.goBack();
           },
-          onDismiss: () => Navigator.of(context).pop(),
+          onDismiss: () => NavigatorLocal.goBack()
         );
       },
     );
@@ -236,11 +234,12 @@ class HomeView extends StatelessWidget {
     required void Function(String) onDeviceClick,
     required BluetoothDeviceState? currentState,
   }) {
+    final bluetoothCubit = context.read<BluetoothCubit>();
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return BlocBuilder<BluetoothCubit, BluetoothDeviceState?>(
-          bloc: context.read<BluetoothCubit>(),
+          bloc: bluetoothCubit,
           builder: (context, state) {
             if (state == null) {
               return const Center(child: CircularProgressIndicator());
@@ -256,7 +255,7 @@ class HomeView extends StatelessWidget {
         );
       },
     ).then((value) {
-      context.read<BluetoothCubit>().sendCommand(BluetoothUiEvent.onStopScan());
+      bluetoothCubit.sendCommand(BluetoothUiEvent.onStopScan());
     });
   }
 }

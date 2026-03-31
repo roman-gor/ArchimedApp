@@ -3,6 +3,7 @@ import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/widgets/home_widgets/device_item_view_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
+import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
 
 class DevicesSelectDialog extends StatelessWidget {
@@ -61,7 +62,7 @@ class DevicesSelectDialog extends StatelessWidget {
                   height: 40,
                   child: UncoloredButtonWidget(
                     text: context.strings.close,
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => NavigatorLocal.goBack()
                   ),
                 ),
               )

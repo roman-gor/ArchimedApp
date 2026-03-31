@@ -293,7 +293,6 @@ class BluetoothDeviceViewModel(
                 logger.d("Sensors Ids", availableSensorsList.toString())
             }
             is DeviceResponse.GetExperimentsData -> {
-                isExperimentLoading.value = false
                 getExperimentData(parsedResponse)
             }
             is DeviceResponse.ExperimentOnlineData -> {
@@ -312,6 +311,7 @@ class BluetoothDeviceViewModel(
                 if (isDuplicate) currentList else currentList + newItem
             }
             logger.d("History", "$parsedResponse")
+            isExperimentLoading.value = false
             return
         }
 
@@ -345,6 +345,7 @@ class BluetoothDeviceViewModel(
             logger.d("Data", "$finalExperimentData")
 
             downloadingExperimentHeader = null
+            isExperimentLoading.value = false
             downloadingRawDataBuffer.clear()
         } else {
             sendCommand(BluetoothUiEvent.DeviceCommand.SendNextDataPackage)
