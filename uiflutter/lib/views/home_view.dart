@@ -164,7 +164,7 @@ class HomeView extends StatelessWidget {
                                                   );
                                                 },
                                               ),
-                                              onClearMemory: () => _bluetoothCubit.sendCommand(
+                                              onClearMemory: () => context.read<BluetoothCubit>().sendCommand(
                                                 BluetoothUiEvent.onSendCommand(
                                                   DeviceCommand.clearDeviceMemory()
                                                 )

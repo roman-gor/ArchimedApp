@@ -45,18 +45,18 @@ class ArchimedApplication extends StatelessWidget {
 final lightTheme = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
-      primary: Color(0xFF0b74da),
-      surface: Colors.white,
-      onSurface: Colors.black,
-      secondary: Colors.white,
-      tertiary: Color(0xFFF3F9FF),
-      onTertiary: Color(0xFF0b74da),
-      primaryContainer: Color(0xFF99CCFF),
-      onPrimary: Color(0xFF0b74da),
-      surfaceContainer: Color(0xFF81D4FA),
-      secondaryContainer: Color(0xFF222222),
-      onSecondaryContainer: Color(0xFF9A9A9A),
-      tertiaryContainer: Color(0xFFF3F9FF)
+    primary: Color(0xFF0b74da),
+    surface: Colors.white,
+    onSurface: Colors.black,
+    secondary: Colors.white,
+    tertiary: Color(0xFFF3F9FF),
+    onTertiary: Color(0xFF0b74da),
+    primaryContainer: Color(0xFF99CCFF),
+    onPrimary: Color(0xFF0b74da),
+    surfaceContainer: Color(0xFF81D4FA),
+    secondaryContainer: Color(0xFF222222),
+    onSecondaryContainer: Color(0xFF9A9A9A),
+    tertiaryContainer: Color(0xFFF3F9FF),
   ),
   extensions: const [
     ThemeDimensions(
@@ -73,18 +73,18 @@ final lightTheme = ThemeData(
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
-      primary: Color(0xFF0b74da),
-      surface: Color(0xFF0B0D32),
-      onSurface: Colors.white,
-      secondary: Color(0xFF10274E),
-      tertiary: Color(0xFF0B0D32),
-      onTertiary: Colors.white,
-      primaryContainer: Color(0xFF34628F),
-      onPrimary: Color(0xFF34628F),
-      surfaceContainer: Color(0xFF1A237E),
-      secondaryContainer: Color(0xFFFFFFFF),
-      onSecondaryContainer: Color(0xFFFFFCFC),
-      tertiaryContainer: Color(0xFF0B0D32)
+    primary: Color(0xFF0b74da),
+    surface: Color(0xFF0B0D32),
+    onSurface: Colors.white,
+    secondary: Color(0xFF10274E),
+    tertiary: Color(0xFF0B0D32),
+    onTertiary: Colors.white,
+    primaryContainer: Color(0xFF34628F),
+    onPrimary: Color(0xFF34628F),
+    surfaceContainer: Color(0xFF1A237E),
+    secondaryContainer: Color(0xFFFFFFFF),
+    onSecondaryContainer: Color(0xFFFFFCFC),
+    tertiaryContainer: Color(0xFF0B0D32),
   ),
   extensions: const [
     ThemeDimensions(
