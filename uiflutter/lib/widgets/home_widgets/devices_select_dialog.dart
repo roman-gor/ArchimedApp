@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
-import 'package:uiflutter/widgets/home_widgets/loading_connection_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/device_item_view_widget.dart';
 import 'package:uiflutter/widgets/home_widgets/uncolored_button_widget.dart';
 
+import '../../navigation/navigator_local.dart';
 import '../../states/bluetooth/bluetooth_states.dart';
+import '../../states/bluetooth/sensor_types.dart';
 
 class DevicesSelectDialog extends StatelessWidget {
   const DevicesSelectDialog({
     super.key,
     required this.availableDevices,
-    required this.onDeviceClick,
-    required this.onCloseDialog,
+    required this.onDeviceClick, 
+    required this.selectedDeviceId, 
+    required this.selectedDeviceType,
   });
 
   final Map<String, EnhancedBluetoothPeripheral> availableDevices;
-
+  final String? selectedDeviceId;
+  final DeviceType? selectedDeviceType;
   final void Function(String) onDeviceClick;
-  final VoidCallback onCloseDialog;
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +48,12 @@ class DevicesSelectDialog extends StatelessWidget {
                   itemCount: devicesList.length,
                   itemBuilder: (BuildContext context, int index) {
                     final deviceEntry = devicesList[index];
-                    return _deviceItemView(
-                      context,
-                      device: deviceEntry.value,
-                      onItemClick: () {
-                        onDeviceClick(deviceEntry.key);
-                      },
+                    return DeviceItemViewWidget(
+                        selectedDeviceId: selectedDeviceId,
+                        device: deviceEntry.value,
+                        onItemClick: () {
+                          onDeviceClick(deviceEntry.key);
+                        }
                     );
                   },
                 ),
@@ -59,81 +62,13 @@ class DevicesSelectDialog extends StatelessWidget {
                 padding: EdgeInsets.all(context.dimens.paddingMedium),
                 child: UncoloredButtonWidget(
                   text: context.strings.close,
-                  onPressed: onCloseDialog,
+                  onPressed: () => NavigatorLocal.goBack(),
                 ),
-              ),
+              )
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _deviceItemView(
-    BuildContext context, {
-    required EnhancedBluetoothPeripheral device,
-    required VoidCallback onItemClick,
-  }) {
-    return Card(
-      color: context.colors.surface,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(context.dimens.borderRadius),
-        side: BorderSide(color: Colors.grey, width: 1),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onItemClick,
-        child: SizedBox(
-          width: 346,
-          height: 70,
-          child: Row(
-            spacing: 8,
-            children: [
-              SizedBox(width: context.dimens.paddingMedium),
-              Expanded(
-                child: Text(
-                  device.peripheral.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyle.bodyLarge?.copyWith(
-                    color: context.colors.onSurface
-                  ),
-                ),
-              ),
-              observingConnectionState(device, context),
-              SizedBox(width: context.dimens.paddingMedium),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget observingConnectionState(
-    EnhancedBluetoothPeripheral device,
-    BuildContext context,
-  ) {
-    return device.connectedState.maybeWhen(
-      connected: () => Row(
-        spacing: context.dimens.paddingMedium,
-        children: [
-          Text(
-            context.strings.connected,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: context.colors.onSurface.withValues(alpha: context.opacities.high),
-            ),
-          ),
-          Icon(Icons.check_circle, color: Colors.green, size: 28),
-        ],
-      ),
-      connecting: () =>
-          LoadingConnectionWidget(title: context.strings.connecting),
-      disconnecting: () =>
-          LoadingConnectionWidget(title: context.strings.disconnecting),
-      orElse: () => SizedBox.shrink(),
     );
   }
 }

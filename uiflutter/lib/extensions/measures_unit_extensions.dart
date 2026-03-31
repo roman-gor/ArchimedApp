@@ -1,27 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:uiflutter/l10n/app_localizations.dart';
 import '../states/bluetooth/sensor_types.dart';
-import 'build_context_local.dart';
 
 extension MeasureUnitsLocal on MeasureUnits {
-  String getName(BuildContext context) {
-    switch (this) {
-      case MeasureUnits.ntu: return context.strings.unit_ntu;
-      case MeasureUnits.beatsPerMin: return context.strings.unit_beats_per_min;
-      case MeasureUnits.amps: return context.strings.unit_milliamps;
-      case MeasureUnits.celsius: return context.strings.unit_celsius;
-      case MeasureUnits.volts: return context.strings.unit_volts;
-      case MeasureUnits.milliVolts: return context.strings.unit_millivolts;
-      case MeasureUnits.lux: return context.strings.unit_lux;
-      case MeasureUnits.klx: return context.strings.unit_klx;
-      case MeasureUnits.microSiemens: return context.strings.unit_microsiemens;
-      case MeasureUnits.milliSiemens: return context.strings.unit_millisiemens;
-      case MeasureUnits.bits: return context.strings.unit_bits;
-      case MeasureUnits.gForce: return context.strings.unit_g_force;
-      case MeasureUnits.milliTesla: return context.strings.unit_millitesla;
-      case MeasureUnits.kiloPascal: return context.strings.unit_kilopascal;
-      case MeasureUnits.mmHg: return context.strings.unit_mm_hg;
-      case MeasureUnits.percent: return context.strings.unit_percent;
-      case MeasureUnits.nothing: return context.strings.unit_nothing;
-    }
+  String getName(AppLocalizations locale) {
+    return switch (this) {
+       MeasureUnits.ntu => locale.unit_ntu,
+       MeasureUnits.beatsPerMin => locale.unit_beats_per_min,
+       MeasureUnits.amps => locale.unit_milliamps,
+       MeasureUnits.celsius => locale.unit_celsius,
+       MeasureUnits.volts => locale.unit_volts,
+       MeasureUnits.milliVolts => locale.unit_millivolts,
+       MeasureUnits.lux => locale.unit_lux,
+       MeasureUnits.klx => locale.unit_klx,
+       MeasureUnits.microSiemens => locale.unit_microsiemens,
+       MeasureUnits.milliSiemens => locale.unit_millisiemens,
+       MeasureUnits.bits => locale.unit_bits,
+       MeasureUnits.gForce => locale.unit_g_force,
+       MeasureUnits.milliTesla => locale.unit_millitesla,
+       MeasureUnits.kiloPascal => locale.unit_kilopascal,
+       MeasureUnits.mmHg => locale.unit_mm_hg,
+       MeasureUnits.percent => locale.unit_percent,
+       MeasureUnits.nothing => locale.unit_nothing,
+    };
   }
 }

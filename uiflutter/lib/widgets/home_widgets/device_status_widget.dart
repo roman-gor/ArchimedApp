@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uiflutter/extensions/build_context_local.dart';
 import 'package:uiflutter/states/bluetooth/bluetooth_states.dart';
+import 'package:uiflutter/widgets/home_widgets/disconnected_device_widget.dart';
+import 'package:uiflutter/widgets/home_widgets/loading_connection_widget.dart';
 
 import '../../extensions/device_type_name.dart';
 import '../../states/bluetooth/sensor_types.dart';
@@ -19,6 +21,8 @@ class DeviceStatusWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final device = currentDevice;
+    
     return SizedBox(
       height: context.dimens.sizeLarge,
       child: Row(
@@ -41,8 +45,8 @@ class DeviceStatusWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 1),
-                    if (currentDevice != null) ...[
-                      currentDevice!.connectedState.maybeWhen(
+                    if (device != null) ...[
+                      device.connectedState.maybeWhen(
                         connected: () => Row(
                           spacing: context.dimens.paddingMedium,
                           children: [
@@ -52,8 +56,8 @@ class DeviceStatusWidget extends StatelessWidget {
                               size: context.dimens.sizeExtraSmall,
                             ),
                             Text(
-                              selectedDeviceType?.getName(context) ?? 
-                                  DeviceType.unknown.getName(context),
+                              selectedDeviceType?.getName(context.strings) ?? 
+                                  DeviceType.unknown.getName(context.strings),
                               style: context.textStyle.titleMedium?.copyWith(
                                 color: context.colors.onSurface,
                               ),
@@ -68,18 +72,16 @@ class DeviceStatusWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        connecting: () => _loadingConnectionWidget(
-                          context,
-                          context.strings.connecting,
+                        connecting: () => LoadingConnectionWidget(
+                          title: context.strings.connecting,
                         ),
-                        disconnecting: () => _loadingConnectionWidget(
-                          context,
-                          context.strings.disconnecting,
+                        disconnecting: () => LoadingConnectionWidget(
+                          title: context.strings.disconnecting,
                         ),
-                        orElse: () => _disconnectedDevice(context),
+                        orElse: () => DisconnectedDeviceWidget(),
                       ),
                     ] else ...[
-                      _disconnectedDevice(context),
+                      DisconnectedDeviceWidget(),
                     ],
                     const SizedBox(width: 1),
                   ],
@@ -89,54 +91,6 @@ class DeviceStatusWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Row _loadingConnectionWidget(BuildContext context, String title) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: context.dimens.paddingMedium,
-      children: [
-        SizedBox(
-          height: 18,
-          width: 18,
-          child: CircularProgressIndicator(
-            color: context.colors.onSurface,
-            strokeWidth: 2,
-          ),
-        ),
-        SizedBox(width: 4),
-        Text(
-          title,
-          style: context.textStyle.titleMedium?.copyWith(
-            color: context.colors.onSurface,
-          ),
-        ),
-        const SizedBox(width: 1,)
-      ],
-    );
-  }
-
-  Row _disconnectedDevice(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: context.dimens.paddingMedium,
-      children: [
-        Icon(
-          Icons.bluetooth_disabled,
-          color: context.colors.onTertiary,
-          size: context.dimens.sizeExtraSmall,
-        ),
-        Text(
-          context.strings.not_connected,
-          style: context.textStyle.titleMedium?.copyWith(
-            color: context.colors.onSurface,
-          ),
-        ),
-        const SizedBox(width: 1,)
-      ],
     );
   }
 }

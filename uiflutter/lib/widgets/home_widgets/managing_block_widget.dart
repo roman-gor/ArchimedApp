@@ -180,7 +180,7 @@ class ManagingBlockWidget extends StatelessWidget {
               children: [
                 SizedBox(width: 4,),
                 Text(
-                  deviceType?.getName(context) ?? "Device",
+                  deviceType?.getName(context.strings) ?? "Device",
                   style: context.textStyle.bodyLarge?.copyWith(
                       color: context.colors.onSurface
                   )
