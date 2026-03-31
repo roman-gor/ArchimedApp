@@ -10,23 +10,20 @@ class LoadingConnectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: context.dimens.paddingMedium,
+      spacing: 8,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: context.colors.onSurface.withValues(alpha: context.opacities.high),
-          ),
-        ),
         SizedBox(
-          height: 20,
-          width: 20,
+          height: 18,
+          width: 18,
           child: CircularProgressIndicator(
             color: context.colors.onSurface,
             strokeWidth: 2,
           ),
+        ),
+        SizedBox(width: 4),
+        Text(
+          title,
+          style: TextStyle(color: context.colors.onSurface, fontSize: 16),
         ),
       ],
     );

@@ -145,7 +145,7 @@ class ManagingBlockWidget extends StatelessWidget {
               children: [
                 SizedBox(width: 4,),
                 Text(
-                  deviceType?.getName(context) ?? "Device",
+                  deviceType?.getName(context.strings) ?? "Device",
                   style: TextStyle(
                       fontSize: 16,
                       color: context.colors.onSurface
