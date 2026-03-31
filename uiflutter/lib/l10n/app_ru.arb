@@ -39,7 +39,7 @@
   "humidity": "Влажность",
   "ph_sensor": "pH",
   "turbidity": "Турбидиметр",
-  "turbidity_sec": "Турбидиметр",
+  "colorimetric": "Колориметр",
   "unknown_sensor": "Неизвестный датчик",
   "unit_milliamps": "мА",
   "unit_beats_per_min": "уд/мин",
