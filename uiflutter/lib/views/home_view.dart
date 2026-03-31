@@ -49,7 +49,7 @@ class HomeView extends StatelessWidget {
               
               final device = 
                 bluetoothState.devices[bluetoothState.selectedDeviceId];
-              _bluetoothCubit.observeConnectionState(
+                context.read<BluetoothCubit>().observeConnectionState(
                     device?.connectedState, 
                     () => Fluttertoast.showToast(
                       msg: context.strings.could_not_connect,
@@ -133,7 +133,7 @@ class HomeView extends StatelessWidget {
                                           index: currentTab.index,
                                           children: [
                                             ManagingBlockWidget(
-                                              isDeviceConnected: _bluetoothCubit.isDeviceConnected,
+                                              isDeviceConnected: context.read<BluetoothCubit>().isDeviceConnected,
                                               isExperimentLoading: bluetoothState?.isExperimentLoading ?? true,
                                               deviceType: bluetoothState?.selectedDeviceType,
                                               experimentsHistoryList: bluetoothState?.experimentsHistoryData,
