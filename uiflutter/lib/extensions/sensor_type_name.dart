@@ -35,7 +35,7 @@ extension SensorTypeLocal on SensorType {
       SensorType.humidity => locale.humidity,
       SensorType.phSensor => locale.ph_sensor,
       SensorType.turbidity => locale.turbidity,
-      SensorType.turbiditySec => locale.turbidity,
+      SensorType.colorimetric => locale.turbidity,
       SensorType.unknown => locale.unknown,
     };
   }
