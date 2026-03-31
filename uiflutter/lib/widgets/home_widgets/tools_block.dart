@@ -44,28 +44,4 @@ class ToolsBlock extends StatelessWidget {
         )
     );
   }
-
-  Widget _tabButtonWidget(BuildContext context, HomeTabs tab) {
-    final isSelected = selectedTab == tab;
-
-    final decorationColor = isSelected
-        ? context.colors.primary.withValues(alpha: context.opacities.low)
-        : Colors.transparent;
-
-    return InkWell(
-      onTap: () => onTabClick(tab),
-      child: Container(
-        padding: EdgeInsets.all(context.dimens.paddingMedium),
-        decoration: BoxDecoration(
-          color: decorationColor,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          tab.icon,
-          color: context.colors.primary,
-          size: context.dimens.sizeSmall,
-        ),
-      ),
-    );
-  }
 }

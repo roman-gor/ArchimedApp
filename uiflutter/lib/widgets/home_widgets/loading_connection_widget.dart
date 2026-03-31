@@ -4,7 +4,7 @@ import '../../extensions/build_context_local.dart';
 
 class LoadingConnectionWidget extends StatelessWidget {
   const LoadingConnectionWidget({super.key, required this.title});
-  
+
   final String title;
 
   @override
@@ -15,8 +15,10 @@ class LoadingConnectionWidget extends StatelessWidget {
         Text(
           title,
           style: context.textStyle.bodyMedium?.copyWith(
-            color: context.colors.onSurface.withValues(alpha: context.opacities.high),
-          )
+            color: context.colors.onSurface.withValues(
+              alpha: context.opacities.high,
+            ),
+          ),
         ),
         SizedBox(
           height: 20,

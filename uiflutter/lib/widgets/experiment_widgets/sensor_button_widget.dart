@@ -58,7 +58,7 @@ class SensorButtonWidget extends StatelessWidget {
                     SizedBox(width: context.dimens.paddingMedium),
                     Flexible(
                       child: Text(
-                        sensor.getName(context),
+                        sensor.getName(context.strings),
                         style: context.textStyle.bodySmall?.copyWith(
                           color: context.colors.onSurface,
                         ),

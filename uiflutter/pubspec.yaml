@@ -22,6 +22,7 @@ dependencies:
   logger: ^2.7.0
   fluttertoast: ^9.0.0
   fl_chart: ^1.2.0
+  freezed_annotation: ^2.4.4
 
 dev_dependencies:
   flutter_test:

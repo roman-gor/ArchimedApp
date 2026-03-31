@@ -123,15 +123,15 @@ class HomeView extends StatelessWidget {
               } else if (permissionsState is PermissionsDenied) {
                 showPermissionExplanationDialog(context);
               } else if (permissionsState is PermissionsInitial) {
-                _permissionsCubit.checkInitialPermissions();
+                context.read<PermissionsCubit>().checkInitialPermissions();
               } else {
-                _bluetoothCubit.sendCommand(
+                context.read<BluetoothCubit>().sendCommand(
                   BluetoothUiEvent.onStartScan(),
                 );
                 showDevicesSelectedDialog(
                   context,
                   onDeviceClick: (String deviceId) {
-                    _bluetoothCubit.sendCommand(
+                    context.read<BluetoothCubit>().sendCommand(
                       BluetoothUiEvent.onConnect(deviceId),
                     );
                   },
@@ -149,7 +149,7 @@ class HomeView extends StatelessWidget {
                     ToolsBlock(
                       selectedTab: currentTab,
                       onTabClick: (tab) {
-                        _homeTabsCubit.switchTab(tab);
+                        context.read<HomeTabsCubit>().switchTab(tab);
                       },
                     ),
                     Expanded(
@@ -157,7 +157,7 @@ class HomeView extends StatelessWidget {
                         index: currentTab.index,
                         children: [
                           ManagingBlockWidget(
-                            isDeviceConnected: _bluetoothCubit.isDeviceConnected,
+                            isDeviceConnected: context.read<BluetoothCubit>().isDeviceConnected,
                             isExperimentsHistoryLoading: bluetoothState?.isExperimentsHistoryLoading ?? true,
                             deviceType: bluetoothState?.selectedDeviceType,
                             experimentsHistoryList: bluetoothState?.experimentsHistoryData.reversed.toList(),
@@ -186,14 +186,14 @@ class HomeView extends StatelessWidget {
                                 );
                               },
                             ),
-                            onClearMemory: () => _bluetoothCubit.sendCommand(
+                            onClearMemory: () => context.read<BluetoothCubit>().sendCommand(
                               BluetoothUiEvent.onSendCommand(
                                 DeviceCommand.clearDeviceMemory()
                               )
                             )
                           ),
-                          _buildMaterialsTab(),
-                          _buildDocsTab(),
+                          _buildMaterialsTab(context),
+                          _buildDocsTab(context),
                           ThemeTabWidget(),
                         ],
                       ),

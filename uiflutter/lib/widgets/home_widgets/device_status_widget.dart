@@ -56,8 +56,8 @@ class DeviceStatusWidget extends StatelessWidget {
                               size: context.dimens.sizeExtraSmall,
                             ),
                             Text(
-                              selectedDeviceType?.getName(context) ?? 
-                                  DeviceType.unknown.getName(context),
+                              selectedDeviceType?.getName(context.strings) ?? 
+                                  DeviceType.unknown.getName(context.strings),
                               style: context.textStyle.titleMedium?.copyWith(
                                 color: context.colors.onSurface,
                               ),
@@ -91,54 +91,6 @@ class DeviceStatusWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Row _loadingConnectionWidget(BuildContext context, String title) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: context.dimens.paddingMedium,
-      children: [
-        SizedBox(
-          height: 18,
-          width: 18,
-          child: CircularProgressIndicator(
-            color: context.colors.onSurface,
-            strokeWidth: 2,
-          ),
-        ),
-        SizedBox(width: 4),
-        Text(
-          title,
-          style: context.textStyle.titleMedium?.copyWith(
-            color: context.colors.onSurface,
-          ),
-        ),
-        const SizedBox(width: 1,)
-      ],
-    );
-  }
-
-  Row _disconnectedDevice(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: context.dimens.paddingMedium,
-      children: [
-        Icon(
-          Icons.bluetooth_disabled,
-          color: context.colors.onTertiary,
-          size: context.dimens.sizeExtraSmall,
-        ),
-        Text(
-          context.strings.not_connected,
-          style: context.textStyle.titleMedium?.copyWith(
-            color: context.colors.onSurface,
-          ),
-        ),
-        const SizedBox(width: 1,)
-      ],
     );
   }
 }
