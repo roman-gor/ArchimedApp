@@ -6,6 +6,7 @@ import com.gorman.bluetooth.constants.Samples
 import com.gorman.bluetooth.constants.SensorType
 import com.gorman.bluetooth.constants.createSensorsMask
 import com.gorman.bluetooth.models.DeviceRequest
+import com.gorman.bluetooth.parsers.setDateTimes
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
@@ -55,17 +56,5 @@ object DeviceCommandBuilder {
             DeviceRequest.StartLogging
         )
     }
-
-    fun setDateTimes(): DeviceRequest.SetDateTime {
-        val now: Instant = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
-        return DeviceRequest.SetDateTime(
-            day = localDateTime.day.toByte(),
-            month = localDateTime.month.number.toByte(),
-            year = (localDateTime.year % 100).toByte(),
-            hour = localDateTime.hour.toByte(),
-            min = localDateTime.minute.toByte(),
-            sec = localDateTime.second.toByte()
-        )
-    }
+    
 }

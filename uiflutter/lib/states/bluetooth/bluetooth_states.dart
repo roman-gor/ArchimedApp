@@ -66,17 +66,17 @@ enum SensorType {
   ),
   @JsonValue('ACCELEROMETER_2G') accelerometer2g(
     unit: MeasureUnits.gForce,
-    imagePath: "assets/images_ic_accelerometer.svg",
+    imagePath: "assets/images/ic_accelerometer.svg",
     color: Color(0xFF0075FF),
   ),
   @JsonValue('ACCELEROMETER_4G') accelerometer4g(
     unit: MeasureUnits.gForce,
-    imagePath: "assets/images_ic_accelerometer.svg",
+    imagePath: "assets/images/ic_accelerometer.svg",
     color: Color(0xFF0075FF),
   ),
   @JsonValue('ACCELEROMETER_8G') accelerometer8g(
     unit: MeasureUnits.gForce,
-    imagePath: "assets/images_ic_accelerometer.svg",
+    imagePath: "assets/images/ic_accelerometer.svg",
     color: Color(0xFF0075FF),
   ),
   @JsonValue('MAGNETIC_FIELD') magneticField(
@@ -324,7 +324,8 @@ class PeripheralDeviceState with _$PeripheralDeviceState {
 class BluetoothDeviceState with _$BluetoothDeviceState {
   const factory BluetoothDeviceState({
     @Default({}) Map<String, EnhancedBluetoothPeripheral> devices,
-    bool? isScanning,
+    @Default(false) bool isScanning,
+    @Default(false) bool isExperimentLoading,
     String? selectedDeviceId,
     @Default(DeviceType.unknown) DeviceType selectedDeviceType,
     @Default(StatusDeviceData()) StatusDeviceData statusDeviceData,

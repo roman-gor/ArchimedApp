@@ -59,7 +59,8 @@ flutter:
     - assets/images/ic_conductivity.svg
     - assets/images/ic_accelerometer.svg
     - assets/images/ic_ambient_temp_light.svg
-    - assets/images/ic_ambient_temp_dark.svg,
+    - assets/images/ic_ambient_temp_dark.svg
+    - assets/images/ic_air_pressure.svg
     - assets/images/ic_gps.svg
   generate: true
   module:
